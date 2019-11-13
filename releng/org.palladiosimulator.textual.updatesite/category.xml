@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<!-- add features here -->
+
+	<!-- category definitions -->
+	<category-def name="org.palladiosimulator.corefeatures.category" label="Palladio Bench Core Features">
+		<description>
+	      This category contains all features which belong to a complete installation of the Palladio Bench Core Features
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.corefeatures.source.category" label="Palladio Bench Core Features Source">
+		<description>
+	        Palladio Bench Core Features Sources
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.addons.category" label="Palladio Bench Addons">
+		<description>
+	      Palladio Bench Addons
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.addons.source.category" label="Palladio Bench Addons Source">
+		<description>
+	        Palladio Bench Addons Sources
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.support.category" label="Palladio Supporting Features">
+		<description>
+	      Features that support the Palladio Bench tooling, but also could be used independently
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.support.source.category" label="Palladio Supporting Features Source">
+		<description>
+	        Source code of the features that support the Palladio Bench tooling, but also could be used independently
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.qual.category" label="Quality Analysis Lab">
+		<description>
+	      The Quality Analysis Lab (QuAL) is responsible for taking measurements from experiments or simulations and their persistance
+		</description>
+	</category-def>
+	<category-def name="org.palladiosimulator.qual.source.category" label="Quality Analysis Lab Source">
+		<description>
+	        Sources of the Quality Analysis Lab (QuAL)
+		</description>
+	</category-def>
+	
+</site>
