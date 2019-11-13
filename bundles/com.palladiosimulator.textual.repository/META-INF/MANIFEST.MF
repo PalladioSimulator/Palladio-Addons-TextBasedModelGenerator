@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.palladiosimulator.textual.repository
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: com.palladiosimulator.textual.repository; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.codegen.ecore;bundle-version="2.12.0",
+ org.eclipse.emf.ecore,org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ org.eclipse.xtext.util,org.eclipse.xtend.lib;bundle-version="2.14.0",
+ org.eclipse.emf.common,
+ org.palladiosimulator.pcm;bundle-version="4.0.1",
+ org.eclipse.uml2.codegen.ecore;bundle-version="2.2.0",
+ org.palladiosimulator.pcm.resources;bundle-version="4.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: com.palladiosimulator.textual.repository.parser.antlr.internal,
+ com.palladiosimulator.textual.repository.scoping,
+ com.palladiosimulator.textual.repository,
+ com.palladiosimulator.textual.repository.generator,
+ com.palladiosimulator.textual.repository.repoLang,
+ com.palladiosimulator.textual.repository.serializer,
+ com.palladiosimulator.textual.repository.repoLang.util,
+ com.palladiosimulator.textual.repository.validation,
+ com.palladiosimulator.textual.repository.parser.antlr,
+ com.palladiosimulator.textual.repository.repoLang.impl,
+ com.palladiosimulator.textual.repository.services
+Import-Package: org.apache.log4j

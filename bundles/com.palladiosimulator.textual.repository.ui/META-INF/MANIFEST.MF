@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.palladiosimulator.textual.repository.ui
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: com.palladiosimulator.textual.repository.ui; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.palladiosimulator.textual.repository,
+ com.palladiosimulator.textual.repository.ide,
+ org.eclipse.xtext.ui,
+ org.eclipse.xtext.ui.shared,
+ org.eclipse.xtext.ui.codetemplates.ui,
+ org.eclipse.ui.editors;bundle-version="3.5.0",
+ org.eclipse.ui.ide;bundle-version="3.5.0",
+ org.eclipse.ui,
+ org.eclipse.compare,
+ org.eclipse.xtext.builder,org.eclipse.xtend.lib;bundle-version="2.14.0";resolution:=optional,org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.palladiosimulator.pcm;bundle-version="4.0.1"
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: com.palladiosimulator.textual.repository.ui.quickfix,
+ com.palladiosimulator.textual.repository.ui.contentassist,
+ com.palladiosimulator.textual.repository.ui.internal
+Bundle-Activator: com.palladiosimulator.textual.repository.ui.internal.RepositoryActivator

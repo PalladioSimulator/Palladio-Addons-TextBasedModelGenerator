@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="com.palladiosimulator.textual.repository.feature"
+	label="RepoLang Feature "
+	version="1.0.0.qualifier">
+	<plugin
+			id="com.palladiosimulator.textual.repository"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+	<plugin
+			id="com.palladiosimulator.textual.repository.ide"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+	<plugin
+			id="com.palladiosimulator.textual.repository.ui"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+</feature>

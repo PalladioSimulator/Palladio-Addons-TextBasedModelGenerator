@@ -1,0 +1,208 @@
+grammar com.palladiosimulator.textual.repository.RepoLang with org.eclipse.xtext.common.Terminals
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" as repository
+import "http://palladiosimulator.org/PalladioComponentModel/ResourceType/5.2" as resourcetype
+import "http://palladiosimulator.org/PalladioComponentModel/Parameter/5.2" as parameter
+
+generate repoLang "http://www.palladiosimulator.com/textual/repository/RepoLang"
+
+Repository:
+	'Repository' name=ID imports+=ImportedRepository* types=TypeRepo? elements+=NamedElement*;
+
+
+ImportedRepository :
+	'import' importedNamespace=QualifiedNameWithWildcard
+;
+
+QualifiedNameWithWildcard:
+    FQN '.*'?;
+
+
+NamedElement:
+	Interface | Component
+;
+
+TypeRepo returns repository::Repository:
+	'Types' '{'
+		dataTypes__Repository+=CustomType+
+		'}'
+;
+
+
+FQN: ID ("." ID)*;
+	
+Interface:
+	'Interface' name=ID ('{' signature+=Signature+ '}')?
+	;
+	
+Signature:
+	name=ID ('(' parameters+=SignatureParameter (',' parameters+=SignatureParameter)* ')')?
+;
+
+SignatureParameter:
+	name=ID ':' type=[repository::DataType|FQN] 
+;
+
+CustomType  returns repository::DataType:
+	CustomCompositeType | CustomCollectionType
+;
+
+CustomCompositeType returns repository::CompositeDataType:
+	'struct' entityName=ID ('extends' parentType_CompositeDataType+=[repository::CompositeDataType|FQN])?'{'
+		innerDeclaration_CompositeDataType+=CustomInnerDeclaration*
+	'}'
+;
+
+CustomInnerDeclaration returns repository::InnerDeclaration :
+	entityName=ID ':' datatype_InnerDeclaration=[repository::DataType|FQN]
+	
+;
+
+CustomCollectionType returns repository::CollectionDataType:
+	'collection' entityName=ID 'of' innerType_CollectionDataType=[repository::DataType|FQN]
+;
+
+	
+Component:
+	'Component' name=ID 
+			('provides' provides+=RoleSpecification (',' provides+=RoleSpecification)*)? 
+			('requires' requires+=RoleSpecification (',' requires+=RoleSpecification)*)?   
+	('{'
+		seffs+=Seff*
+		passiveResources+=PassiveResource*
+	'}')?
+;
+
+RoleSpecification:
+	interface=[Interface] 'as' name=ID
+;
+
+
+CompositeComponent:
+	'CompositeComponent' name=ID ('provides' provides+=RoleSpecification+)? ('requires' requires+=RoleSpecification+)?
+	('{'
+		components+=[Component]+
+	'}')?
+;
+
+Seff:
+	'SEFF' (name=ID)? 'on' role=[RoleSpecification] signature=[Signature|FQN] '{'
+		actions+=SeffAction*
+	'}'
+;
+
+SeffAction:
+	SeffInternalAction | SeffAcquireAction | SeffReleaseAction | SeffExternalCallAction | 
+	SeffProbabilisticBranchAction | SeffGuardedBranchAction | SeffForkAction | SeffLoopAction |
+	SeffSetReturnAction | SeffSetVariableAction
+;
+
+SeffInternalAction:
+ 'IA' (name=ID)? demandType=[resourcetype::ProcessingResourceType] demand=STRING	
+;
+
+SeffAcquireAction:
+ 'ACQ' (name=ID)? resource=[PassiveResource] ('('amount=INT')')?	
+;
+
+SeffReleaseAction:
+ 'REL' (name=ID)? resource=[PassiveResource] ('('amount=INT')')?	
+;
+
+SeffLoopAction:
+ 'LOOP' (name=ID)? '('count=STRING')' actions=SubSeff
+;
+
+SeffSetReturnAction:
+ 'RET' (name=ID)? returnValue=SeffReturnParameter
+;
+
+SeffSetVariableAction:
+ 'SET' (name=ID)? setValues+=SeffReferenceParameter+
+;
+
+
+SeffExternalCallAction:
+ 'EXT' (name=ID)? (role=[RoleSpecification] '->')? called=[Signature|FQN] 
+ ('{'
+ 	bindings+=SeffCallParameter+
+ 	('RETURN:' returning+=SeffReferenceParameter+)?
+ '}')?
+;
+
+SeffCallParameter:
+	(parameter=[SignatureParameter]|referenceName=STRING)'(' values+=SeffVariableChar+ ')'
+;
+
+SeffReferenceParameter:
+	 referenceName=STRING '(' values+=SeffVariableChar+ ')'
+;
+
+SeffReturnParameter:
+	'(' values+=SeffVariableChar+ ')'
+;
+
+
+SeffVariableChar:
+	characterisationType=CharType ':=' value=STRING
+;
+
+enum CharType returns parameter::VariableCharacterisationType:
+	STRUCTURE|NUMBER_OF_ELEMENTS|VALUE|BYTESIZE|TYPE
+;
+
+SeffProbabilisticBranchAction:
+ 'PBR' (name=ID)? 
+	'{'
+		branches+=SeffProbabilisticBranch+		
+	'}'
+;
+
+SeffBranch:
+	SeffProbabilisticBranch | SeffGuardedBranch
+;
+
+SeffProbabilisticBranch:
+	probability=Probability ':'(name=ID)? seff=SubSeff
+;
+
+
+
+SeffGuardedBranchAction:
+'GBR' (name=ID)? 
+	'{'
+		branches+=SeffGuardedBranch+
+	
+	'}'
+;
+
+SeffGuardedBranch:
+	condition=STRING ':' (name=ID)? seff=SubSeff
+;
+
+
+SeffForkAction:
+ 'PAR' (sync?='SYNC')? (name=ID)? 
+	'{'
+		forks+=SeffFork ('|' forks+=SeffFork)*		
+	'}'
+;
+
+SeffFork:
+	(name=ID)? seff=SubSeff
+;
+
+
+SubSeff:
+	'{'
+		actions+=SeffAction+
+	'}'
+;
+
+
+PassiveResource:
+	'PassiveResource' name=ID '(' capacity=INT ')'
+;
+
+Probability returns ecore::EDouble : 
+    INT ('.' INT);
