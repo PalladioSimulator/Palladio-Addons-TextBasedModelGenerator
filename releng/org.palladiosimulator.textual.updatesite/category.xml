@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
 	<!-- add features here -->
+	<feature url="features/com.palladiosimulator.textual.repository.feature_1.0.0.qualifier.jar" id="com.palladiosimulator.textual.repository.feature" version="1.0.0.qualifier">
+	   <category name="org.palladiosimulator.addons.category"/>
+	</feature>
+
 
 	<!-- category definitions -->
 	<category-def name="org.palladiosimulator.corefeatures.category" label="Palladio Bench Core Features">
