@@ -5,7 +5,7 @@ The TextBasedModelGenerator is an XText based grammar and generator that allows 
 
 ## Installation
 
-Install the plugin from the Update-Site
+Install the plugin from the update-site
 
 ## Usage
 
