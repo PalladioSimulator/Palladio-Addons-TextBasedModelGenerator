@@ -14,7 +14,7 @@ Add the components using the grammar.
 The pcm repository will be generated automatically in the `src-gen` folder.
 
 ## Example
-```
+``` Smalltalk
 Repository textualRepository
 
 import myRepository.*
