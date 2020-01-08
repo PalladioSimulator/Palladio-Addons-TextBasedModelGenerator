@@ -9,7 +9,7 @@ Install the plugin from the Update-Site
 
 ## Usage
 
-Create a new text file with the ending .tpcm in any project.
+Create a new text file with the ending `.trepo` in any project.
 Add the components using the grammar.
 The pcm repository will be generated automatically in the `src-gen` folder.
 
