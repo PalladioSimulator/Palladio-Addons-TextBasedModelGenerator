@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.palladiosimulator</groupId>
 		<artifactId>eclipse-parent-updatesite</artifactId>
-		<version>0.1.1</version>
+		<version>0.4.2</version>
 	</parent>
 	<groupId>org.palladiosimulator.textual</groupId>
 	<artifactId>parent</artifactId>	
@@ -14,7 +14,7 @@
 	<packaging>pom</packaging>
 	
 	<properties>
-		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/tp.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
+		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/org.palladiosimulator.textual.targetplatform.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
 	</properties>
 	
 	<modules>

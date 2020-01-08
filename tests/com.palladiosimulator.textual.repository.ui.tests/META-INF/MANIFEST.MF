@@ -13,7 +13,7 @@ Require-Bundle: com.palladiosimulator.textual.repository.ui,
  org.eclipse.ui.workbench;resolution:=optional,
  org.eclipse.xtext.xbase.testing,
  org.eclipse.xtext.testing
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.palladiosimulator.textual.repository.ui.tests
 Import-Package: org.hamcrest.core,
  org.junit;version="4.5.0",
