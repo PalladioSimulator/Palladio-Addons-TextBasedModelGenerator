@@ -4,6 +4,7 @@
 package com.palladiosimulator.textual.repository
 
 import com.palladiosimulator.textual.repository.naming.RepositoryNameProvider
+import com.palladiosimulator.textual.repository.scoping.RepoLangImportURIGlobalScopeProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -11,7 +12,10 @@ import com.palladiosimulator.textual.repository.naming.RepositoryNameProvider
 class RepoLangRuntimeModule extends AbstractRepoLangRuntimeModule {
 	
 	override bindIQualifiedNameProvider() {
-		return RepositoryNameProvider
+		RepositoryNameProvider
 	}
-	
+
+    override bindIGlobalScopeProvider() {
+        RepoLangImportURIGlobalScopeProvider
+    }
 }

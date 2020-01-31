@@ -6,6 +6,7 @@ import org.palladiosimulator.pcm.repository.CompositeDataType
 import org.palladiosimulator.pcm.repository.Repository
 import org.eclipse.xtext.naming.QualifiedName
 import org.palladiosimulator.pcm.resourcetype.ResourceType
+import org.palladiosimulator.pcm.repository.PrimitiveDataType
 
 class RepositoryNameProvider extends DefaultDeclarativeQualifiedNameProvider {
 	
@@ -16,6 +17,10 @@ class RepositoryNameProvider extends DefaultDeclarativeQualifiedNameProvider {
 	def qualifiedName(Repository r) {
 		QualifiedName.create(r.entityName)
 	}
+	
+	def qualifiedName(PrimitiveDataType d) {
+        QualifiedName.create(d.type.name())
+    }
 
 	def qualifiedName(CollectionDataType d) {
 		QualifiedName.create(d.entityName)
