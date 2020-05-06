@@ -9,6 +9,14 @@
 	   <category name="org.palladiosimulator.addons.source.category"/>
 	</feature>
 
+	<feature id="org.palladiosimulator.textual.tpcm.feature">
+		<category name="org.palladiosimulator.addons.category"/>
+	 </feature>
+ 
+	 <feature id="org.palladiosimulator.textual.tpcm.feature.source">
+		<category name="org.palladiosimulator.addons.source.category"/>
+	 </feature>
+
 
 	<!-- category definitions -->
 	<category-def name="org.palladiosimulator.corefeatures.category" label="Palladio Bench Core Features">
