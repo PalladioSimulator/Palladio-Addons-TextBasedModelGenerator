@@ -5,18 +5,99 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.palladiosimulator</groupId>
-		<artifactId>eclipse-parent-updatesite</artifactId>
-		<version>0.4.2</version>
+		<artifactId>eclipse-parent-updatesite-notp</artifactId>
+		<version>0.4.5</version>
 	</parent>
 	<groupId>org.palladiosimulator.textual</groupId>
 	<artifactId>parent</artifactId>	
-	<version>0.1.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
 	<properties>
-		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/org.palladiosimulator.textual.targetplatform.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
+		<xtextVersion>2.21.0</xtextVersion>
+		<mwe2Version>2.11.2</mwe2Version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<tools.mdsd.dependencies.eclipse-version>2020-03</tools.mdsd.dependencies.eclipse-version>
+		<tools.mdsd.dependencies.ecoreworkflow-version>0.1.0</tools.mdsd.dependencies.ecoreworkflow-version>
 	</properties>
-	
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.xtend</groupId>
+					<artifactId>xtend-maven-plugin</artifactId>
+					<version>2.21.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>nightly</id>
+			<activation>
+				<property>
+					<name>!release</name>
+				</property>
+			</activation>
+			<repositories>
+				<repository>
+					<id>Palladio-Core-Commons</id>
+					<layout>p2</layout>
+					<url>https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/</url>
+				</repository>
+				<repository>
+					<id>Palladio-Core</id>
+					<layout>p2</layout>
+					<url>https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/</url>
+				</repository>
+				<!--
+					The following repos should be removed once released and merged into master repsectively
+				-->
+				<repository>
+					<id>mdsd.tools-ecoreworkflow</id>
+					<layout>p2</layout>
+					<url>https://updatesite.mdsd.tools/ecore-workflow/nightly</url>
+				</repository>
+				<repository>
+					<id>commons-stoex-xtext</id>
+					<layout>p2</layout>
+					<url>https://updatesite.palladio-simulator.com/palladio-core-commons/branches/stoex-xtext/</url>
+				</repository>
+			</repositories>
+		</profile>
+
+		<profile>
+			<id>release</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<repositories>
+				<repository>
+					<id>Palladio-Core-Commons</id>
+					<layout>p2</layout>
+					<url>https://updatesite.palladio-simulator.com/palladio-core-commons/releases/latest/</url>
+				</repository>
+				<repository>
+					<id>Palladio-Core</id>
+					<layout>p2</layout>
+					<url>https://updatesite.palladio-simulator.com/palladio-core-pcm/releases/latest/</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>eclipse-orbit</id>
+			<layout>p2</layout>
+			<url>https://download.eclipse.org/tools/orbit/downloads/${tools.mdsd.dependencies.eclipse-version}/</url>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>bundles</module>
 		<module>features</module>

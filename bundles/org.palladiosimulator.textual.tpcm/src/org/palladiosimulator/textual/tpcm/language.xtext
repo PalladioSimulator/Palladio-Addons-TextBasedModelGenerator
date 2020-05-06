@@ -1,0 +1,327 @@
+grammar org.palladiosimulator.textual.tpcm.TPCM with org.palladiosimulator.commons.stoex.Stoex
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate language "http://www.palladiosimulator.org/textual/tpcm/1.0"
+
+Model:
+    fragments+=EncapsulatedFragment*    
+    fragments+=FileLevelDefinition?
+;
+
+FQN: ID ('.' ID)*;
+
+EncapsulatedFragment returns Fragment:
+    ('repository' {Repository} name=ID? '{'(contents+=RepositoryContent)*'}')
+    | ('system' {System} name=ID? '{'(contents+=SystemContent)*'}') 
+    | ('allocation' {Allocation} name=ID? '{'(contents+=AllocationContent)*'}')
+    | ('resourceenvironment' {ResourceEnvironment} name=ID? '{'(contents+=ResourceEnvironmentContent)*'}')
+    | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')  
+;
+
+FileLevelDefinition returns Fragment:
+    ('repository' {Repository} name=ID? (contents+=RepositoryContent)*) 
+    | ('system' {System} name=ID? (contents+=SystemContent)*) 
+    | ('allocation' {Allocation} name=ID? (contents+=AllocationContent)*)
+    | ('resourceenvironment' {ResourceEnvironment} name=ID? (contents+=ResourceEnvironmentContent)*)
+    | ('resourcetypes' {ResourceTypeRepository} name=ID? (contents+=ResourceTypeRepositoryContent)*)   
+;
+
+/**
+ * 
+ * Repository Model View
+ * 
+ */
+ 
+RepositoryContent returns Content:
+    Datatype | DomainInterface | Component | FailureType
+;
+
+Datatype:
+    'datatype' (PrimitiveDatatype | ComposedDatatype | CollectionDatatype)
+;
+
+PrimitiveDatatype:
+    name=ID type=PrimitiveTypeEnum
+;
+
+enum PrimitiveTypeEnum:
+    INT | STRING | BOOL | DOUBLE | CHAR | BYTE | LONG
+;
+
+ComposedDatatype:
+    name=ID '{'
+        (elements += ComposedDatatypeElement)*
+    '}'
+;
+
+ComposedDatatypeElement:
+    name=ID (reference=[Datatype|FQN]|type=Datatype)
+;
+
+CollectionDatatype:
+    name=ID '[]''<'collectionType=[Datatype|FQN]'>'
+;
+
+DomainInterface returns Interface:
+    {DomainInterface} 'interface' name=ID ('{'
+        ((contents += OperationInterfaceContent)+ |
+            (contents += EventInterfaceContent)+
+        )
+    '}')
+;
+
+OperationInterfaceContent returns InterfaceContent:
+    OperationSignature
+;
+
+OperationSignature returns Signature:
+    'op' {OperationSignature} name=ID ('(' parameters+=Parameter (',' parameters+=Parameter)* ')')? return=[Datatype|FQN]?
+;
+
+EventInterfaceContent returns InterfaceContent:
+    EventSignature
+;
+
+EventSignature returns Signature:
+    'ev' {EventSignature} name=ID ('(' parameters+=Parameter (',' parameters+=Parameter)* ')')?
+;
+
+
+Parameter:
+    name=ID type=[Datatype|FQN]?
+;
+
+Component:
+    'component' name=ID ('{'
+        (contents += ComponentContent)*
+    '}')?
+;
+
+ComponentContent returns Content:
+    Role | SEFF
+;
+
+Role:
+     (('provides'{DomainInterfaceProvidedRole}
+        |'requires'{InterfaceRequiredRole}
+        |'internal'{InternalInterfaceProvidedRole}
+     ) name=ID? type=[Interface|FQN])
+;
+
+SEFF:
+    'seff' role=[DomainInterfaceProvidedRole] '.' signatur=[Signature] '{'
+        (contents += SEFFContent)*
+    '}'
+;
+
+SEFFContent:
+    SEFFAssignmentOrCall | SEFFActionContainer
+;
+
+SEFFActionContainer:
+    SEFFLoopAction | SEFFIterateAction | SEFFSetAction | SEFFConditionalAction | SEFFProbabilisticAction
+;
+
+SEFFAssignmentOrCall:
+    (SEFFAssignment | SEFFCallAction)
+    ('->' result=ResultAssignment)? 
+;
+
+SEFFAssignment:
+    '«'specification=expression'»'
+;
+
+SEFFCallAction:
+    role=[Role] '.' signature=[Signature]('('
+        parameters+=ParameterSpecification (',' parameters+=ParameterSpecification)*
+    ')')?
+    
+;
+
+ParameterSpecification:
+    (reference=CharacteristicReference ':')? '«'specification=expression'»'
+;
+
+ResultAssignment:
+    ('(' {ComplexResultAssignment}
+        specification+=ResultSpecification (',' specification+=ResultSpecification)*
+    ')') 
+    | {PrimitiveResultAssignment} reference=CharacteristicReference
+;
+
+ResultSpecification:
+    characteristic=CharacteristicReference (':' '«'specification=expression'»')?
+;
+
+CharacteristicReference:
+    ({RelativeReference} '.' characteristic=VariableReference) 
+    | ({AbsoluteReference} reference=Variable)
+;
+
+SEFFLoopAction:
+    'loop' '(' condition=STRING ')''{'
+        (contents += SEFFContent)*
+    '}' 
+;
+
+SEFFIterateAction:
+    'iterate' '(' iterable=[Parameter]')''{'
+        (contents += SEFFContent)*
+    '}'
+;
+
+SEFFConditionalAction:
+    'if' '('condition=STRING ')' '{'
+       (contents += SEFFContent)*
+    '}' alternative=SEFFConditionalAlternative?
+;
+
+SEFFConditionalAlternative:
+    SEFFConditionalElseIf | SEFFConditionalElse 
+;
+
+SEFFConditionalElseIf:
+    'else' 'if' '('condition=STRING ')' '{'
+       (contents += SEFFContent)*
+    '}' alternative=SEFFConditionalAlternative? 
+;
+
+SEFFConditionalElse:
+   {SEFFConditionalElse} 'else' '{'
+       (contents += SEFFContent)*
+    '}'
+;
+
+SEFFProbabilisticAction:
+    'random' '{'
+    (branches+=SEFFProbabilisticBranch)+
+    '}'
+;
+
+SEFFProbabilisticBranch:
+    '(' probability=DOUBLE ')''{'
+       (contents += SEFFContent)*
+    '}'
+;
+
+SEFFSetAction:
+    target=ID? '<-' value=STRING
+;
+
+
+FailureType:
+    'failure' name=ID
+;
+
+
+/**
+ * 
+ * System Model View
+ * 
+ */
+ 
+SystemContent returns Content:
+    AssemblyContext | Connector | Role
+;
+
+AssemblyContext:
+    'assembly' name=ID? component=[Component|FQN]
+;
+
+Connector:
+    ('connector' name=ID '(' from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN] ')')
+    | from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN]
+    | from=[AssemblyContext|FQN] '->' target=AssemblyContext
+;
+
+/**
+ * 
+ * Allocation Model View
+ * 
+ */
+
+AllocationContent returns Content:
+    AllocationContext
+;
+
+AllocationContext:
+    ('alloc' name=ID '(' spec = AllocationSpecification ')' |
+        spec=AllocationSpecification
+    )
+;
+
+AllocationSpecification:
+    assemblies += [AssemblyContext|FQN] (',' assemblies += [AssemblyContext|FQN])* '->' container = [ResourceContainer|FQN]
+;
+
+/**
+ * 
+ * Resource Environment Model View
+ * 
+ */
+
+ResourceEnvironmentContent returns Content:
+    ResourceContainer | LinkingResource
+;
+
+ResourceContainer:
+    'container' name=ID ('{'
+        (contents += ResourceContainerContent)*        
+    '}')?
+;
+
+ResourceContainerContent:
+    ProcessingResource | ResourceContainer
+;
+
+ProcessingResource:
+    'processing' name=ID type=[ProcessingResourceType]
+;
+
+HDDResource:
+    'hdd' name=ID type=[ProcessingResourceType]
+;
+
+LinkingResource:
+    'link' name=ID type=[CommunicationLinkType|FQN] ('(' connected+=[ResourceContainer|FQN](',' connected+=[ResourceContainer|FQN])*')')?
+;
+
+/**
+ * 
+ * Resource Type Repository View
+ * 
+ */
+
+ResourceTypeRepositoryContent returns Content:
+    ResourceInterface | ResourceType | SchedulingPolicy
+;
+
+ResourceInterface returns Interface:
+    ({ResourceInterface} 'interface'|{InternalInterface} 'internal') name=ID ('{'
+        (contents += OperationInterfaceContent)*
+    '}')
+;
+
+ResourceType:
+    ('processing' {ProcessingResourceType} | 'link' {CommunicationLinkType}) name=ID ('{'
+        (contents += ResourceTypeContent)*
+    '}')
+;
+
+ResourceTypeContent:
+    ResourceInterfaceProvidedRole | ResourceFailureSpecification
+;
+
+ResourceFailureSpecification:
+    'raises' failureType=[FailureType|FQN]
+;
+
+ResourceInterfaceProvidedRole:
+    {ResourceInterfaceProvidedRole} 'provides' (type=[ResourceInterface|FQN] | interface=ResourceInterface)
+;
+
+
+SchedulingPolicy:
+    'policy' name=ID 
+;

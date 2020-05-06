@@ -1,6 +1,9 @@
+src-gen/
 target/
 xtend-gen/
 bin/
+test-bin/
+generated/
 
 # Compiled class file
 *.class

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+	<extension point="org.eclipse.emf.ecore.generated_package">
+		<package
+			uri = "http://www.palladiosimulator.org/textual/tpcm/1.0"
+			class = "org.palladiosimulator.textual.tpcm.language.LanguagePackage"
+			genModel = "model/generated/TPCM.genmodel" />
+	</extension>
+</plugin>
