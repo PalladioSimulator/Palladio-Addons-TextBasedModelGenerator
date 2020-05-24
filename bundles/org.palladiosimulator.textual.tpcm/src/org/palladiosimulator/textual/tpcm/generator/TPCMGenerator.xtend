@@ -7,6 +7,8 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import org.palladiosimulator.textual.tpcm.language.Fragment
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 
 /**
  * Generates code from your model files on save.
@@ -14,12 +16,24 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class TPCMGenerator extends AbstractGenerator {
+    static val NAME_SEPARATOR = "-"
+    val filenameProvider = GenerationFileNameProvider.getInstance()
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+	    val fragments = resource.allContents.filter(Fragment).toList
+	    fragments.forEach [
+	        generateModelFor(it, fsa, context)
+	    ]
 	}
+    
+    def generateModelFor(Fragment resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+        val partFileName = filenameProvider.generateFileNameFor(resource);
+        val fileName = partFileName
+        val targetFile = fsa.getURI(fileName)
+        val resourceSet = new ResourceSetImpl()
+        val targetResource = resourceSet.createResource(targetFile)
+        targetResource.getContents().add(resource)
+        targetResource.save({})
+    }
+    
 }
