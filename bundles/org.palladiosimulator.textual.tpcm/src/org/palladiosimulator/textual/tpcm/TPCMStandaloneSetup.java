@@ -3,6 +3,11 @@
  */
 package org.palladiosimulator.textual.tpcm;
 
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.xtext.resource.IResourceServiceProvider;
+import org.palladiosimulator.textual.tpcm.generator.TPCMResourceFactoryImpl;
+
+import com.google.inject.Injector;
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
@@ -11,5 +16,17 @@ public class TPCMStandaloneSetup extends TPCMStandaloneSetupGenerated {
 
 	public static void doSetup() {
 		new TPCMStandaloneSetup().createInjectorAndDoEMFRegistration();
+	}
+	
+	@Override
+	public void register(Injector injector) {
+		super.register(injector);
+		
+		Resource.Factory resourceFactory = new TPCMResourceFactoryImpl();
+		IResourceServiceProvider serviceProvider = injector.getInstance(IResourceServiceProvider.class);
+        
+        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("repository", resourceFactory);
+        IResourceServiceProvider.Registry.INSTANCE.getExtensionToFactoryMap().put("repository", serviceProvider);
+        
 	}
 }
