@@ -5,6 +5,13 @@ bin/
 test-bin/
 generated/
 
+*.polyglot.pom.tycho
+*.polyglot..META-INF_MANIFEST.MF
+*.polyglot.category.xml
+*.polyglot.feature.xml
+
+pom.tycho
+
 # Compiled class file
 *.class
 
