@@ -5,10 +5,39 @@ import java.util.ArrayList
 import java.util.Map
 import java.util.HashMap
 import java.util.function.Consumer
+import java.util.Objects
 
 class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegistry {
-    List<Registration<?, ?>> registrations = new ArrayList
-    Map<Integer, Object> mappedObjects = new HashMap
+    
+    /**
+     * Defines a key that identifies a mapped object. This key contains the source object id
+     * as well as the type it was mapped to. Thus, if an object is mapped to two or more 
+     * different types, this uniquely identifies the mapped objects by that target type.
+     */
+    private static class MappedObjectKey {
+        final Class<?> targetType;
+        final int objectId;
+        
+        new(Class<?> targetType, int id) {
+            this.targetType = targetType;
+            this.objectId = id;
+        }
+        
+        override boolean equals(Object other) {
+            if(!(other instanceof MappedObjectKey)) {
+                return false;
+            }
+            val otherKey = other as MappedObjectKey;
+            return otherKey.objectId == this.objectId && (this.targetType !== null ? this.targetType == otherKey.targetType : otherKey.targetType === null);
+        }
+        
+        override int hashCode() {
+            return Objects.hash(this.targetType, this.objectId);
+        }
+    }
+    
+    final List<Registration<?, ?>> registrations = new ArrayList
+    final Map<MappedObjectKey, Object> mappedObjects = new HashMap
 
     override map(Object source) {
         return map(source, null)
@@ -28,10 +57,9 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
     
     override <S,T> map(S source, Class<T> target) {
         val referenceId = System.identityHashCode(source)
-        if (mappedObjects.containsKey(referenceId)) {
-            // TODO this does not play well with allowing to map the same source to multiple types.
-            // Thus probably needs a more complicated key
-            return mappedObjects.get(referenceId) as T
+        val key = new MappedObjectKey(target, referenceId)
+        if (mappedObjects.containsKey(key)) {
+            return mappedObjects.get(key) as T
         }
 
         val Registration<S,T> reg = registrations.findFirst[it.doesMap(source, target)] as Registration<S,T>
@@ -39,7 +67,7 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
             throw new RuntimeException("Couldn't find a mapping for " + source.class.simpleName + " to " + target?.simpleName);
         }
         val mapped = reg.applyTo(source, this)
-        mappedObjects.put(referenceId, mapped)
+        mappedObjects.put(key, mapped)
         return mapped as T
     }
 
