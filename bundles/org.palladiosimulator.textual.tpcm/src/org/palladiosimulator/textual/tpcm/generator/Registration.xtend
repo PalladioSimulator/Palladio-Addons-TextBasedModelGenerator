@@ -4,12 +4,14 @@ import java.util.ArrayList
 import java.util.function.Function
 import java.util.function.Predicate
 import java.util.List
+import java.util.function.Consumer
 
 class Registration<S, T> {
     final Class<S> mappingSource;
     final Class<T> mappingTarget;
     Function<S, T> factory;
     Predicate<S> predicate = [true];
+    Consumer<T> callback = [];
     final List<ChildPropertyMapping<S, T>> contents = new ArrayList;
 
     new(Class<S> source, Class<T> target, Function<S, T> factory) {
@@ -45,12 +47,17 @@ class Registration<S, T> {
     def setFactory(Function<S, T> factory) {
         this.factory = factory;
     }
+    
+    def setCallback(Consumer<T> callback) {
+        this.callback = callback
+    }
 
     def T applyTo(S source, GeneratorTransformationRegistry registry) {
         val target = create(source)
         contents.forEach [
             it.run(source, target, registry)
         ]
+        callback.accept(target)
         return target
     }
 }
