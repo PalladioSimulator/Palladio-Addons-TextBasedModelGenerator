@@ -18,11 +18,12 @@ Import:
 
 EncapsulatedFragment returns Fragment:
     ('repository' {Repository} name=ID? '{'(contents+=RepositoryContent)*'}')
-    | ('system' {System} name=ID? '{'(contents+=SystemContent)*'}') 
+    | ('system' {System} name=ID? '{'(contents+=SystemContent)*'}')
     | ('allocation' {Allocation} name=ID? '{'(contents+=AllocationContent)*'}')
     | ('resourceenvironment' {ResourceEnvironment} name=ID? '{'(contents+=ResourceEnvironmentContent)*'}')
     | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')
-    | ('usage' {Usage} name=ID? '{' (contents+=UsageContent)*'}')  
+    | ('usage' {Usage} name=ID? '{' (contents+=UsageContent)*'}')
+    | ('mapping' {MappingConfiguration} (contents += MappingContent)*)
 ;
 
 FileLevelDefinition returns Fragment:
@@ -32,6 +33,7 @@ FileLevelDefinition returns Fragment:
     | ('resourceenvironment' {ResourceEnvironment} name=ID? (contents+=ResourceEnvironmentContent)*)
     | ('resourcetypes' {ResourceTypeRepository} name=ID? (contents+=ResourceTypeRepositoryContent)*)   
     | ('usage' {Usage} name=ID? (contents+=UsageContent)*)
+    | ('mapping' {MappingConfiguration} name="Mapping" (contents += MappingContent)*)
 ;
 
 /**
@@ -425,3 +427,8 @@ ScenarioDelayAction:
     'delay' (('«'duration=expression'»') | ('(' '«'duration=expression'»' ')'))
 ;
 
+
+
+MappingContent:
+    {MappingContent} imported=FQN '->' importURI=STRING
+;

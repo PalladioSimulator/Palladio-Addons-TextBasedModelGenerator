@@ -11,6 +11,9 @@ import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
 import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
 import org.palladiosimulator.textual.tpcm.scoping.TPCMImportUriGlobalScopeProvider;
+import org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurerHandler;
+
+import com.google.inject.Binder;
 
 /**
  * Use this class to register components to be used at runtime / without the
@@ -35,5 +38,10 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 	public Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
 		return TPCMResourceDescriptionStrategy.class;
 	}
-	
+
+	@Override
+	public void configure(Binder binder) {
+		super.configure(binder);
+		TransformationRegistryConfigurerHandler.execute();
+	}
 }

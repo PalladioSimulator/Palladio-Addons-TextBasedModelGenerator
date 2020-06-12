@@ -92,8 +92,9 @@ import org.palladiosimulator.pcm.repository.SinkRole
 import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.SourceRole
+import org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurer
 
-class RegistryConfigurer {
+class RegistryConfigurer implements TransformationRegistryConfigurer {
 
     static def void assignRepository(DataType type, org.palladiosimulator.pcm.repository.Repository repo) {
         type.repository__DataType = repo
@@ -146,7 +147,7 @@ class RegistryConfigurer {
         return behavior
     }
 
-    def void setupRegistry(GeneratorTransformationRegistry registry) {
+    override void configure(GeneratorTransformationRegistry registry) {
         registry.configure(Repository, org.palladiosimulator.pcm.repository.Repository) [
             create = [repo|RepositoryFactory.eINSTANCE.createRepository => [it.entityName = repo.name]]
 
