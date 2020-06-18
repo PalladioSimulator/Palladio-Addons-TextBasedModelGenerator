@@ -43,8 +43,13 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
         return map(source, null)
     }
 
-    override withContext(Runnable runnable) {
+    override withContext(List<ProvidedMapping> provided, Runnable runnable) {
         mappedObjects.clear()
+        provided.forEach [
+            val referenceId = System.identityHashCode(it.sourceObject)
+            val key = new MappedObjectKey(null, referenceId)
+            mappedObjects.put(key, it.targetObject)
+        ]
         runnable.run()
         mappedObjects.clear()
     }
