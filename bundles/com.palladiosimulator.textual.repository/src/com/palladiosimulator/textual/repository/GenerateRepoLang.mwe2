@@ -74,12 +74,14 @@ Workflow {
 				baseName = "com.palladiosimulator.textual.repository"
 				rootPath = rootPath
 				runtimeTest = {
+				    root = "${rootPath}/../tests"
 					enabled = true
 				}
 				eclipsePlugin = {
 					enabled = true
 				}
 				eclipsePluginTest = {
+				    root = "${rootPath}/../tests"
 					enabled = true
 				}
 				createEclipseMetaData = true
