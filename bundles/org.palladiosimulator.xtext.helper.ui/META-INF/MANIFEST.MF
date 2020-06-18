@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Xtext Helper Ui
 Bundle-SymbolicName: org.palladiosimulator.xtext.helper.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 4.3.0.qualifier
 Bundle-Activator: org.palladiosimulator.xtext.helper.ui.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
