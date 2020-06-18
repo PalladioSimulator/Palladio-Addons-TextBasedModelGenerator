@@ -430,5 +430,5 @@ ScenarioDelayAction:
 
 
 MappingContent:
-    {MappingContent} imported=FQN '->' importURI=STRING
+    {MappingContent} imported=[Content|FQN] '->' absoluteUri=FQN
 ;
