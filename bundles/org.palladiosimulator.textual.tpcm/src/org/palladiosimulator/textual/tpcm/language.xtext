@@ -23,7 +23,7 @@ EncapsulatedFragment returns Fragment:
     | ('resourceenvironment' {ResourceEnvironment} name=ID? '{'(contents+=ResourceEnvironmentContent)*'}')
     | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')
     | ('usage' {Usage} name=ID? '{' (contents+=UsageContent)*'}')
-    | ('mapping' {MappingConfiguration} (contents += MappingContent)*)
+    | ('mapping' {MappingConfiguration} name=ID? '{'(contents += MappingContent)*'}')  
 ;
 
 FileLevelDefinition returns Fragment:
@@ -33,7 +33,7 @@ FileLevelDefinition returns Fragment:
     | ('resourceenvironment' {ResourceEnvironment} name=ID? (contents+=ResourceEnvironmentContent)*)
     | ('resourcetypes' {ResourceTypeRepository} name=ID? (contents+=ResourceTypeRepositoryContent)*)   
     | ('usage' {Usage} name=ID? (contents+=UsageContent)*)
-    | ('mapping' {MappingConfiguration} name="Mapping" (contents += MappingContent)*)
+    | ('mapping' {MappingConfiguration} name=ID? (contents += MappingContent)*)
 ;
 
 /**
@@ -430,5 +430,5 @@ ScenarioDelayAction:
 
 
 MappingContent:
-    {MappingContent} imported=[Content|FQN] '->' absoluteUri=FQN
+    {MappingContent} imported=[Content|FQN] '->' absoluteUri=STRING
 ;
