@@ -7,7 +7,12 @@ class TransformationRegistryConfigurerHandler {
     static val EXTENSION_POINT_FQN = "org.palladiosimulator.textual.tpcm.configure";
     
     def static void execute() {
-        val extensions = Platform.extensionRegistry.getConfigurationElementsFor(EXTENSION_POINT_FQN);
+        val extensionRegistry = Platform.extensionRegistry
+        if(extensionRegistry === null) {
+            return;
+        }
+        
+        val extensions = extensionRegistry.getConfigurationElementsFor(EXTENSION_POINT_FQN);
         for (element : extensions) {
         	val ext = element.createExecutableExtension("class")
         	if(ext instanceof TransformationRegistryConfigurer) {
