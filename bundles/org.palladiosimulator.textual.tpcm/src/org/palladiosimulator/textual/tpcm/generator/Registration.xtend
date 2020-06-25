@@ -6,6 +6,11 @@ import java.util.function.Predicate
 import java.util.List
 import java.util.function.Consumer
 
+/**
+ * A registration denotes a registered transformation of an object of type A to an object of type B.
+ * This registration also contains all the necessary instructions for when a transformation should happen 
+ * (what is called a "predicate" here), how the target is created as well as all what transformation steps need to happen.
+ */
 class Registration<S, T> {
     static final Predicate<Object> DEFAULT_PREDICATE = [true];
     
@@ -34,14 +39,31 @@ class Registration<S, T> {
         return mappingTarget;
     }
 
+    /**
+     * Tests whether this registration can be used to transform the given source object.
+     * 
+     * @param instance The object instance to check the mapping for
+     */
     def boolean doesMap(Object instance) {
         return mappingSource.isAssignableFrom(instance.class) && predicate.test(mappingSource.cast(instance));
     }
     
+    /**
+     * Tests whether this registration can be used to transform the given source object into the given
+     * target type. If the target type is null, this behaves the same as doesMap(Object).
+     * 
+     * @param instance The object instance to check the transformation for
+     * @param target The desired resulting type of the transformation
+     * 
+     * @see #doesMap(Object)
+     */
     def boolean doesMap(Object instance, Class<?> target) {
         return (target === null || mappingTarget === target) && doesMap(instance);
     }
     
+    /**
+     * Checks whether the registration has a predicate.
+     */
     def boolean hasPredicate() {
         return predicate !== DEFAULT_PREDICATE;
     }
@@ -50,10 +72,18 @@ class Registration<S, T> {
         return factory !== null;
     }
 
+    /**
+     * Creates the target object from the source object using the configured factory.
+     * 
+     * @see #setFactory(Function)
+     */
     def T create(S source) {
         return factory.apply(source);
     }
 
+    /**
+     * Adds a transformation for a child property of the source object.
+     */
     def addPropertyMapping(ChildPropertyMapping<S, T> mapping) {
         contents.add(mapping)
     }
@@ -69,7 +99,14 @@ class Registration<S, T> {
     def setCallback(Consumer<T> callback) {
         this.callback = callback
     }
-
+    
+    /**
+     * Applies the complete transformation of the source to the configured target type.
+     * 
+     * @param source The source object to transform.
+     * @param registry The registry to use for resolving possible transformations of child elements.
+     * @return The transformed target object.
+     */
     def T applyTo(S source, GeneratorTransformationRegistry registry) {
         val target = create(source)
         contents.forEach [
