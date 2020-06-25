@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
 	<extension point="org.eclipse.emf.ecore.generated_package">
-		<package 
+		<package
 			uri = "http://www.palladiosimulator.com/textual/repository/RepoLang"
 			class = "com.palladiosimulator.textual.repository.repoLang.RepoLangPackage"
 			genModel = "model/generated/RepoLang.genmodel" />

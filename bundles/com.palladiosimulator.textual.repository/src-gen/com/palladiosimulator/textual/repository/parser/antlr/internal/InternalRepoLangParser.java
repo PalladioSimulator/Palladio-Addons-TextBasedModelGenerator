@@ -6224,7 +6224,7 @@ public class InternalRepoLangParser extends AbstractInternalAntlrParser {
                     					if (current==null) {
                     						current = createModelElement(grammarAccess.getSeffForkActionRule());
                     					}
-                    					setWithLastConsumed(current, "sync", true, "SYNC");
+                    					setWithLastConsumed(current, "sync", lv_sync_1_0 != null, "SYNC");
                     				
 
                     }

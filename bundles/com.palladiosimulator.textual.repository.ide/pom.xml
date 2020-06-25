@@ -4,16 +4,14 @@
     <parent>
 		<groupId>org.palladiosimulator.textual</groupId>
 		<artifactId>bundles</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+        <version>4.3.0-SNAPSHOT</version>
 		<relativePath>..\.polyglot.pom.tycho</relativePath>
     </parent>
     <artifactId>com.palladiosimulator.textual.repository.ide</artifactId>
     <packaging>eclipse-plugin</packaging>
-    <version>1.0.0-SNAPSHOT</version>
-
     <properties>
-        <xtextVersion>2.19.0</xtextVersion>
-        <mwe2Version>2.11.0</mwe2Version>
+        <xtextVersion>2.22.0</xtextVersion>
+        <mwe2Version>2.11.2</mwe2Version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
