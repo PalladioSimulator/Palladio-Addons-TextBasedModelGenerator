@@ -44,6 +44,10 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
         return map(source, null)
     }
 
+    override withContext(Runnable runnable) {
+        this.withContext(new ArrayList<ProvidedMapping>(), runnable);
+    }
+
     override withContext(List<ProvidedMapping> provided, Runnable runnable) {
         mappedObjects.clear()
         provided.forEach [
