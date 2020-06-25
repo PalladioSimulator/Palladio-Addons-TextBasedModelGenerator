@@ -10,3 +10,4 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.xbase.ide,
  org.palladiosimulator.pcm;bundle-version="4.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.palladiosimulator.textual.tpcm.configuration
