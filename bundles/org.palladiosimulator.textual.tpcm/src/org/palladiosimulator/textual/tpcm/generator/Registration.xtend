@@ -109,9 +109,13 @@ class Registration<S, T> {
      */
     def T applyTo(S source, GeneratorTransformationRegistry registry) {
         val target = create(source)
-        contents.forEach [
-            it.run(source, target, registry)
-        ]
+        try {
+            contents.forEach [
+                it.run(source, target, registry)
+            ]
+        } catch(Exception e) {
+            throw new RuntimeException("Exception occurred when transforming object of type " + source.class.simpleName + " to " + target.class.simpleName, e)
+        }
         callback.accept(target)
         return target
     }
