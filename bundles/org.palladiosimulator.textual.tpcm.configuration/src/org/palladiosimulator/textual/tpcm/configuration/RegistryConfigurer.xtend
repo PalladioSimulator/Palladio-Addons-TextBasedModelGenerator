@@ -1,98 +1,111 @@
 package org.palladiosimulator.textual.tpcm.configuration
 
-import org.palladiosimulator.textual.tpcm.generator.GeneratorTransformationRegistry
-import org.palladiosimulator.pcm.repository.DataType
-import org.palladiosimulator.pcm.repository.CompositeDataType
-import org.palladiosimulator.pcm.repository.CollectionDataType
-import org.eclipse.emf.common.util.EList
-import java.util.List
-import org.palladiosimulator.textual.tpcm.language.SEFFConditionalAlternative
-import org.palladiosimulator.textual.tpcm.language.SEFFConditionalAction
+import de.uka.ipd.sdq.stoex.Expression
 import java.util.ArrayList
-import org.palladiosimulator.textual.tpcm.language.SEFFConditionalElseIf
-import org.palladiosimulator.pcm.seff.AbstractBranchTransition
-import org.palladiosimulator.pcm.seff.SeffFactory
-import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour
-import org.palladiosimulator.pcm.repository.RepositoryFactory
-import org.palladiosimulator.textual.tpcm.language.Repository
-import org.palladiosimulator.pcm.seff.AbstractAction
-import org.palladiosimulator.textual.tpcm.language.Datatype
-import org.palladiosimulator.textual.tpcm.language.FailureType
-import org.palladiosimulator.textual.tpcm.language.Component
-import org.palladiosimulator.textual.tpcm.language.PrimitiveDatatype
-import org.palladiosimulator.pcm.repository.PrimitiveDataType
-import org.palladiosimulator.pcm.repository.PrimitiveTypeEnum
-import org.palladiosimulator.textual.tpcm.language.CollectionDatatype
-import org.palladiosimulator.textual.tpcm.language.ComposedDatatype
-import org.palladiosimulator.textual.tpcm.language.ComposedDatatypeElement
-import org.palladiosimulator.pcm.repository.InnerDeclaration
-import org.palladiosimulator.textual.tpcm.language.DomainInterface
-import org.palladiosimulator.pcm.repository.OperationInterface
-import org.palladiosimulator.textual.tpcm.language.OperationSignature
-import org.palladiosimulator.pcm.repository.EventGroup
-import org.palladiosimulator.textual.tpcm.language.EventSignature
-import org.palladiosimulator.pcm.repository.EventType
-import org.palladiosimulator.pcm.reliability.ReliabilityFactory
-import org.palladiosimulator.textual.tpcm.language.ResourceTypeRepository
-import org.palladiosimulator.pcm.resourcetype.ResourceRepository
-import org.palladiosimulator.pcm.resourcetype.ResourcetypeFactory
-import org.palladiosimulator.textual.tpcm.language.Interface
-import org.palladiosimulator.pcm.resourcetype.ResourceInterface
-import org.palladiosimulator.pcm.resourcetype.ResourceSignature
-import org.palladiosimulator.textual.tpcm.language.InternalInterface
-import org.palladiosimulator.textual.tpcm.language.Parameter
-import org.palladiosimulator.textual.tpcm.language.ProcessingResourceType
-import org.palladiosimulator.textual.tpcm.language.ResourceInterfaceProvidedRole
-import org.palladiosimulator.pcm.core.entity.ResourceProvidedRole
-import org.palladiosimulator.pcm.core.entity.EntityFactory
-import org.palladiosimulator.textual.tpcm.language.CommunicationLinkType
-import org.palladiosimulator.pcm.resourcetype.CommunicationLinkResourceType
-import org.palladiosimulator.textual.tpcm.language.SchedulingPolicy
-import org.palladiosimulator.textual.tpcm.language.ResourceEnvironment
-import org.palladiosimulator.pcm.resourceenvironment.ResourceenvironmentFactory
-import org.palladiosimulator.textual.tpcm.language.ResourceContainer
-import org.palladiosimulator.textual.tpcm.language.LinkingResource
-import org.palladiosimulator.textual.tpcm.language.ProcessingResource
-import org.palladiosimulator.textual.tpcm.language.HDDResource
-import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification
-import org.palladiosimulator.textual.tpcm.language.Allocation
+import java.util.List
+import org.eclipse.emf.common.util.EList
 import org.palladiosimulator.pcm.allocation.AllocationFactory
-import org.palladiosimulator.textual.tpcm.language.AllocationContext
-import org.palladiosimulator.pcm.system.SystemFactory
-import org.palladiosimulator.textual.tpcm.language.AssemblyContext
-import org.palladiosimulator.textual.tpcm.language.Connector
+import org.palladiosimulator.pcm.core.CoreFactory
+import org.palladiosimulator.pcm.core.PCMRandomVariable
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector
 import org.palladiosimulator.pcm.core.composition.CompositionFactory
-import org.palladiosimulator.pcm.repository.BasicComponent
-import org.palladiosimulator.textual.tpcm.language.InternalInterfaceProvidedRole
-import org.palladiosimulator.textual.tpcm.language.SEFF
-import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
-import org.palladiosimulator.textual.tpcm.language.SEFFCallAction
-import org.palladiosimulator.pcm.seff.AcquireAction
-import org.palladiosimulator.pcm.seff.ReleaseAction
-import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticAction
-import org.palladiosimulator.pcm.seff.BranchAction
-import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticBranch
-import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
-import org.palladiosimulator.textual.tpcm.language.SEFFLoopAction
-import org.palladiosimulator.pcm.seff.LoopAction
-import org.palladiosimulator.pcm.core.PCMRandomVariable
-import org.palladiosimulator.pcm.seff.GuardedBranchTransition
-import org.palladiosimulator.textual.tpcm.language.SEFFConditionalElse
-import org.palladiosimulator.textual.tpcm.language.SEFFAssignment
-import org.palladiosimulator.pcm.seff.SetVariableAction
-import org.palladiosimulator.textual.tpcm.language.PrimitiveResultAssignment
-import org.palladiosimulator.pcm.parameter.VariableUsage
+import org.palladiosimulator.pcm.core.entity.EntityFactory
+import org.palladiosimulator.pcm.core.entity.ResourceProvidedRole
+import org.palladiosimulator.pcm.core.entity.ResourceRequiredRole
 import org.palladiosimulator.pcm.parameter.ParameterFactory
-import org.palladiosimulator.textual.tpcm.language.SEFFIterateAction
-import org.palladiosimulator.pcm.seff.CollectionIteratorAction
-import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole
+import org.palladiosimulator.pcm.parameter.VariableCharacterisationType
+import org.palladiosimulator.pcm.parameter.VariableUsage
+import org.palladiosimulator.pcm.reliability.ReliabilityFactory
+import org.palladiosimulator.pcm.repository.BasicComponent
+import org.palladiosimulator.pcm.repository.CollectionDataType
+import org.palladiosimulator.pcm.repository.CompositeDataType
+import org.palladiosimulator.pcm.repository.DataType
+import org.palladiosimulator.pcm.repository.EventGroup
+import org.palladiosimulator.pcm.repository.EventType
+import org.palladiosimulator.pcm.repository.InfrastructureProvidedRole
+import org.palladiosimulator.pcm.repository.InfrastructureRequiredRole
+import org.palladiosimulator.pcm.repository.InnerDeclaration
+import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.OperationProvidedRole
-import org.palladiosimulator.pcm.repository.SinkRole
-import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
+import org.palladiosimulator.pcm.repository.PrimitiveDataType
+import org.palladiosimulator.pcm.repository.PrimitiveTypeEnum
+import org.palladiosimulator.pcm.repository.ProvidedRole
+import org.palladiosimulator.pcm.repository.RepositoryFactory
+import org.palladiosimulator.pcm.repository.RequiredRole
+import org.palladiosimulator.pcm.repository.SinkRole
 import org.palladiosimulator.pcm.repository.SourceRole
+import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification
+import org.palladiosimulator.pcm.resourceenvironment.ResourceenvironmentFactory
+import org.palladiosimulator.pcm.resourcetype.CommunicationLinkResourceType
+import org.palladiosimulator.pcm.resourcetype.ResourceInterface
+import org.palladiosimulator.pcm.resourcetype.ResourceRepository
+import org.palladiosimulator.pcm.resourcetype.ResourceSignature
+import org.palladiosimulator.pcm.resourcetype.ResourcetypeFactory
+import org.palladiosimulator.pcm.seff.AbstractAction
+import org.palladiosimulator.pcm.seff.AbstractBranchTransition
+import org.palladiosimulator.pcm.seff.AcquireAction
+import org.palladiosimulator.pcm.seff.BranchAction
+import org.palladiosimulator.pcm.seff.CollectionIteratorAction
+import org.palladiosimulator.pcm.seff.GuardedBranchTransition
+import org.palladiosimulator.pcm.seff.InternalAction
+import org.palladiosimulator.pcm.seff.LoopAction
+import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
+import org.palladiosimulator.pcm.seff.ReleaseAction
+import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
+import org.palladiosimulator.pcm.seff.SeffFactory
+import org.palladiosimulator.pcm.seff.SetVariableAction
+import org.palladiosimulator.pcm.seff.seff_performance.SeffPerformanceFactory
+import org.palladiosimulator.pcm.system.SystemFactory
+import org.palladiosimulator.textual.tpcm.generator.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurer
+import org.palladiosimulator.textual.tpcm.language.AbsoluteReference
+import org.palladiosimulator.textual.tpcm.language.Allocation
+import org.palladiosimulator.textual.tpcm.language.AllocationContext
+import org.palladiosimulator.textual.tpcm.language.AssemblyContext
+import org.palladiosimulator.textual.tpcm.language.CollectionDatatype
+import org.palladiosimulator.textual.tpcm.language.CommunicationLinkType
+import org.palladiosimulator.textual.tpcm.language.Component
+import org.palladiosimulator.textual.tpcm.language.ComposedDatatype
+import org.palladiosimulator.textual.tpcm.language.ComposedDatatypeElement
+import org.palladiosimulator.textual.tpcm.language.Connector
+import org.palladiosimulator.textual.tpcm.language.Datatype
+import org.palladiosimulator.textual.tpcm.language.DomainInterface
+import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole
+import org.palladiosimulator.textual.tpcm.language.EventSignature
+import org.palladiosimulator.textual.tpcm.language.FailureType
+import org.palladiosimulator.textual.tpcm.language.HDDResource
+import org.palladiosimulator.textual.tpcm.language.Interface
+import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole
+import org.palladiosimulator.textual.tpcm.language.InternalInterface
+import org.palladiosimulator.textual.tpcm.language.InternalInterfaceProvidedRole
+import org.palladiosimulator.textual.tpcm.language.LinkingResource
+import org.palladiosimulator.textual.tpcm.language.OperationSignature
+import org.palladiosimulator.textual.tpcm.language.Parameter
+import org.palladiosimulator.textual.tpcm.language.ParameterSpecification
+import org.palladiosimulator.textual.tpcm.language.PrimitiveDatatype
+import org.palladiosimulator.textual.tpcm.language.PrimitiveResultAssignment
+import org.palladiosimulator.textual.tpcm.language.ProcessingResource
+import org.palladiosimulator.textual.tpcm.language.ProcessingResourceType
+import org.palladiosimulator.textual.tpcm.language.RelativeReference
+import org.palladiosimulator.textual.tpcm.language.Repository
+import org.palladiosimulator.textual.tpcm.language.ResourceContainer
+import org.palladiosimulator.textual.tpcm.language.ResourceEnvironment
+import org.palladiosimulator.textual.tpcm.language.ResourceInterfaceProvidedRole
+import org.palladiosimulator.textual.tpcm.language.ResourceTypeRepository
+import org.palladiosimulator.textual.tpcm.language.SEFF
+import org.palladiosimulator.textual.tpcm.language.SEFFAssignment
+import org.palladiosimulator.textual.tpcm.language.SEFFCallAction
+import org.palladiosimulator.textual.tpcm.language.SEFFConditionalAction
+import org.palladiosimulator.textual.tpcm.language.SEFFConditionalAlternative
+import org.palladiosimulator.textual.tpcm.language.SEFFConditionalElse
+import org.palladiosimulator.textual.tpcm.language.SEFFConditionalElseIf
+import org.palladiosimulator.textual.tpcm.language.SEFFIterateAction
+import org.palladiosimulator.textual.tpcm.language.SEFFLoopAction
+import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticAction
+import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticBranch
+import org.palladiosimulator.textual.tpcm.language.SchedulingPolicy
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -100,7 +113,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         type.repository__DataType = repo
         if (type instanceof CompositeDataType) {
             (type as CompositeDataType).innerDeclaration_CompositeDataType.forEach [ inner |
-                inner.datatype_InnerDeclaration.assignRepository(repo)
+                if (inner.datatype_InnerDeclaration !== null) {
+                    inner.datatype_InnerDeclaration.assignRepository(repo)
+                } else {
+                    // TODO this should never happen.
+                    return;
+                }
             ]
         } else if (type instanceof CollectionDataType) {
             (type as CollectionDataType).innerType_CollectionDataType.assignRepository(repo)
@@ -110,6 +128,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
     static def void updatePreviousAssignments(EList<? extends AbstractAction> actions) {
         for (var i = 1; i < actions.length; i++) {
             actions.get(i).predecessor_AbstractAction = actions.get(i - 1);
+        }
+    }
+
+    static def void updateSuccessorAssignments(EList<? extends AbstractAction> actions) {
+        for (var i = 0; i < actions.length - 1; i++) {
+            actions.get(i).successor_AbstractAction = actions.get(i + 1);
         }
     }
 
@@ -137,6 +161,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         behavior.steps_Behaviour.addAll(steps)
         steps.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
+        behavior.steps_Behaviour.updateSuccessorAssignments()
     }
 
     static def ResourceDemandingInternalBehaviour addActions(List<AbstractAction> steps) {
@@ -144,10 +169,19 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         behavior.steps_Behaviour.addAll(steps)
         steps.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
+        behavior.steps_Behaviour.updateSuccessorAssignments()
         return behavior
     }
 
     override void configure(GeneratorTransformationRegistry registry) {
+        registry.configureRepository()
+        registry.configureResourceTypes()
+        registry.configureResourceEnvironment()
+        registry.configureAllocation()
+        registry.configureSystem()
+    }
+
+    protected def void configureRepository(GeneratorTransformationRegistry registry) {
         registry.configure(Repository, org.palladiosimulator.pcm.repository.Repository) [
             create = [repo|RepositoryFactory.eINSTANCE.createRepository => [it.entityName = repo.name]]
 
@@ -165,6 +199,331 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
         ]
 
+        registry.configureRepositoryDatatypes()
+        registry.configureRepositoryComponent()
+    }
+
+    protected def void configureRepositoryComponent(GeneratorTransformationRegistry registry) {
+        registry.configure(Component, BasicComponent) [
+            create = [
+                RepositoryFactory.eINSTANCE.createBasicComponent => [c|c.entityName = it.name]
+            ]
+            mapAll([it.contents.filter(DomainInterfaceProvidedRole).toList]).thenSet [ component, provided |
+                component.providedRoles_InterfaceProvidingEntity.addAll(provided)
+                provided.forEach[it.providingEntity_ProvidedRole = component]
+            ]
+            mapAll([it.contents.filter(InterfaceRequiredRole).toList]).thenSet [ component, required |
+                component.requiredRoles_InterfaceRequiringEntity.addAll(required.filter(RequiredRole))
+                component.resourceRequiredRoles__ResourceInterfaceRequiringEntity.addAll(
+                    required.filter(ResourceRequiredRole))
+            // required.forEach[it.requiringEntity_RequiredRole = component]
+            ]
+            mapAll([it.contents.filter(InternalInterfaceProvidedRole).toList]).thenSet [ component, resources |
+                component.providedRoles_InterfaceProvidingEntity.addAll(resources.filter(ProvidedRole))
+            // TODO what about ResourceProvidedRole
+            // component.resourceRequiredRoles__ResourceInterfaceRequiringEntity
+            // resources.forEach[it.providingEntity_ProvidedRole = component]
+            ]
+            mapAll([it.contents.filter(SEFF).toList]).thenSet [ component, seffs |
+                component.serviceEffectSpecifications__BasicComponent.addAll(seffs)
+                seffs.forEach[it.basicComponent_ServiceEffectSpecification = component]
+            ]
+        ]
+
+        registry.configure(InternalInterfaceProvidedRole, InfrastructureProvidedRole) [
+            create = [
+                RepositoryFactory.eINSTANCE.createInfrastructureProvidedRole => [r|r.entityName = it.name]
+            ]
+            when = [!(it.type.eContainer instanceof ResourceTypeRepository)]
+            map([it.type]).thenSet [ role, iface |
+                role.providedInterface__InfrastructureProvidedRole = iface
+            ]
+        ]
+
+        registry.configure(InternalInterfaceProvidedRole, ResourceProvidedRole) [
+            create = [
+                EntityFactory.eINSTANCE.createResourceProvidedRole => [r|r.entityName = it.name]
+            ]
+            when = [it.type.eContainer instanceof ResourceTypeRepository]
+            map([it.type]).thenSet [ role, type |
+                role.providedResourceInterface__ResourceProvidedRole = type
+            ]
+        ]
+
+        registry.configureRepositoryComponentSEFF()
+
+        registry.configure(DomainInterfaceProvidedRole, OperationProvidedRole) [
+            create = [RepositoryFactory.eINSTANCE.createOperationProvidedRole => [r|r.entityName = it.name]]
+            when = [!it.type.contents.exists[it instanceof EventSignature]]
+            map([it.type]).thenSet [ role, iface |
+                role.providedInterface__OperationProvidedRole = iface
+            ]
+        ]
+
+        registry.configure(DomainInterfaceProvidedRole, SinkRole) [
+            create = [RepositoryFactory.eINSTANCE.createSinkRole => [r|r.entityName = it.name]]
+            when = [it.type.contents.exists[it instanceof EventSignature]]
+            map([it.type]).thenSet [ role, iface |
+                role.eventGroup__SinkRole = iface
+            ]
+        ]
+
+        registry.configure(InterfaceRequiredRole, OperationRequiredRole) [
+            create = [RepositoryFactory.eINSTANCE.createOperationRequiredRole => [r|r.entityName = it.name]]
+            when = [
+                !it.type.contents.exists[it instanceof EventSignature] &&
+                    !(it.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface)
+            ]
+            map([it.type]).thenSet [ role, iface |
+                role.requiredInterface__OperationRequiredRole = iface
+            ]
+        ]
+
+        registry.configure(InterfaceRequiredRole, SourceRole) [
+            create = [RepositoryFactory.eINSTANCE.createSourceRole => [r|r.entityName = it.name]]
+            when = [
+                it.type.contents.exists[it instanceof EventSignature] &&
+                    !(it.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface)
+            ]
+            map([it.type]).thenSet [ role, iface |
+                role.eventGroup__SourceRole = iface
+            ]
+        ]
+
+        registry.configure(InterfaceRequiredRole, ResourceRequiredRole) [
+            create = [EntityFactory.eINSTANCE.createResourceRequiredRole => [r|r.entityName = it.name]]
+            when = [it.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface]
+            map([it.type]).thenSet [ role, iface |
+                role.requiredResourceInterface__ResourceRequiredRole = iface
+            ]
+        ]
+    }
+
+    protected def void configureRepositoryComponentSEFF(GeneratorTransformationRegistry registry) {
+        registry.configure(SEFF, ResourceDemandingSEFF) [
+            create = [
+                SeffFactory.eINSTANCE.createResourceDemandingSEFF
+            ]
+            map([it.signatur], org.palladiosimulator.pcm.repository.OperationSignature).thenSet [ seff, sig |
+                seff.describedService__SEFF = sig
+            ]
+            mapAll([it.contents]).thenSet [ seff, calls |
+                seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
+                seff.steps_Behaviour.addAll(calls)
+                seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
+                calls.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
+                seff.steps_Behaviour.updatePreviousAssignments();
+                seff.steps_Behaviour.updateSuccessorAssignments();
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, AcquireAction) [
+            create = [SeffFactory.eINSTANCE.createAcquireAction]
+            when = [it.signature.name == "acquire" && it.role instanceof InfrastructureRequiredRole]
+            map([it.role]).thenSet [ action, role |
+                action.passiveresource_AcquireAction = role
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, ReleaseAction) [
+            create = [SeffFactory.eINSTANCE.createReleaseAction]
+            when = [it.signature.name == "release" && it.role instanceof InfrastructureRequiredRole]
+            map([it.role]).thenSet [ action, role |
+                action.passiveResource_ReleaseAction = role
+            ]
+        ]
+
+        registry.configure(SEFFProbabilisticAction, BranchAction) [
+            create = [SeffFactory.eINSTANCE.createBranchAction]
+            mapAll([it.branches]).thenSet [ action, branches |
+                action.branches_Branch.addAll(branches)
+                branches.forEach[it.branchAction_AbstractBranchTransition = action]
+            ]
+        ]
+
+        registry.configure(SEFFProbabilisticBranch, ProbabilisticBranchTransition) [
+            create = [
+                SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [t|t.branchProbability = it.probability]
+            ]
+            mapAll([it.contents]).thenSet [ branch, actions |
+                branch.addStepsToBranch(actions)
+            ]
+        ]
+
+        registry.configure(SEFFLoopAction, LoopAction) [
+            create = [SeffFactory.eINSTANCE.createLoopAction]
+            map([it.condition], PCMRandomVariable).thenSet [ loop, variable |
+                loop.iterationCount_LoopAction = variable
+                variable.loopAction_PCMRandomVariable = loop
+            ]
+            mapAll([it.contents]).thenSet [ loop, actions |
+                val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
+                behavior.steps_Behaviour.addAll(actions)
+                behavior.steps_Behaviour.updatePreviousAssignments();
+                behavior.steps_Behaviour.updateSuccessorAssignments();
+                behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
+                loop.bodyBehaviour_Loop = behavior
+            ]
+        ]
+
+        registry.configure(SEFFConditionalAction, BranchAction) [
+            create = [
+                SeffFactory.eINSTANCE.createBranchAction => [
+                    val branch = SeffFactory.eINSTANCE.createGuardedBranchTransition
+                    it.branches_Branch.add(branch)
+                    branch.branchAction_AbstractBranchTransition = it
+                ]
+            ]
+            map([it.condition], PCMRandomVariable).thenSet [ action, condition |
+                val branch = action.branches_Branch.get(0) as GuardedBranchTransition
+                branch.branchCondition_GuardedBranchTransition = condition
+            ]
+            mapAll([it.contents]).thenSet [ action, contents |
+                val branch = action.branches_Branch.get(0) as GuardedBranchTransition
+                branch.addStepsToBranch(contents)
+            ]
+            map([collectAllBranches]).thenSet [ action, alternatives |
+                action.branches_Branch.addAll(alternatives)
+                alternatives.forEach[it.branchAction_AbstractBranchTransition = action]
+            ]
+        ]
+
+        registry.configure(SEFFConditionalElseIf, GuardedBranchTransition) [
+            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
+            map([it.condition], PCMRandomVariable).thenSet [ transition, variable |
+                transition.branchCondition_GuardedBranchTransition = variable
+            ]
+            mapAll([it.contents]).thenSet [ branch, actions |
+                branch.addStepsToBranch(actions)
+            ]
+        ]
+
+        registry.configure(SEFFConditionalElse, GuardedBranchTransition) [
+            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
+            mapAll([it.contents]).thenSet [ branch, actions |
+                branch.addStepsToBranch(actions)
+            ]
+        ]
+
+        registry.configure(SEFFAssignment, SetVariableAction) [
+            create = [SeffFactory.eINSTANCE.createSetVariableAction]
+            map([it.result]).thenSet [ action, result |
+                action.localVariableUsages_SetVariableAction.add(result)
+                result.setVariableAction_VariableUsage = action
+            ]
+            map([it.specification]).thenSet [ action, spec |
+//                action.localVariableUsages_SetVariableAction.get(0).variableCharacterisation_VariableUsage.add(spec)
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, SetVariableAction) [
+            create = [SeffFactory.eINSTANCE.createSetVariableAction]
+            when = [it.result !== null]
+            map([it.result]).thenSet [ action, result |
+                action.localVariableUsages_SetVariableAction.add(result)
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, InternalAction) [
+            create = [SeffFactory.eINSTANCE.createInternalAction]
+            when = [it.role instanceof InternalInterfaceProvidedRole]
+            map([it.role]).thenSet [ action, role |
+                if (role instanceof InfrastructureRequiredRole) {
+                    val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
+                    call.requiredRole__InfrastructureCall = role as InfrastructureRequiredRole
+                    action.infrastructureCall__Action.add(call);
+                } else if (role instanceof ResourceRequiredRole) {
+                    val call = SeffPerformanceFactory.eINSTANCE.createResourceCall;
+                    call.resourceRequiredRole__ResourceCall = role as ResourceRequiredRole
+                    action.resourceCall__Action.add(call);
+                }
+            // TODO
+            ]
+            map([it.signature]).thenSet [ action, sig |
+                
+            ]
+            mapAll([it.parameters]).thenSet [ action, params |
+                val call = action.resourceCall__Action.get(0)
+                call.inputVariableUsages__CallAction.addAll(params)
+                params.forEach[it.callAction__VariableUsage = call]
+            ]
+        ]
+
+        registry.configure(ParameterSpecification, VariableUsage) [
+            create = [ParameterFactory.eINSTANCE.createVariableUsage]
+            when = [it.reference instanceof AbsoluteReference]
+            map([it.reference]).thenSet [ usage, reference |
+                usage.namedReference__VariableUsage = reference
+            ]
+            map([it.specification]).thenSet [ usage, spec |
+                val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
+                characteristic.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = characteristic
+                usage.variableCharacterisation_VariableUsage.add(characteristic)
+            ]
+        ]
+
+        registry.configure(ParameterSpecification, VariableUsage) [
+            when = [it.reference instanceof RelativeReference]
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ u |
+                    val reference = it.reference as RelativeReference
+                    if (reference.characteristic !== null && reference.characteristic.referenceName !== null) {
+                        val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
+                        val characteristicName = (it.reference as RelativeReference).characteristic.referenceName
+                        characteristic.type = VariableCharacterisationType.getByName(characteristicName)
+                        u.variableCharacterisation_VariableUsage.add(characteristic)
+                        characteristic.variableUsage_VariableCharacterisation = u
+                    }
+                ]
+            ]
+            map([it.reference]).thenSet [ usage, reference |
+                usage.namedReference__VariableUsage = reference
+            ]
+            map([it.specification]).thenSet [ usage, spec |
+                val characteristic = usage.variableCharacterisation_VariableUsage.get(0)
+                characteristic.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = characteristic
+            ]
+        ]
+
+        registry.configure(Expression, PCMRandomVariable) [
+            create = [
+                CoreFactory.eINSTANCE.createPCMRandomVariable => [ v |
+                    v.specification = it.toString
+                ]
+            ]
+        ]
+
+        registry.configure(PrimitiveResultAssignment, VariableUsage) [
+            create = [ParameterFactory.eINSTANCE.createVariableUsage]
+            map([it.reference]).thenSet [ usage, reference |
+                usage.namedReference__VariableUsage = reference
+            ]
+        ]
+
+        registry.configure(SEFFIterateAction, CollectionIteratorAction) [
+            create = [SeffFactory.eINSTANCE.createCollectionIteratorAction]
+            map([it.iterable]).thenSet [ action, iterable |
+                action.parameter_CollectionIteratorAction = iterable
+            ]
+            mapAll([it.contents]).thenSet [ action, contents |
+                val behavior = addActions(contents)
+                action.bodyBehaviour_Loop = behavior
+                behavior.abstractLoopAction_ResourceDemandingBehaviour = action
+            ]
+        ]
+
+        registry.configure(String, PCMRandomVariable) [
+            create = [
+                CoreFactory.eINSTANCE.createPCMRandomVariable => [ v |
+                    v.specification = it
+                ]
+            ]
+        ]
+    }
+
+    protected def void configureRepositoryDatatypes(GeneratorTransformationRegistry registry) {
         registry.configure(PrimitiveDatatype, PrimitiveDataType) [
             create = [ dt |
                 RepositoryFactory.eINSTANCE.createPrimitiveDataType => [
@@ -202,7 +561,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 parent.datatype_InnerDeclaration = dataType
             ]
         ]
+    }
 
+    protected def void configureResourceTypes(GeneratorTransformationRegistry registry) {
         registry.configure(DomainInterface, OperationInterface) [
             when = [it.contents.forall[it instanceof OperationSignature]]
             create = [RepositoryFactory.eINSTANCE.createOperationInterface => [i|i.entityName = it.name]]
@@ -292,9 +653,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 type.resourceProvidedRoles__ResourceInterfaceProvidingEntity.addAll(roles)
                 roles.forEach[it.resourceInterfaceProvidingEntity__ResourceProvidedRole = type]
             ]
-//            mapAll([it.contents.filter(ResourceFailureSpecification).map[it.failureType].toList]).thenSet [type, failures |
-//                // TODO this requires a hardware failure ... which doesn't seem to make sense
-//            ]
+        // mapAll([it.contents.filter(ResourceFailureSpecification).map[it.failureType].toList]).thenSet [type, failures |
+        // // TODO this requires a hardware failure ... which doesn't seem to make sense
+        // ]
         ]
 
         registry.configure(ResourceInterfaceProvidedRole, ResourceProvidedRole) [
@@ -311,7 +672,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(SchedulingPolicy, org.palladiosimulator.pcm.resourcetype.SchedulingPolicy) [
             create = [ResourcetypeFactory.eINSTANCE.createSchedulingPolicy => [s|s.entityName = it.name]]
         ]
+    }
 
+    protected def void configureResourceEnvironment(GeneratorTransformationRegistry registry) {
         registry.configure(ResourceEnvironment, org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment) [
             create = [ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment => [e|e.entityName = it.name]]
             mapAll([it.contents.filter(ResourceContainer).toList]).thenSet [ environment, container |
@@ -356,20 +719,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 link.connectedResourceContainers_LinkingResource.addAll(connected)
             ]
         ]
+    }
 
-        registry.configure(Allocation, org.palladiosimulator.pcm.allocation.Allocation) [
-            create = [AllocationFactory.eINSTANCE.createAllocation => [a|a.entityName = it.name]]
-            mapAll([it.contents.filter(AllocationContext).toList]).thenSet [ allocation, contexts |
-                allocation.allocationContexts_Allocation.addAll(contexts)
-                contexts.forEach[it.allocation_AllocationContext = allocation]
-            ]
-        ]
-
-        registry.configure(AllocationContext, org.palladiosimulator.pcm.allocation.AllocationContext) [
-            create = [AllocationFactory.eINSTANCE.createAllocationContext => [a|a.entityName = it.name]]
-        // TODO
-        ]
-
+    protected def void configureSystem(GeneratorTransformationRegistry registry) {
         registry.configure(org.palladiosimulator.textual.tpcm.language.System, org.palladiosimulator.pcm.system.System) [
             create = [SystemFactory.eINSTANCE.createSystem => [s|s.entityName = it.name]]
             mapAll([it.contents.filter(AssemblyContext).toList]).thenSet [ system, assemblies |
@@ -377,9 +729,25 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 assemblies.forEach[it.parentStructure__AssemblyContext = system]
             ]
 
-            mapAll([it.contents.filter(Connector).toList]).thenSet [ system, connector |
+            mapAll([it.contents.filter(Connector).toList]).thenSet [ system, List<AssemblyConnector> connector |
                 system.connectors__ComposedStructure.addAll(connector)
                 connector.forEach[it.parentStructure__Connector = system]
+            ]
+
+            after = [
+                it.connectors__ComposedStructure.filter(AssemblyConnector).forEach [ connector |
+                    if (!it.assemblyContexts__ComposedStructure.contains(
+                        connector.providingAssemblyContext_AssemblyConnector)) {
+                        val provided = connector.providingAssemblyContext_AssemblyConnector;
+                        it.assemblyContexts__ComposedStructure.add(provided);
+                        provided.parentStructure__AssemblyContext = it;
+                    } else if (!it.assemblyContexts__ComposedStructure.contains(
+                        connector.requiringAssemblyContext_AssemblyConnector)) {
+                        val required = connector.requiringAssemblyContext_AssemblyConnector;
+                        it.assemblyContexts__ComposedStructure.add(required);
+                        required.parentStructure__AssemblyContext = it;
+                    }
+                ]
             ]
         ]
 
@@ -392,9 +760,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.to]).thenSet [ connector, to |
                 connector.requiringAssemblyContext_AssemblyConnector = to
             ]
-
-        // TODO what about target?
-        // TODO is from / to correctly assigned here
+            map([it.target]).thenSet [ connector, to |
+                connector.requiringAssemblyContext_AssemblyConnector = to
+            ]
         ]
 
         registry.configure(AssemblyContext, org.palladiosimulator.pcm.core.composition.AssemblyContext) [
@@ -403,193 +771,25 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 context.encapsulatedComponent__AssemblyContext = component
             ]
         ]
+    }
 
-        registry.configure(Component, BasicComponent) [
-            create = [
-                RepositoryFactory.eINSTANCE.createBasicComponent => [c|c.entityName = it.name]
-            ]
-//            mapAll([it.contents.filter(DomainInterfaceProvidedRole).toList]).thenSet [ component, provided |
-//                component.providedRoles_InterfaceProvidingEntity.addAll(provided)
-//            ]
-//            mapAll([it.contents.filter(InterfaceRequiredRole).toList]).thenSet [ component, required |
-//                component.requiredRoles_InterfaceRequiringEntity.addAll(required)
-//            ]
-            mapAll([it.contents.filter(InternalInterfaceProvidedRole).map[it.type].toList]).thenSet [ component, resources |
-                component.passiveResource_BasicComponent.addAll(resources)
-            ]
-            mapAll([it.contents.filter(SEFF).toList]).thenSet [ component, seffs |
-                component.serviceEffectSpecifications__BasicComponent.addAll(seffs)
-                seffs.forEach[it.basicComponent_ServiceEffectSpecification = component]
-            ]
-        // TODO SEFF
-        ]
-
-        registry.configure(SEFF, ResourceDemandingSEFF) [
-            create = [
-                SeffFactory.eINSTANCE.createResourceDemandingSEFF
-            ]
-            map([it.signatur]).thenSet [ seff, sig |
-                seff.describedService__SEFF = sig
-            ]
-            mapAll([it.contents]).thenSet [ seff, calls |
-                seff.steps_Behaviour.addAll(calls)
-                calls.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
-                seff.steps_Behaviour.updatePreviousAssignments();
-            ]
-        ]
-
-        registry.configure(SEFFCallAction, AcquireAction) [
-            create = [SeffFactory.eINSTANCE.createAcquireAction]
-            when = [it.signature.name == "acquire"]
-            map([it.role]).thenSet [ action, role |
-                action.passiveresource_AcquireAction = role
-            ]
-        ]
-
-        registry.configure(SEFFCallAction, ReleaseAction) [
-            create = [SeffFactory.eINSTANCE.createReleaseAction]
-            when = [it.signature.name == "release"]
-            map([it.role]).thenSet [ action, role |
-                action.passiveResource_ReleaseAction = role
-            ]
-        ]
-
-        registry.configure(SEFFProbabilisticAction, BranchAction) [
-            create = [SeffFactory.eINSTANCE.createBranchAction]
-            mapAll([it.branches]).thenSet [ action, branches |
-                action.branches_Branch.addAll(branches)
-                branches.forEach[it.branchAction_AbstractBranchTransition = action]
-            ]
-        ]
-
-        registry.configure(SEFFProbabilisticBranch, ProbabilisticBranchTransition) [
-            create = [
-                SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [t|t.branchProbability = it.probability]
-            ]
-            mapAll([it.contents]).thenSet [ branch, actions |
-                branch.addStepsToBranch(actions)
-            ]
-        ]
-
-        registry.configure(SEFFLoopAction, LoopAction) [
-            create = [SeffFactory.eINSTANCE.createLoopAction]
-            map([it.condition], PCMRandomVariable).thenSet [ loop, variable | // TODO how to map?
-                loop.iterationCount_LoopAction = variable
-                variable.loopAction_PCMRandomVariable = loop
-            ]
-            mapAll([it.contents]).thenSet [ loop, actions |
-                val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
-                behavior.steps_Behaviour.addAll(actions)
-                behavior.steps_Behaviour.updatePreviousAssignments();
-                behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
-                loop.bodyBehaviour_Loop = behavior
-            ]
-        ]
-
-        registry.configure(SEFFConditionalAction, BranchAction) [
-            create = [
-                SeffFactory.eINSTANCE.createBranchAction => [
-                    val branch = SeffFactory.eINSTANCE.createGuardedBranchTransition
-                    it.branches_Branch.add(branch)
-                    branch.branchAction_AbstractBranchTransition = it
+    protected def void configureAllocation(GeneratorTransformationRegistry registry) {
+        registry.configure(Allocation, org.palladiosimulator.pcm.allocation.Allocation) [
+            create = [AllocationFactory.eINSTANCE.createAllocation => [a|a.entityName = it.name]]
+            mapAll([it.contents.filter(AllocationContext).flatMap[SingleAssemblyAllocation.getAllFrom(it)].toList]).
+                thenSet [ allocation, contexts |
+                    allocation.allocationContexts_Allocation.addAll(contexts)
+                    contexts.forEach[it.allocation_AllocationContext = allocation]
                 ]
-            ]
-            map([it.condition], PCMRandomVariable).thenSet [ action, condition |
-                val branch = action.branches_Branch.get(0) as GuardedBranchTransition
-                branch.branchCondition_GuardedBranchTransition = condition
-            ]
-            mapAll([it.contents]).thenSet [ action, contents |
-                val branch = action.branches_Branch.get(0) as GuardedBranchTransition
-                branch.addStepsToBranch(contents)
-            ]
-            map([collectAllBranches]).thenSet [ action, alternatives |
-                action.branches_Branch.addAll(alternatives)
-                alternatives.forEach[it.branchAction_AbstractBranchTransition = action]
-            ]
         ]
 
-        registry.configure(SEFFConditionalElseIf, GuardedBranchTransition) [
-            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
-            map([it.condition], PCMRandomVariable).thenSet [ transition, variable |
-                transition.branchCondition_GuardedBranchTransition = variable
+        registry.configure(SingleAssemblyAllocation, org.palladiosimulator.pcm.allocation.AllocationContext) [
+            create = [AllocationFactory.eINSTANCE.createAllocationContext => [a|a.entityName = it.name]]
+            map([it.context]).thenSet [ context, assembly |
+                context.assemblyContext_AllocationContext = assembly;
             ]
-            mapAll([it.contents]).thenSet [ branch, actions |
-                branch.addStepsToBranch(actions)
-            ]
-        ]
-
-        registry.configure(SEFFConditionalElse, GuardedBranchTransition) [
-            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
-            mapAll([it.contents]).thenSet [ branch, actions |
-                branch.addStepsToBranch(actions)
-            ]
-        ]
-
-        registry.configure(SEFFAssignment, SetVariableAction) [
-            create = [SeffFactory.eINSTANCE.createSetVariableAction]
-
-        ]
-
-        registry.configure(SEFFCallAction, SetVariableAction) [
-            create = [
-                SeffFactory.eINSTANCE.createSetVariableAction => [action |
-                    
-                ]
-            ]
-            when = [it.result !== null]
-            map([it.result]).thenSet [ action, result |
-                action.localVariableUsages_SetVariableAction.add(result)
-            ]
-        ]
-
-        registry.configure(PrimitiveResultAssignment, VariableUsage) [
-            create = [ParameterFactory.eINSTANCE.createVariableUsage]
-            map([it.reference]).thenSet [ usage, reference |
-                usage.namedReference__VariableUsage = reference
-            ]
-        ]
-
-        registry.configure(SEFFIterateAction, CollectionIteratorAction) [
-            create = [SeffFactory.eINSTANCE.createCollectionIteratorAction]
-            map([it.iterable]).thenSet [ action, iterable |
-                action.parameter_CollectionIteratorAction = iterable
-            ]
-            mapAll([it.contents]).thenSet [ action, contents |
-                val behavior = addActions(contents)
-                action.bodyBehaviour_Loop = behavior
-                behavior.abstractLoopAction_ResourceDemandingBehaviour = action
-            ]
-        ]
-
-        registry.configure(DomainInterfaceProvidedRole, OperationProvidedRole) [
-            create = [RepositoryFactory.eINSTANCE.createOperationProvidedRole => [r|r.entityName = it.name]]
-            when = [!it.type.contents.exists[it instanceof EventSignature]]
-            map([it.type]).thenSet [ role, iface |
-                role.providedInterface__OperationProvidedRole = iface
-            ]
-        ]
-
-        registry.configure(DomainInterfaceProvidedRole, SinkRole) [
-            create = [RepositoryFactory.eINSTANCE.createSinkRole => [r|r.entityName = it.name]]
-            when = [it.type.contents.exists[it instanceof EventSignature]]
-            map([it.type]).thenSet [ role, iface |
-                role.eventGroup__SinkRole = iface
-            ]
-        ]
-
-        registry.configure(InterfaceRequiredRole, OperationRequiredRole) [
-            create = [RepositoryFactory.eINSTANCE.createOperationRequiredRole => [r|r.entityName = it.name]]
-            when = [!it.type.contents.exists[it instanceof EventSignature]]
-            map([it.type]).thenSet [ role, iface |
-                role.requiredInterface__OperationRequiredRole = iface
-            ]
-        ]
-
-        registry.configure(InterfaceRequiredRole, SourceRole) [
-            create = [RepositoryFactory.eINSTANCE.createSourceRole => [r|r.entityName = it.name]]
-            when = [it.type.contents.exists[it instanceof EventSignature]]
-            map([it.type]).thenSet [ role, iface |
-                role.eventGroup__SourceRole = iface
+            map([it.container]).thenSet [ context, container |
+                context.resourceContainer_AllocationContext = container;
             ]
         ]
     }
