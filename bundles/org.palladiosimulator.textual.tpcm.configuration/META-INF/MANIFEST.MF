@@ -3,7 +3,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.configuration
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.configuration
 Bundle-Vendor: My Company
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 4.3.0.qualifier
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.configuration;singleton:=true
 Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.ide,
