@@ -12,6 +12,8 @@ generated/
 
 pom.tycho
 
+*.xml_gen
+
 # Compiled class file
 *.class
 
