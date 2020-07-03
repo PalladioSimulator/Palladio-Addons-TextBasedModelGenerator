@@ -106,8 +106,21 @@ import org.palladiosimulator.textual.tpcm.language.SEFFLoopAction
 import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticAction
 import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticBranch
 import org.palladiosimulator.textual.tpcm.language.SchedulingPolicy
+import org.palladiosimulator.pcm.repository.PassiveResource
+import org.palladiosimulator.pcm.repository.impl.RepositoryImpl
+import org.palladiosimulator.pcm.seff.ExternalCallAction
+import org.palladiosimulator.pcm.seff.InternalCallAction
+import org.palladiosimulator.textual.tpcm.language.ComplexResultAssignment
+import java.util.stream.Stream
+import org.palladiosimulator.textual.tpcm.language.ResultSpecification
+import org.palladiosimulator.textual.tpcm.language.CharacteristicReference
+import org.palladiosimulator.pcm.seff.EmitEventAction
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
+
+    static def PCMRandomVariable createVariableWithSpecification(String spec) {
+        return CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = spec]
+    }
 
     static def void assignRepository(DataType type, org.palladiosimulator.pcm.repository.Repository repo) {
         type.repository__DataType = repo
@@ -197,6 +210,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 repo.components__Repository.addAll(components)
                 components.forEach[it.repository__RepositoryComponent = repo]
             ]
+            mapAll([it.contents.filter(Interface).toList]).thenSet [ repo, interfaces |
+                repo.interfaces__Repository.addAll(interfaces)
+                interfaces.forEach[it.repository__Interface = repo]
+            ]
         ]
 
         registry.configureRepositoryDatatypes()
@@ -216,13 +233,20 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 component.requiredRoles_InterfaceRequiringEntity.addAll(required.filter(RequiredRole))
                 component.resourceRequiredRoles__ResourceInterfaceRequiringEntity.addAll(
                     required.filter(ResourceRequiredRole))
-            // required.forEach[it.requiringEntity_RequiredRole = component]
             ]
-            mapAll([it.contents.filter(InternalInterfaceProvidedRole).toList]).thenSet [ component, resources |
+            mapAll([
+                it.contents.filter(InternalInterfaceProvidedRole).filter [
+                    it.type.eContainer instanceof ResourceTypeRepository
+                ].map[it.type].toList
+            ], PassiveResource).thenSet [ component, resources |
+                component.passiveResource_BasicComponent.addAll(resources)
+            ]
+            mapAll([
+                it.contents.filter(InternalInterfaceProvidedRole).filter [
+                    !(it.type.eContainer instanceof ResourceTypeRepository)
+                ].toList
+            ]).thenSet [ component, resources |
                 component.providedRoles_InterfaceProvidingEntity.addAll(resources.filter(ProvidedRole))
-            // TODO what about ResourceProvidedRole
-            // component.resourceRequiredRoles__ResourceInterfaceRequiringEntity
-            // resources.forEach[it.providingEntity_ProvidedRole = component]
             ]
             mapAll([it.contents.filter(SEFF).toList]).thenSet [ component, seffs |
                 component.serviceEffectSpecifications__BasicComponent.addAll(seffs)
@@ -245,7 +269,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 EntityFactory.eINSTANCE.createResourceProvidedRole => [r|r.entityName = it.name]
             ]
             when = [it.type.eContainer instanceof ResourceTypeRepository]
-            map([it.type]).thenSet [ role, type |
+            map([it.type], ResourceInterface).thenSet [ role, type |
                 role.providedResourceInterface__ResourceProvidedRole = type
             ]
         ]
@@ -293,9 +317,13 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(InterfaceRequiredRole, ResourceRequiredRole) [
             create = [EntityFactory.eINSTANCE.createResourceRequiredRole => [r|r.entityName = it.name]]
             when = [it.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface]
-            map([it.type]).thenSet [ role, iface |
+            map([it.type], ResourceInterface).thenSet [ role, iface |
                 role.requiredResourceInterface__ResourceRequiredRole = iface
             ]
+        ]
+
+        registry.configure(InternalInterface, PassiveResource) [
+            create = [RepositoryFactory.eINSTANCE.createPassiveResource => [r|r.entityName = it.name]]
         ]
     }
 
@@ -319,17 +347,23 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(SEFFCallAction, AcquireAction) [
             create = [SeffFactory.eINSTANCE.createAcquireAction]
-            when = [it.signature.name == "acquire" && it.role instanceof InfrastructureRequiredRole]
-            map([it.role]).thenSet [ action, role |
-                action.passiveresource_AcquireAction = role
+            when = [
+                it.signature.name == "acquire" && it.role instanceof InternalInterfaceProvidedRole &&
+                    it.role.type.eContainer instanceof ResourceTypeRepository
+            ]
+            map([it.role], PassiveResource).thenSet [ action, resource |
+                action.passiveresource_AcquireAction = resource
             ]
         ]
 
         registry.configure(SEFFCallAction, ReleaseAction) [
             create = [SeffFactory.eINSTANCE.createReleaseAction]
-            when = [it.signature.name == "release" && it.role instanceof InfrastructureRequiredRole]
-            map([it.role]).thenSet [ action, role |
-                action.passiveResource_ReleaseAction = role
+            when = [
+                it.signature.name == "release" && it.role instanceof InternalInterfaceProvidedRole &&
+                    it.role.type.eContainer instanceof ResourceTypeRepository
+            ]
+            map([it.role], PassiveResource).thenSet [ action, resource |
+                action.passiveResource_ReleaseAction = resource
             ]
         ]
 
@@ -411,35 +445,105 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 action.localVariableUsages_SetVariableAction.add(result)
                 result.setVariableAction_VariableUsage = action
             ]
-            map([it.specification]).thenSet [ action, spec |
+            map([it.specification]).thenSet [action, spec |
 //                action.localVariableUsages_SetVariableAction.get(0).variableCharacterisation_VariableUsage.add(spec)
             ]
         ]
 
-        registry.configure(SEFFCallAction, SetVariableAction) [
-            create = [SeffFactory.eINSTANCE.createSetVariableAction]
-            when = [it.result !== null]
-            map([it.result]).thenSet [ action, result |
-                action.localVariableUsages_SetVariableAction.add(result)
+        registry.configure(SEFFCallAction, EmitEventAction) [
+            create = [SeffFactory.eINSTANCE.createEmitEventAction]
+            when = [it.signature instanceof EventSignature]
+            map([it.role]).thenSet [ action, role |
+                action.sourceRole__EmitEventAction = role
             ]
+            map([it.signature]).thenSet [ action, signature |
+                action.eventType__EmitEventAction = signature
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, ExternalCallAction) [
+            create = [SeffFactory.eINSTANCE.createExternalCallAction]
+            when = [it.result !== null]
+            map([it.role]).thenSet [ action, role |
+                action.role_ExternalService = role
+            ]
+            map([it.signature], org.palladiosimulator.pcm.repository.OperationSignature).thenSet [ action, signature |
+                action.calledService_ExternalService = signature
+            ]
+            mapAll([
+                it.result instanceof ComplexResultAssignment
+                    ? (it.result as ComplexResultAssignment).specification
+                    : emptyList
+            ]).thenSet [ action, specs |
+                action.returnVariableUsage__CallReturnAction.addAll(specs)
+                specs.forEach[it.callReturnAction__VariableUsage = action]
+            ]
+            map([it.result instanceof ComplexResultAssignment ? null : it.result]).thenSet [ action, result |
+                action.returnVariableUsage__CallReturnAction.add(result)
+                result.callReturnAction__VariableUsage = action
+            ]
+        ]
+
+        registry.configure(PrimitiveResultAssignment, VariableUsage) [
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+                    v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
+                ]
+            ]
+            when = [it.reference instanceof AbsoluteReference]
+        ]
+
+        registry.configure(PrimitiveResultAssignment, VariableUsage) [
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+                    val characterization = VariableCharacterisationType.getByName(
+                        (it.reference as RelativeReference).characteristic.referenceName)
+                    val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
+                        vc.type = characterization
+                    ]
+                    v.variableCharacterisation_VariableUsage.add(variable)
+                    variable.variableUsage_VariableCharacterisation = v
+                ]
+            ]
+            when = [it.reference instanceof RelativeReference]
+        ]
+
+        registry.configure(ResultSpecification, VariableUsage) [
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+                    v.namedReference__VariableUsage = (it.characteristic as AbsoluteReference).reference
+                ]
+            ]
+            when = [it.characteristic instanceof AbsoluteReference]
+        ]
+
+        registry.configure(ResultSpecification, VariableUsage) [
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+                    val characterization = VariableCharacterisationType.getByName(
+                        (it.characteristic as RelativeReference).characteristic.referenceName)
+                    val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
+                        vc.type = characterization
+                    ]
+                    v.variableCharacterisation_VariableUsage.add(variable)
+                    variable.variableUsage_VariableCharacterisation = v
+                ]
+            ]
+            when = [it.characteristic instanceof RelativeReference]
         ]
 
         registry.configure(SEFFCallAction, InternalAction) [
             create = [SeffFactory.eINSTANCE.createInternalAction]
-            when = [it.role instanceof InternalInterfaceProvidedRole]
-            map([it.role]).thenSet [ action, role |
-                if (role instanceof InfrastructureRequiredRole) {
-                    val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
-                    call.requiredRole__InfrastructureCall = role as InfrastructureRequiredRole
-                    action.infrastructureCall__Action.add(call);
-                } else if (role instanceof ResourceRequiredRole) {
-                    val call = SeffPerformanceFactory.eINSTANCE.createResourceCall;
-                    call.resourceRequiredRole__ResourceCall = role as ResourceRequiredRole
-                    action.resourceCall__Action.add(call);
-                }
-            // TODO
+            when = [
+                it.role instanceof InternalInterfaceProvidedRole &&
+                    !(it.role.type.eContainer instanceof ResourceTypeRepository)
             ]
-            map([it.signature]).thenSet [ action, sig |
+            map([it.role]).thenSet [ action, role |
+                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
+                call.requiredRole__InfrastructureCall = role as InfrastructureRequiredRole
+                action.infrastructureCall__Action.add(call);
+            ]
+            map([it.signature]).thenSet [action, sig |
                 
             ]
             mapAll([it.parameters]).thenSet [ action, params |
@@ -447,6 +551,39 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 call.inputVariableUsages__CallAction.addAll(params)
                 params.forEach[it.callAction__VariableUsage = call]
             ]
+        ]
+
+        registry.configure(SEFFCallAction, InternalAction) [
+            create = [SeffFactory.eINSTANCE.createInternalAction]
+            when = [
+                it.role.type.eContainer instanceof ResourceTypeRepository &&
+                    !(it.signature.name == "acquire" || it.signature.name == "release")
+            ]
+            map([it.role]).thenSet [ action, resource |
+                val call = SeffPerformanceFactory.eINSTANCE.createResourceCall
+                call.resourceRequiredRole__ResourceCall = resource
+                action.resourceCall__Action.add(call)
+                call.action__ResourceCall = action
+            ]
+            map([it.signature], ResourceSignature).thenSet [ action, signature |
+                val call = action.resourceCall__Action.get(0)
+                call.signature__ResourceCall = signature
+            ]
+            map([it.parameters.get(0).specification], PCMRandomVariable).thenSet [ action, variable |
+                val call = action.resourceCall__Action.get(0)
+                call.numberOfCalls__ResourceCall = variable
+            ]
+        ]
+
+        registry.configure(SEFFCallAction, InternalCallAction) [ // TODO how can I make a call to provided interfaces?
+            create = [SeffFactory.eINSTANCE.createInternalCallAction]
+            when = [it.role instanceof DomainInterfaceProvidedRole]
+//            map([it.role]).thenSet [ action, role |
+////                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
+////                call.
+////                action.infrastructureCall__Action.
+////                action.role_ExternalService = role
+//            ]
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
@@ -490,15 +627,8 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(Expression, PCMRandomVariable) [
             create = [
                 CoreFactory.eINSTANCE.createPCMRandomVariable => [ v |
-                    v.specification = it.toString
+                    v.specification = ExpressionConverter.getOriginalExpressionString(it)
                 ]
-            ]
-        ]
-
-        registry.configure(PrimitiveResultAssignment, VariableUsage) [
-            create = [ParameterFactory.eINSTANCE.createVariableUsage]
-            map([it.reference]).thenSet [ usage, reference |
-                usage.namedReference__VariableUsage = reference
             ]
         ]
 
@@ -511,14 +641,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 val behavior = addActions(contents)
                 action.bodyBehaviour_Loop = behavior
                 behavior.abstractLoopAction_ResourceDemandingBehaviour = action
-            ]
-        ]
-
-        registry.configure(String, PCMRandomVariable) [
-            create = [
-                CoreFactory.eINSTANCE.createPCMRandomVariable => [ v |
-                    v.specification = it
-                ]
             ]
         ]
     }
@@ -611,7 +733,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(ResourceTypeRepository, ResourceRepository) [
             create = [ResourcetypeFactory.eINSTANCE.createResourceRepository]
-            mapAll([it.contents.filter(Interface).toList]).thenSet [ resourceTypes, interfaces |
+            mapAll([it.contents.filter(Interface).toList], ResourceInterface).thenSet [ resourceTypes, interfaces |
                 resourceTypes.resourceInterfaces__ResourceRepository.addAll(interfaces)
             ]
         ]
@@ -660,7 +782,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(ResourceInterfaceProvidedRole, ResourceProvidedRole) [
             create = [EntityFactory.eINSTANCE.createResourceProvidedRole]
-            map([it.type]).thenSet [ role, type |
+            map([it.type], ResourceInterface).thenSet [ role, type |
                 role.providedResourceInterface__ResourceProvidedRole = type
             ]
         ]
@@ -700,9 +822,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(ProcessingResource, ProcessingResourceSpecification) [
-            create = [ResourceenvironmentFactory.eINSTANCE.createProcessingResourceSpecification => [s|s.id = it.name]]
+            create = [ResourceenvironmentFactory.eINSTANCE.createProcessingResourceSpecification]
             map([it.type]).thenSet [ resource, type |
                 resource.activeResourceType_ActiveResourceSpecification = type
+            ]
+            after = [
+                it.processingRate_ProcessingResourceSpecification = createVariableWithSpecification("100")
             ]
         ]
 
@@ -711,6 +836,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.type]).thenSet [ link, type |
                 var spec = ResourceenvironmentFactory.eINSTANCE.createCommunicationLinkResourceSpecification => [
                     it.communicationLinkResourceType_CommunicationLinkResourceSpecification = type
+                    val latency = createVariableWithSpecification("100")
+                    it.latency_CommunicationLinkResourceSpecification = latency
+                    val throughput = createVariableWithSpecification("100")
+                    it.throughput_CommunicationLinkResourceSpecification = throughput
                 ]
                 link.communicationLinkResourceSpecifications_LinkingResource = spec
                 spec.linkingResource_CommunicationLinkResourceSpecification = link
@@ -781,6 +910,20 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     allocation.allocationContexts_Allocation.addAll(contexts)
                     contexts.forEach[it.allocation_AllocationContext = allocation]
                 ]
+            map([
+                it.contents.filter(AllocationContext).map[it.spec.container.eContainer].findFirst [
+                    it instanceof ResourceEnvironment
+                ]
+            ]).thenSet [ alloc, env |
+                alloc.targetResourceEnvironment_Allocation = env
+            ]
+            map([
+                it.contents.filter(AllocationContext).flatMap[SingleAssemblyAllocation.getAllFrom(it)].map [
+                    it.context.eContainer
+                ].findFirst[it instanceof org.palladiosimulator.textual.tpcm.language.System]
+            ]).thenSet [ alloc, sys |
+                alloc.system_Allocation = sys
+            ]
         ]
 
         registry.configure(SingleAssemblyAllocation, org.palladiosimulator.pcm.allocation.AllocationContext) [
