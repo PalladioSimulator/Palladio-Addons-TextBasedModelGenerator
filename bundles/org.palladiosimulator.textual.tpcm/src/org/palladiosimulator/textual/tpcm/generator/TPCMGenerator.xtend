@@ -15,6 +15,7 @@ import org.palladiosimulator.textual.tpcm.language.MappingContent
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.common.util.URI
 import java.util.List
+import org.palladiosimulator.textual.tpcm.language.MappingConfiguration
 
 /**
  * Generates code from your model files on save.
@@ -27,7 +28,7 @@ class TPCMGenerator extends AbstractGenerator {
     override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
         val resourceSet = new ResourceSetImpl()
         val mapping = resource.allContents.filter(MappingContent).toList
-        val fragments = resource.allContents.filter(Fragment).toList
+        val fragments = resource.allContents.filter(Fragment).filter[!(it instanceof MappingConfiguration)].toList
         val registry = GeneratorTransformationRegistry.INSTANCE;
         registry.withContext(createProvidedMappings(resourceSet, mapping)) [
             val mappedFragments = new ArrayList(fragments.map [
