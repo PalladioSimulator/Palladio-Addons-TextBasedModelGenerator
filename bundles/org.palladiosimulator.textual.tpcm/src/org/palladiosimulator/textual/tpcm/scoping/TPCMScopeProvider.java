@@ -12,6 +12,7 @@ import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.scoping.impl.FilteringScope;
 import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole;
+import org.palladiosimulator.textual.tpcm.language.EntryLevelSystemCallAction;
 import org.palladiosimulator.textual.tpcm.language.Interface;
 import org.palladiosimulator.textual.tpcm.language.InternalInterfaceProvidedRole;
 import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
@@ -37,6 +38,9 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 		} else if (context instanceof SEFFCallAction
 				&& reference == LanguagePackage.Literals.SEFF_CALL_ACTION__SIGNATURE) {
 			return Scopes.scopeFor(getSignaturesOfInterfaceForRole(((SEFFCallAction) context).getRole()));
+		} else if (context instanceof EntryLevelSystemCallAction
+				&& reference == LanguagePackage.Literals.ENTRY_LEVEL_SYSTEM_CALL_ACTION__ROLE) {
+			return Scopes.scopeFor(getSignaturesOfInterfaceForRole(((EntryLevelSystemCallAction) context).getRole()));
 		} else if (context instanceof DomainInterfaceProvidedRole && reference == LanguagePackage.Literals.ROLE__TYPE) {
 			return new FilteringScope(super.getScope(context, reference),
 					ref -> ref.getEClass() == LanguagePackage.Literals.DOMAIN_INTERFACE);

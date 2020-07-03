@@ -16,7 +16,8 @@ EncapsulatedFragment returns Fragment:
     | ('system' {System} name=ID? '{'(contents+=SystemContent)*'}') 
     | ('allocation' {Allocation} name=ID? '{'(contents+=AllocationContent)*'}')
     | ('resourceenvironment' {ResourceEnvironment} name=ID? '{'(contents+=ResourceEnvironmentContent)*'}')
-    | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')  
+    | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')
+    | ('usage' {Usage} name=ID? '{' (contents+=UsageContent)*'}')  
 ;
 
 FileLevelDefinition returns Fragment:
@@ -25,6 +26,7 @@ FileLevelDefinition returns Fragment:
     | ('allocation' {Allocation} name=ID? (contents+=AllocationContent)*)
     | ('resourceenvironment' {ResourceEnvironment} name=ID? (contents+=ResourceEnvironmentContent)*)
     | ('resourcetypes' {ResourceTypeRepository} name=ID? (contents+=ResourceTypeRepositoryContent)*)   
+    | ('usage' {Usage} name=ID? (contents+=UsageContent)*)
 ;
 
 /**
@@ -222,7 +224,11 @@ FailureType:
  */
  
 SystemContent returns Content:
-    AssemblyContext | Connector | Role
+    AssemblyContext | Connector | SystemProvidedRole
+;
+
+SystemProvidedRole returns Role:
+     'provides' {SystemProvidedRole} name=ID? type=[Interface|FQN] ('->' to=[AssemblyContext|FQN] | '->' target=AssemblyContext)
 ;
 
 AssemblyContext:
@@ -325,3 +331,65 @@ ResourceInterfaceProvidedRole:
 SchedulingPolicy:
     'policy' name=ID 
 ;
+
+/**
+ * 
+ * Usage View
+ * 
+ */
+ 
+ UsageContent:
+     UsageScenario
+ ;
+
+UsageScenario:
+	workload=Workload '{'
+	   (contents += ScenarioContent)*
+	'}'
+;
+
+Workload:
+    OpenWorkload | ClosedWorkload
+;
+
+OpenWorkload:
+    'open' '(' '«'interArrivalTime=expression'»'')'
+;
+
+ClosedWorkload:
+    'closed' '(''«'numberOfUsers=expression'»' ',' '«'thinkTime=expression'»' ')'
+;
+
+ScenarioContent:
+    ScenarioLoopAction | ScenarioBranchAction | EntryLevelSystemCallAction | ScenarioDelayAction
+;
+
+ScenarioLoopAction:
+    'loop' '(' '«' condition=expression '»' ')''{'
+        (contents += ScenarioContent)*
+    '}' 
+;
+
+ScenarioBranchAction:
+    'random' '{'
+    (branches+=ScenarioBranch)+
+    '}'
+;
+
+ScenarioBranch:
+    '(' probability=DOUBLE ')''{'
+       (contents += ScenarioContent)*
+    '}'
+;
+
+EntryLevelSystemCallAction:
+    role=[SystemProvidedRole] '.' signature=[Signature]('('
+        parameters+=ParameterSpecification (',' parameters+=ParameterSpecification)*
+    ')')? 
+    ('->' result=ResultAssignment)? 
+;
+
+ScenarioDelayAction:
+    'delay' (('«'duration=expression'»') | ('(' '«'duration=expression'»' ')'))
+;
+
