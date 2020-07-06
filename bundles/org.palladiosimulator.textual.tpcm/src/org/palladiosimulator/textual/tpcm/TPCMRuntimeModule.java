@@ -3,9 +3,37 @@
  */
 package org.palladiosimulator.textual.tpcm;
 
+import org.eclipse.xtext.naming.IQualifiedNameConverter;
+import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
+import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
+import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
+import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
+import org.palladiosimulator.textual.tpcm.scoping.TPCMImportUriGlobalScopeProvider;
 
 /**
- * Use this class to register components to be used at runtime / without the Equinox extension registry.
+ * Use this class to register components to be used at runtime / without the
+ * Equinox extension registry.
  */
 public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
+	
+	@Override
+	public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
+		return TPCMQualifiedNameProvider.class;
+	}
+
+	public Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
+		return TPCMQualifiedNameConverter.class;
+	}
+	
+	@Override
+	public Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
+		return TPCMImportUriGlobalScopeProvider.class;
+	}
+	
+	public Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
+		return TPCMResourceDescriptionStrategy.class;
+	}
+	
 }

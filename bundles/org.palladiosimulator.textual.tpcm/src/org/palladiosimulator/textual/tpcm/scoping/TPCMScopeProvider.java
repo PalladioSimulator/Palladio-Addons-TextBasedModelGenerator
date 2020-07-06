@@ -39,7 +39,7 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 				&& reference == LanguagePackage.Literals.SEFF_CALL_ACTION__SIGNATURE) {
 			return Scopes.scopeFor(getSignaturesOfInterfaceForRole(((SEFFCallAction) context).getRole()));
 		} else if (context instanceof EntryLevelSystemCallAction
-				&& reference == LanguagePackage.Literals.ENTRY_LEVEL_SYSTEM_CALL_ACTION__ROLE) {
+				&& reference == LanguagePackage.Literals.ENTRY_LEVEL_SYSTEM_CALL_ACTION__SIGNATURE) {
 			return Scopes.scopeFor(getSignaturesOfInterfaceForRole(((EntryLevelSystemCallAction) context).getRole()));
 		} else if (context instanceof DomainInterfaceProvidedRole && reference == LanguagePackage.Literals.ROLE__TYPE) {
 			return new FilteringScope(super.getScope(context, reference),
