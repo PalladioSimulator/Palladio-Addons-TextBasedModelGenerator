@@ -119,6 +119,14 @@
 	</extension>
 	<extension
 		point="org.eclipse.ui.commands">
+        <command
+            description="Inserts an opening french quote"
+            id="org.palladiosimulator.textual.tpcm.insertLeftGuillemet"
+            name="Insert left guillemet"/>
+        <command
+            description="Inserts an closing french quote"
+            id="org.palladiosimulator.textual.tpcm.insertRightGuillemet"
+            name="Insert right guillemet"/>
 		<command
 			description="Trigger expensive validation"
 			id="org.palladiosimulator.textual.tpcm.TPCM.validate"
@@ -203,6 +211,24 @@
 				</reference>
 			</activeWhen>
 		</handler>
+		<handler
+            class="org.palladiosimulator.textual.tpcm.ui.edit.InsertStringHandler$LeftGuillemet"
+            commandId="org.palladiosimulator.textual.tpcm.insertLeftGuillemet">
+            <activeWhen>
+                <reference
+                    definitionId="org.palladiosimulator.textual.tpcm.TPCM.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
+        <handler
+            class="org.palladiosimulator.textual.tpcm.ui.edit.InsertStringHandler$RightGuillemet"
+            commandId="org.palladiosimulator.textual.tpcm.insertRightGuillemet">
+            <activeWhen>
+                <reference
+                    definitionId="org.palladiosimulator.textual.tpcm.TPCM.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
 	</extension>
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<content-type
@@ -431,4 +457,19 @@
 			type="text">
 		</fileTypes>
 	</extension>
+ <extension
+       point="org.eclipse.ui.bindings">
+        <key
+            contextId=""
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+&lt;"
+            commandId="org.palladiosimulator.textual.tpcm.insertLeftGuillemet">
+        </key>
+        <key
+            contextId=""
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+&gt;"
+            commandId="org.palladiosimulator.textual.tpcm.insertRightGuillemet">
+        </key>
+ </extension>
 </plugin>
