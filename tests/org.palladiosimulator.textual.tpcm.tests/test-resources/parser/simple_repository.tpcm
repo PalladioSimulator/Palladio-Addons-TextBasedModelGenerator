@@ -1,0 +1,9 @@
+repository RepoName {
+    interface IService1 {
+        op doSth
+    }
+    
+    component Service1Impl {
+        provides IService1
+    }
+}

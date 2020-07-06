@@ -4,129 +4,45 @@
 package org.palladiosimulator.textual.tpcm.tests
 
 import com.google.inject.Inject
+import com.google.inject.Provider
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.stream.Stream
+import org.eclipse.emf.common.util.URI
+import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
-import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.palladiosimulator.textual.tpcm.language.Model
+import org.junit.jupiter.api.function.Executable
+
+import static org.junit.jupiter.api.DynamicTest.dynamicTest
 
 @ExtendWith(InjectionExtension)
 @InjectWith(TPCMInjectorProvider)
 class TPCMParsingTest {
-	@Inject
-	ParseHelper<Model> parseHelper
-	
-	@Test
-	def void loadModel() {
-		val result = parseHelper.parse('''
-			repository PrimitiveTypes {
-			    datatype Integer INT
-			    failure CPUFailure
-			    failure NetworkFailure
-			}
-			
-			resourcetypes {
-			    internal PassiveResource {
-			        op aquire
-			        op release
-			    }
-			    
-			    interface ICPU {
-			        op process(amount PrimitiveTypes.Integer)
-			    }
-			    
-			    internal PassiveResourceWithAcquireCapacity {
-			        op aquire(amount PrimitiveTypes.Integer)
-			        op release(amount PrimitiveTypes.Integer)
-			    }
-			    
-			    processing CPUResource {
-			        provides ICPU
-			        raises PrimitiveTypes.CPUFailure        
-			    }
-			    
-			    link Ethernet {
-			        raises PrimitiveTypes.NetworkFailure
-			    }
-			}
-			
-			repository RepoName {
-			    datatype MyPrimitive STRING
-			    datatype MyType {
-			        element1 MyPrimitive
-			        element2 datatype MyNestedCollection {
-			        }
-			    }
-			    
-			    datatype MyCollection []<MyType.element2.MyNestedCollection>
-			    
-			    interface IService1 {
-			        op invoke (param1 MyCollection, param2 MyPrimitive) MyType
-			        op doSth
-			    }
-			    
-			    interface IService2 {
-			        op getSth MyType
-			    }
-			    
-			    interface EEvent1 {
-			        ev event1
-			    }
-			    
-			    component Service1Impl {
-			        provides serv1 IService1
-			        provides serv2 IService2
-			        requires req1 IService2
-			        requires ev1 EEvent1
-			        requires cpu ICPU
-			        internal threadpool PassiveResource
-			        
-			        seff serv1.doSth {
-			            threadpool.aquire
-			            cpu.process(«'«'»1000«'»'»)
-			            serv1.invoke(param1.BYTESIZE: «'«'»DoublePDF[(0.1;20.0)(0.9;21.0)]«'»'»)
-			            random {
-			                (0.01) {
-			                    req1.getSth -> (.VALUE, .BYTESIZE)
-			                    req1.getSth -> (.VALUE: «'«'»50«'»'»)
-			                    ev1.event1              
-			                 }
-			                (0.77) {
-			                    «'«'»3«'»'» -> .VALUE
-			                }
-			            }
-			            threadpool.release      
-			        }
-			    }   
-			    
-			    component Service2Impl {
-			        requires IService1
-			    }
-			}
-			
-			system Sys1 {
-			    assembly A1 RepoName.Service1Impl
-			    assembly A2 RepoName.Service2Impl
-			    
-			    A2 -> assembly A3 RepoName.Service2Impl
-			}
-			
-			resourceenvironment ResourceEnvironment1 {
-			    container C1 {
-			        processing CPU CPUResource 
-			    }
-			    container C2
-			    link link1 Ethernet (C1, C2)
-			} 
-			
-			allocation Allocation1 { 
-			    Sys1.A1, Sys1.A2, Sys1.A3 -> ResourceEnvironment1.C1
-			}
-		''')
-		Assertions.assertNotNull(result)
-		val errors = result.eResource.errors
-		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
-	}
+    @Inject
+    Provider<XtextResourceSet> resourceSetProvider;
+
+    @TestFactory
+    def Stream<DynamicTest> checkAllTPCMParserTestFiles() {
+        return Files.walk(Paths.get("test-resources/parser"), 1).filter([it.toString().endsWith(".tpcm")]).map([ path |
+            dynamicTest("> " + path.getFileName(), path.toUri(), // test source uri
+            [|testParser(path)] as Executable)
+        ]);
+    }
+
+    def testParser(Path path) throws Exception {
+        val rs = resourceSetProvider.get
+        val r = rs.getResource(URI.createURI(path.toUri.toString), true);
+        r.load(null);
+        Assertions.assertEquals(r.contents.length, 1, "Unexpected number of root elements.")
+        val result = r.contents.get(0)
+        Assertions.assertNotNull(result)
+        val errors = r.errors
+        Assertions.assertTrue(errors.isEmpty, '''Unexpected errors in «path.toString»: «errors.join(", ")»''')
+    }
 }
