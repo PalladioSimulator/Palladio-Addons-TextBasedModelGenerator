@@ -1,0 +1,43 @@
+//TPCM files can include multiple view points as well as a single file level declaration
+
+//The supported view points are:
+
+// Repository
+repository FirstRepo {
+	component C1 {
+		provides foo1 SecondRepo::IFoo // The order of definition within the document is not relevant
+	}
+}
+
+// System / Assembly 
+system FirstSystem {
+	
+}
+
+// Allocation
+allocation FirstAllocation {
+	
+}
+
+// Resource Environment
+resourceenvironment {
+	
+}
+
+// Usage Model
+usage {
+	
+}
+
+// Resource Types
+resourcetypes {
+	
+}
+
+//A file level specification declares the remainder of the file to be of a particular view point and namespace
+repository SecondRepo
+
+//Following declarations omit the indentation
+interface IFoo {
+	op foo
+}

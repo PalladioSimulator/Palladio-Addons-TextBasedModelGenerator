@@ -53,5 +53,26 @@ repository RepositoryName { //The repository name is relevant whenever cross ref
 			
 			«IntPMF[(500;0.5)(1000;0.5)]» -> .BYTESIZE // SetVariableAction. Assignment of StoEx to RESULT.BYTESIZE in result frame.
 		}
+		
+		seff ps1.Signature3 {
+			iterate (param1) { // CollectionIteratorAction
+				rs1.Signature4 («param1.INNER.VALUE») //Access to inner characteristic of iterated collection
+			}
+			
+			if «param1.NUMBER_OF_ELEMENTS >= 5» { // Branch action with guarded branch transition
+			} else if «param1.NUMBER_OF_ELEMENTS >= 10» { // Multiple guarded branches 
+			} else { // Default case
+			}
+			
+			random { //Branch action with probabilistic branches
+				(0.25) { // Branch probability of p=0.25
+					
+				}
+				(0.5) { // Branch probability of p=0.5
+					
+				}
+				// If summed probability is less than 1, a default NOP-case is assumed 
+			}
+		}
 	}
 }
