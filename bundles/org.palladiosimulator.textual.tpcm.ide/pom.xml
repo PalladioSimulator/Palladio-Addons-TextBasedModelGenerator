@@ -168,7 +168,7 @@
 						</filter>
 					</filters>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>ls</shadedClassifierName>
+					<finalName>tpcm-language-server</finalName>
 					<minimizeJar>false</minimizeJar>
 				</configuration>
 				<executions>
