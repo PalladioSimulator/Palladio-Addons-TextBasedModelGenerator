@@ -44,6 +44,41 @@
 		</pluginManagement>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>sonatype-single-artifact-deploy</id>
+			<properties>
+				<artifactId>tpcm-language-server</artifactId>
+				<groupId>${project.groupId}</groupId>
+				<version>${project.version}</version>
+				<repositoryId>ossrh</repositoryId>
+				<file>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/tpcm-language-server.jar</file>
+			</properties>
+		</profile>
+		<profile>
+			<id>nightly</id>
+			<activation>
+				<property>
+					<name>!release</name>
+				</property>
+			</activation>
+			<properties>
+				<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			</properties>
+		</profile>
+		<profile>
+			<id>release</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<properties>
+				<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			</properties>
+		</profile>
+	</profiles>
+
 	<modules>
 		<module>bundles</module>
 		<module>features</module>
