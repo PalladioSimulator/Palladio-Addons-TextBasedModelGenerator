@@ -110,10 +110,24 @@ ComponentContent returns Content:
 ;
 
 Role:
-     (('provides'{DomainInterfaceProvidedRole}
+     InitializableRole | (('provides'{DomainInterfaceProvidedRole}
         |'requires'{InterfaceRequiredRole}
         |'internal'{InternalInterfaceProvidedRole}
-     ) name=ID? type=[Interface|FQN])
+     ) name=ID type=[Interface|FQN])
+;
+
+InitializableRole returns Role:
+    'internal'{InternalInterfaceProvidedRole} name=ID type=[Interface|FQN] initialization=Initialization?
+;
+
+Initialization:
+    {Initialization} ('('
+        (contents += PropertyInitializer)*
+    ')')
+;
+
+PropertyInitializer:
+    property=[PropertyDefinition] ':' (referencedElement=[ecore::EObject|FQN] | '«'specification=expression'»')
 ;
 
 SEFF:
@@ -167,7 +181,7 @@ CharacteristicReference:
 ;
 
 SEFFLoopAction:
-    'loop' '(' condition=STRING ')''{'
+    'loop' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')'))'{'
         (contents += SEFFContent)*
     '}' 
 ;
@@ -179,7 +193,7 @@ SEFFIterateAction:
 ;
 
 SEFFConditionalAction:
-    'if' '('condition=STRING ')' '{'
+    'if' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')')) '{'
        (contents += SEFFContent)*
     '}' alternative=SEFFConditionalAlternative?
 ;
@@ -189,7 +203,7 @@ SEFFConditionalAlternative:
 ;
 
 SEFFConditionalElseIf:
-    'else' 'if' '('condition=STRING ')' '{'
+    'else' 'if' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')')) '{'
        (contents += SEFFContent)*
     '}' alternative=SEFFConditionalAlternative? 
 ;
@@ -287,15 +301,11 @@ ResourceContainerContent:
 ;
 
 ProcessingResource:
-    'processing' name=ID type=[ProcessingResourceType]
-;
-
-HDDResource:
-    'hdd' name=ID type=[ProcessingResourceType]
+    'processing' name=ID type=[ProcessingResourceType|FQN] initialization=Initialization?
 ;
 
 LinkingResource:
-    'link' name=ID type=[CommunicationLinkType|FQN] ('(' connected+=[ResourceContainer|FQN](',' connected+=[ResourceContainer|FQN])*')')?
+    'link' name=ID type=[CommunicationLinkType|FQN] initialization=Initialization?  connected+=[ResourceContainer|FQN](',' connected+=[ResourceContainer|FQN])*
 ;
 
 /**
@@ -305,19 +315,33 @@ LinkingResource:
  */
 
 ResourceTypeRepositoryContent returns Content:
-    ResourceInterface | ResourceType | SchedulingPolicy
+    ResourceTypeRepositoryInterface | ResourceType | ResourceEntityType | ResourceEntity
 ;
 
-ResourceInterface returns Interface:
-    ({ResourceInterface} 'interface'|{InternalInterface} 'internal') name=ID ('{'
+ResourceTypeRepositoryInterface returns Interface:
+    ResourceInterface | InternalConfigurableInterface
+;
+
+ResourceInterface:
+    'interface' name=ID ('{'
         (contents += OperationInterfaceContent)*
+    '}')
+;
+
+InternalConfigurableInterface:
+    'internal' name=ID ('{'
+        (contents += OperationInterfaceContent | definitions += PropertyDefinition)*
     '}')
 ;
 
 ResourceType:
     ('processing' {ProcessingResourceType} | 'link' {CommunicationLinkType}) name=ID ('{'
-        (contents += ResourceTypeContent)*
+        (contents += ResourceTypeContent| definitions += PropertyDefinition)*
     '}')
+;
+
+PropertyDefinition:
+    'property' (optional ?= '?')? name=ID type=[ecore::EObject|FQN]
 ;
 
 ResourceTypeContent:
@@ -332,9 +356,12 @@ ResourceInterfaceProvidedRole:
     {ResourceInterfaceProvidedRole} 'provides' (type=[ResourceInterface|FQN] | interface=ResourceInterface)
 ;
 
+ResourceEntityType: 
+    'type' name=ID
+;
 
-SchedulingPolicy:
-    'policy' name=ID 
+ResourceEntity:
+    'entity' name=ID type=[ResourceEntityType|FQN]
 ;
 
 /**

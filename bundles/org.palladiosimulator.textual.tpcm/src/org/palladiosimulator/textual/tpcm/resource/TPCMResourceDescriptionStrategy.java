@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 
 public class TPCMResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 	public static final String INCLUDES = "includes";
+	public static final String ENTITY_TYPE = "entity_type";
 
 	@Inject
 	ImportUriResolver uriResolver;
@@ -26,7 +27,7 @@ public class TPCMResourceDescriptionStrategy extends DefaultResourceDescriptionS
 		if (eObject instanceof Model) {
 			this.createEObjectDescriptionForModel((Model) eObject, acceptor);
 			return true;
-		} else {
+		}  else {
 			return super.createEObjectDescriptions(eObject, acceptor);
 		}
 	}
@@ -40,7 +41,5 @@ public class TPCMResourceDescriptionStrategy extends DefaultResourceDescriptionS
 
 		acceptor.accept(EObjectDescription.create(QualifiedName.create(model.eResource().getURI().toString()), model,
 				userData));
-
 	}
-
 }

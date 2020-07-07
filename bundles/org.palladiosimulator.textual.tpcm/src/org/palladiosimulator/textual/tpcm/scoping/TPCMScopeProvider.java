@@ -5,21 +5,33 @@ package org.palladiosimulator.textual.tpcm.scoping;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.scoping.impl.FilteringScope;
 import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole;
 import org.palladiosimulator.textual.tpcm.language.EntryLevelSystemCallAction;
+import org.palladiosimulator.textual.tpcm.language.Initialization;
 import org.palladiosimulator.textual.tpcm.language.Interface;
+import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole;
+import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface;
 import org.palladiosimulator.textual.tpcm.language.InternalInterfaceProvidedRole;
 import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
-import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole;
+import org.palladiosimulator.textual.tpcm.language.LinkingResource;
+import org.palladiosimulator.textual.tpcm.language.Parameter;
+import org.palladiosimulator.textual.tpcm.language.ProcessingResource;
+import org.palladiosimulator.textual.tpcm.language.PropertyDefinition;
+import org.palladiosimulator.textual.tpcm.language.PropertyInitializer;
+import org.palladiosimulator.textual.tpcm.language.ResourceEntityType;
 import org.palladiosimulator.textual.tpcm.language.Role;
 import org.palladiosimulator.textual.tpcm.language.SEFF;
 import org.palladiosimulator.textual.tpcm.language.SEFFCallAction;
+import org.palladiosimulator.textual.tpcm.language.SEFFContent;
+import org.palladiosimulator.textual.tpcm.language.SEFFIterateAction;
 import org.palladiosimulator.textual.tpcm.language.Signature;
 
 /**
@@ -30,7 +42,6 @@ import org.palladiosimulator.textual.tpcm.language.Signature;
  * on how and when to use it.
  */
 public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
-
 	@Override
 	public IScope getScope(EObject context, EReference reference) {
 		if (context instanceof SEFF && reference == LanguagePackage.Literals.SEFF__SIGNATUR) {
@@ -51,7 +62,36 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 		} else if (context instanceof InternalInterfaceProvidedRole
 				&& reference == LanguagePackage.Literals.ROLE__TYPE) {
 			return new FilteringScope(super.getScope(context, reference),
-					ref -> ref.getEClass() == LanguagePackage.Literals.INTERNAL_INTERFACE);
+					ref -> ref.getEClass() == LanguagePackage.Literals.INTERNAL_CONFIGURABLE_INTERFACE);
+		} else if (context instanceof SEFFIterateAction
+				&& reference == LanguagePackage.Literals.SEFF_ITERATE_ACTION__ITERABLE) {
+			return Scopes.scopeFor(getParametersForSEFFAction((SEFFIterateAction) context));
+		} else if ((context instanceof Initialization || context instanceof PropertyInitializer)
+				&& reference == LanguagePackage.Literals.PROPERTY_INITIALIZER__PROPERTY) {
+			var init = EcoreUtil2.getContainerOfType(context, Initialization.class);
+			if (init != null) {
+				return Scopes.scopeFor(getPropertiesOfConfigurable(init));
+			}
+		} else if (context instanceof PropertyInitializer
+				&& reference == LanguagePackage.Literals.PROPERTY_INITIALIZER__REFERENCED_ELEMENT) {
+			var typeOpt = Optional.of((PropertyInitializer) context).map(PropertyInitializer::getProperty)
+					.map(PropertyDefinition::getType).filter(LanguagePackage.Literals.RESOURCE_ENTITY_TYPE::isInstance)
+					.map(ResourceEntityType.class::cast);
+
+			if (typeOpt.isPresent()) {
+				var type = typeOpt.get();
+				return new FilteringScope(super.getScope(context, reference),
+						ref -> ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY && ref.getEObjectOrProxy()
+								.eGet(LanguagePackage.Literals.RESOURCE_ENTITY__TYPE) == type);
+			} else {
+				return IScope.NULLSCOPE;
+			}
+
+		} else if (context instanceof PropertyDefinition
+				&& reference == LanguagePackage.Literals.PROPERTY_DEFINITION__TYPE) {
+			return new FilteringScope(super.getScope(context, reference),
+					ref -> ref.getEClass() == LanguagePackage.Literals.PRIMITIVE_DATATYPE
+							|| ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY_TYPE);
 		}
 		return super.getScope(context, reference);
 	}
@@ -60,5 +100,32 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 		return () -> Optional.of(role).map(Role::getType).map(Interface::getContents)
 				.map(c -> c.stream().filter(Signature.class::isInstance).map(Signature.class::cast).iterator())
 				.orElseGet(() -> Collections.emptyIterator());
+	}
+
+	protected Iterable<Parameter> getParametersForSEFFAction(SEFFContent action) {
+		var container = EcoreUtil2.getContainerOfType(action, SEFF.class);
+		if (container != null) {
+			return ((SEFF) container).getSignatur().getParameters().stream()
+					.filter(param -> LanguagePackage.Literals.COLLECTION_DATATYPE.isInstance(param.getType()))
+					.collect(Collectors.toList());
+		} else {
+			return Collections.emptyList();
+		}
+	}
+
+	protected Iterable<PropertyDefinition> getPropertiesOfConfigurable(Initialization context) {
+		var container = context.eContainer();
+		if (container instanceof InternalInterfaceProvidedRole) {
+			var iipr = (InternalInterfaceProvidedRole) container;
+			var iType = iipr.getType();
+			if (iType instanceof InternalConfigurableInterface) {
+				return ((InternalConfigurableInterface) iType).getDefinitions();
+			}
+		} else if (container instanceof ProcessingResource) {
+			return ((ProcessingResource) container).getType().getDefinitions();
+		} else if (container instanceof LinkingResource) {
+			return ((LinkingResource) container).getType().getDefinitions();
+		}
+		return Collections.emptyList();
 	}
 }

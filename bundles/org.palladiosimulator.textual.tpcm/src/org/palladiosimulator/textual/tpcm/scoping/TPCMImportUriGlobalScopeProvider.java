@@ -1,5 +1,6 @@
 package org.palladiosimulator.textual.tpcm.scoping;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import javax.inject.Inject;
@@ -7,21 +8,16 @@ import javax.inject.Inject;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.scoping.impl.ImportUriGlobalScopeProvider;
+import org.eclipse.xtext.util.IAcceptor;
 import org.eclipse.xtext.util.IResourceScopeCache;
-import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
-import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
+import org.palladiosimulator.textual.tpcm.language.Import;
+import org.palladiosimulator.textual.tpcm.language.Model;
 
-import com.google.common.base.Splitter;
+import com.google.common.collect.Iterators;
 import com.google.inject.Provider;
 
 public class TPCMImportUriGlobalScopeProvider extends ImportUriGlobalScopeProvider {
-	private static final Splitter SPLITTER = Splitter.on(',');
-
-	@Inject
-	IResourceDescription.Manager descriptionManager;
-
 	@Inject
 	IResourceScopeCache cache;
 
@@ -31,35 +27,20 @@ public class TPCMImportUriGlobalScopeProvider extends ImportUriGlobalScopeProvid
 				new Provider<LinkedHashSet<URI>>() {
 					@Override
 					public LinkedHashSet<URI> get() {
-						var uniqueImportURIs = collectImportUris(resource, new LinkedHashSet<URI>(5));
-
-						var uriIter = uniqueImportURIs.iterator();
-						while (uriIter.hasNext()) {
-							if (!EcoreUtil2.isValidUri(resource, uriIter.next())) {
-								uriIter.remove();
-							}
+						final LinkedHashSet<URI> uniqueImportURIs = new LinkedHashSet<URI>(5);
+						IAcceptor<String> collector = createURICollector(resource, uniqueImportURIs);
+						var iterator = Iterators.filter(resource.getContents().iterator(), Model.class);
+						while (iterator.hasNext()) {
+							Model object = iterator.next();
+							object.getImports().stream()
+								.map(Import::getImportURI)
+								.forEach(collector::accept);
 						}
-						return uniqueImportURIs;
-					}
-
-					private LinkedHashSet<URI> collectImportUris(Resource resource,
-							LinkedHashSet<URI> uniqueImportURIs) {
-						var resourceDescription = descriptionManager.getResourceDescription(resource);
-						var elements = resourceDescription.getExportedObjectsByType(LanguagePackage.Literals.MODEL);
-
-						elements.forEach(desc -> {
-							var userData = desc.getUserData(TPCMResourceDescriptionStrategy.INCLUDES);
-							if (userData != null) {
-								SPLITTER.split(userData).forEach(uri -> {
-									var includedUri = URI.createURI(uri);
-									includedUri = includedUri.resolve(resource.getURI());
-									if (uniqueImportURIs.add(includedUri)) {
-										collectImportUris(resource.getResourceSet().getResource(includedUri, true),
-												uniqueImportURIs);
-									}
-								});
-							}
-						});
+						Iterator<URI> uriIter = uniqueImportURIs.iterator();
+						while (uriIter.hasNext()) {
+							if (!EcoreUtil2.isValidUri(resource, uriIter.next()))
+								uriIter.remove();
+						}
 						return uniqueImportURIs;
 					}
 				});
