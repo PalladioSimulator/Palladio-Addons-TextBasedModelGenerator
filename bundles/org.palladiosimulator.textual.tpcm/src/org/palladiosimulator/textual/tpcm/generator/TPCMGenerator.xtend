@@ -36,12 +36,15 @@ class TPCMGenerator extends AbstractGenerator {
                 val mapped = registry.map(it) as EObject
                 new MappingInformation(mapped, filename)
             ].toList)
-            mappedFragments.forEach[saveFragment(resourceSet, it.mappedValue, it.fileName, fsa, context)]
+            val resources = mappedFragments.map [
+                createResource(resourceSet, it.mappedValue, it.fileName, fsa, context)
+            ].toList
+            resources.forEach[it.save({})]
         ]
     }
-    
+
     private def List<ProvidedMapping> createProvidedMappings(ResourceSet parent, List<MappingContent> content) {
-        return content.map[
+        return content.map [
             val splitFullUri = it.absoluteUri.split("#")
             val filePath = splitFullUri.get(0)
             val id = splitFullUri.get(1)
@@ -49,18 +52,18 @@ class TPCMGenerator extends AbstractGenerator {
             return new ProvidedMapping(it.imported, resolved)
         ]
     }
-    
+
     private def EObject resolveObject(String absolutePath, String resourceId, ResourceSet parentSet) {
         val resource = parentSet.getResource(URI.createURI(absolutePath), true);
         return resource.getEObject(resourceId)
     }
 
-    def saveFragment(ResourceSet containerSet, EObject resource, String fileName, IFileSystemAccess2 fsa, IGeneratorContext context) {
+    def createResource(ResourceSet containerSet, EObject resource, String fileName, IFileSystemAccess2 fsa,
+        IGeneratorContext context) {
         val targetFile = fsa.getURI(fileName)
         val targetResource = containerSet.createResource(targetFile)
         targetResource.getContents().add(resource)
-        targetResource.save({
-        })
+        return targetResource
     }
 
     static class MappingInformation {
