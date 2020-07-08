@@ -75,10 +75,8 @@ import org.palladiosimulator.textual.tpcm.language.DomainInterface
 import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole
 import org.palladiosimulator.textual.tpcm.language.EventSignature
 import org.palladiosimulator.textual.tpcm.language.FailureType
-import org.palladiosimulator.textual.tpcm.language.HDDResource
 import org.palladiosimulator.textual.tpcm.language.Interface
 import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole
-import org.palladiosimulator.textual.tpcm.language.InternalInterface
 import org.palladiosimulator.textual.tpcm.language.InternalInterfaceProvidedRole
 import org.palladiosimulator.textual.tpcm.language.LinkingResource
 import org.palladiosimulator.textual.tpcm.language.OperationSignature
@@ -105,21 +103,25 @@ import org.palladiosimulator.textual.tpcm.language.SEFFIterateAction
 import org.palladiosimulator.textual.tpcm.language.SEFFLoopAction
 import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticAction
 import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticBranch
-import org.palladiosimulator.textual.tpcm.language.SchedulingPolicy
 import org.palladiosimulator.pcm.repository.PassiveResource
-import org.palladiosimulator.pcm.repository.impl.RepositoryImpl
 import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.palladiosimulator.pcm.seff.InternalCallAction
 import org.palladiosimulator.textual.tpcm.language.ComplexResultAssignment
-import java.util.stream.Stream
 import org.palladiosimulator.textual.tpcm.language.ResultSpecification
-import org.palladiosimulator.textual.tpcm.language.CharacteristicReference
 import org.palladiosimulator.pcm.seff.EmitEventAction
+import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface
+import org.palladiosimulator.textual.tpcm.language.Initialization
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
-    static def PCMRandomVariable createVariableWithSpecification(String spec) {
+    static def PCMRandomVariable createVariableWithSpecification(Expression exp) {
+        val spec = ExpressionConverter.getOriginalExpressionString(exp)
         return CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = spec]
+    }
+
+    static def Expression getInitPropertyExpression(Initialization init, String propertyName) {
+        val prop = init?.contents?.findFirst[it.property.name == propertyName]
+        return prop?.specification
     }
 
     static def void assignRepository(DataType type, org.palladiosimulator.pcm.repository.Repository repo) {
@@ -237,9 +239,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             mapAll([
                 it.contents.filter(InternalInterfaceProvidedRole).filter [
                     it.type.eContainer instanceof ResourceTypeRepository
-                ].map[it.type].toList
+                ].toList
             ], PassiveResource).thenSet [ component, resources |
                 component.passiveResource_BasicComponent.addAll(resources)
+                resources.forEach[it.basicComponent_PassiveResource = component]
             ]
             mapAll([
                 it.contents.filter(InternalInterfaceProvidedRole).filter [
@@ -264,13 +267,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
         ]
 
-        registry.configure(InternalInterfaceProvidedRole, ResourceProvidedRole) [
-            create = [
-                EntityFactory.eINSTANCE.createResourceProvidedRole => [r|r.entityName = it.name]
-            ]
+        registry.configure(InternalInterfaceProvidedRole, PassiveResource) [
+            create = [RepositoryFactory.eINSTANCE.createPassiveResource => [r|r.entityName = it.name]]
             when = [it.type.eContainer instanceof ResourceTypeRepository]
-            map([it.type], ResourceInterface).thenSet [ role, type |
-                role.providedResourceInterface__ResourceProvidedRole = type
+            map([getInitPropertyExpression(it.initialization, "capacity")], PCMRandomVariable).thenSet [ resource, capacity |
+                resource.capacity_PassiveResource = capacity;
             ]
         ]
 
@@ -320,10 +321,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.type], ResourceInterface).thenSet [ role, iface |
                 role.requiredResourceInterface__ResourceRequiredRole = iface
             ]
-        ]
-
-        registry.configure(InternalInterface, PassiveResource) [
-            create = [RepositoryFactory.eINSTANCE.createPassiveResource => [r|r.entityName = it.name]]
         ]
     }
 
@@ -730,11 +727,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(FailureType, org.palladiosimulator.pcm.reliability.FailureType) [
             create = [ReliabilityFactory.eINSTANCE.createSoftwareInducedFailureType => [f|f.entityName = it.name]]
         ]
-
+        
         registry.configure(ResourceTypeRepository, ResourceRepository) [
             create = [ResourcetypeFactory.eINSTANCE.createResourceRepository]
             mapAll([it.contents.filter(Interface).toList], ResourceInterface).thenSet [ resourceTypes, interfaces |
                 resourceTypes.resourceInterfaces__ResourceRepository.addAll(interfaces)
+                interfaces.forEach[it.resourceRepository__ResourceInterface = resourceTypes]
             ]
         ]
 
@@ -746,7 +744,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
         ]
 
-        registry.configure(InternalInterface, ResourceInterface) [
+        registry.configure(InternalConfigurableInterface, ResourceInterface) [
             create = [ResourcetypeFactory.eINSTANCE.createResourceInterface => [i|i.entityName = it.name]]
             mapAll([it.contents], ResourceSignature).thenSet [ iface, signatures |
                 iface.resourceSignatures__ResourceInterface.addAll(signatures)
@@ -790,10 +788,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(CommunicationLinkType, CommunicationLinkResourceType) [
             create = [ResourcetypeFactory.eINSTANCE.createCommunicationLinkResourceType => [t|t.entityName = it.name]]
         ]
-
-        registry.configure(SchedulingPolicy, org.palladiosimulator.pcm.resourcetype.SchedulingPolicy) [
-            create = [ResourcetypeFactory.eINSTANCE.createSchedulingPolicy => [s|s.entityName = it.name]]
-        ]
     }
 
     protected def void configureResourceEnvironment(GeneratorTransformationRegistry registry) {
@@ -815,19 +809,19 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 container.activeResourceSpecifications_ResourceContainer.addAll(resources)
                 resources.forEach[it.resourceContainer_ProcessingResourceSpecification = container]
             ]
-            mapAll([it.contents.filter(HDDResource).toList]).thenSet [ container, resources |
-                container.hddResourceSpecifications.addAll(resources)
-                resources.forEach[it.resourceContainer_ProcessingResourceSpecification = container]
-            ]
         ]
 
         registry.configure(ProcessingResource, ProcessingResourceSpecification) [
             create = [ResourceenvironmentFactory.eINSTANCE.createProcessingResourceSpecification]
+            map([getInitPropertyExpression(it.initialization, "processingRate")], PCMRandomVariable).thenSet [ resource, rate |
+                resource.processingRate_ProcessingResourceSpecification = rate
+            ]
+            map([getInitPropertyExpression(it.initialization, "schedulingPolicy")],
+                org.palladiosimulator.pcm.resourcetype.SchedulingPolicy).thenSet [ resource, policy |
+                resource.schedulingPolicy = policy
+            ]
             map([it.type]).thenSet [ resource, type |
                 resource.activeResourceType_ActiveResourceSpecification = type
-            ]
-            after = [
-                it.processingRate_ProcessingResourceSpecification = createVariableWithSpecification("100")
             ]
         ]
 
@@ -836,13 +830,17 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.type]).thenSet [ link, type |
                 var spec = ResourceenvironmentFactory.eINSTANCE.createCommunicationLinkResourceSpecification => [
                     it.communicationLinkResourceType_CommunicationLinkResourceSpecification = type
-                    val latency = createVariableWithSpecification("100")
-                    it.latency_CommunicationLinkResourceSpecification = latency
-                    val throughput = createVariableWithSpecification("100")
-                    it.throughput_CommunicationLinkResourceSpecification = throughput
                 ]
                 link.communicationLinkResourceSpecifications_LinkingResource = spec
                 spec.linkingResource_CommunicationLinkResourceSpecification = link
+            ]
+            map([getInitPropertyExpression(it.initialization, "latency")], PCMRandomVariable).thenSet [ link, latency |
+                link.
+                    communicationLinkResourceSpecifications_LinkingResource.latency_CommunicationLinkResourceSpecification = latency
+            ]
+            map([getInitPropertyExpression(it.initialization, "throughput")]).thenSet [ link, throughput |
+                link.
+                    communicationLinkResourceSpecifications_LinkingResource.throughput_CommunicationLinkResourceSpecification = throughput
             ]
             mapAll([it.connected]).thenSet [ link, connected |
                 link.connectedResourceContainers_LinkingResource.addAll(connected)
