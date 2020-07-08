@@ -130,6 +130,8 @@
 							implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 							<resource>plugin.properties</resource>
 						</transformer>
+						<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+						</transformer>
 					</transformers>
 					<artifactSet>
 						<excludes><!-- avoid duplicate inclusion due to addjars plugin -->
@@ -168,7 +170,7 @@
 						</filter>
 					</filters>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<finalName>tpcm-language-server</finalName>
+					<shadedClassifierName>ls</shadedClassifierName>
 					<minimizeJar>false</minimizeJar>
 				</configuration>
 				<executions>
@@ -177,6 +179,45 @@
 						<goals>
 							<goal>shade</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>dummy-javadoc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+							</archive>
+							<classesDirectory>${project.basedir}/docs</classesDirectory>
+							<classifier>javadoc</classifier>
+							<includes>
+								<include>NO-JAVADOC</include>
+							</includes>
+						</configuration>
+					</execution>
+					<execution>
+						<id>dummy-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classesDirectory>${project.basedir}/docs</classesDirectory>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+							</archive>
+							<classifier>ls-sources</classifier>
+							<includes>
+								<include>NO-SOURCES</include>
+							</includes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

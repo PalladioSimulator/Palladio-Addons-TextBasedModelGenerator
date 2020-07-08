@@ -52,7 +52,10 @@
 				<groupId>${project.groupId}</groupId>
 				<version>${project.version}</version>
 				<repositoryId>ossrh</repositoryId>
-				<file>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/tpcm-language-server.jar</file>
+				<file>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-ls.jar</file>
+				<files>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-ls-sources.jar,${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-javadoc.jar</files>
+				<classifiers>sources,javadoc</classifiers>
+				<types>jar,jar</types>
 			</properties>
 			<build>
 				<plugins>
