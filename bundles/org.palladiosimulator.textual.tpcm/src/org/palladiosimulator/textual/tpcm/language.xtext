@@ -258,7 +258,7 @@ AssemblyContext:
 
 Connector:
     ('connector' name=ID '(' from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN] ')')
-    | from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN]
+    | from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN] ('.' requiringRole=[InterfaceRequiredRole|FQN])?
     | from=[AssemblyContext|FQN] '->' target=AssemblyContext
 ;
 

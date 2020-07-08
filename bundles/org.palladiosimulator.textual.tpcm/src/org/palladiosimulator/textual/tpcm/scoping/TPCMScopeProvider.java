@@ -13,6 +13,8 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.scoping.Scopes;
 import org.eclipse.xtext.scoping.impl.FilteringScope;
+import org.palladiosimulator.textual.tpcm.language.Component;
+import org.palladiosimulator.textual.tpcm.language.Connector;
 import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole;
 import org.palladiosimulator.textual.tpcm.language.EntryLevelSystemCallAction;
 import org.palladiosimulator.textual.tpcm.language.Initialization;
@@ -81,8 +83,17 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 			return new FilteringScope(super.getScope(context, reference),
 					ref -> ref.getEClass() == LanguagePackage.Literals.PRIMITIVE_DATATYPE
 							|| ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY_TYPE);
+		} else if (context instanceof Connector && reference == LanguagePackage.Literals.CONNECTOR__REQUIRING_ROLE) {
+			return Scopes.scopeFor(getProvidesOfComponent(((Connector) context).getTo().getComponent()));
 		}
 		return super.getScope(context, reference);
+	}
+
+	private Iterable<InterfaceRequiredRole> getProvidesOfComponent(Component component) {
+		return () -> Optional.of(component)
+				.map(c -> c.getContents().stream().filter(InterfaceRequiredRole.class::isInstance)
+						.map(InterfaceRequiredRole.class::cast).iterator())
+				.orElseGet(() -> Collections.emptyIterator());
 	}
 
 	protected IScope getPropertyInitializerReferencedElementScope(EObject context, EReference reference) {

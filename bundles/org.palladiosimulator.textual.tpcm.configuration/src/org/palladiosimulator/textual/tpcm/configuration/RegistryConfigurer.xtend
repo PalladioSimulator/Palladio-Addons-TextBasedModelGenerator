@@ -862,6 +862,37 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
 
             after = [
+                val newConnectors = new ArrayList<AssemblyConnector>();
+                for (connector : it.connectors__ComposedStructure.filter(AssemblyConnector).filter [
+                    it.providedRole_AssemblyConnector === null
+                ]) {
+
+                    val providedRoles = connector.providingAssemblyContext_AssemblyConnector.
+                        encapsulatedComponent__AssemblyContext.providedRoles_InterfaceProvidingEntity.filter(
+                            OperationProvidedRole).toList
+                    val requiredRoles = connector.requiringAssemblyContext_AssemblyConnector.
+                        encapsulatedComponent__AssemblyContext.requiredRoles_InterfaceRequiringEntity.filter(
+                            OperationRequiredRole).toList
+                    val matches = findMatchingRoles(providedRoles, requiredRoles)
+                    if (matches.size == 1) {
+                        val match = matches.get(0)
+                        connector.providedRole_AssemblyConnector = match.providingRole
+                        connector.requiredRole_AssemblyConnector = match.requiringRole
+                    } else {
+                        val firstMatch = matches.get(0)
+                        connector.providedRole_AssemblyConnector = firstMatch.providingRole
+                        connector.requiredRole_AssemblyConnector = firstMatch.requiringRole
+                        for (var i = 1; i < matches.size; i++) {
+                            val copy = copyConnector(connector)
+                            val match = matches.get(i)
+                            copy.providedRole_AssemblyConnector = match.providingRole
+                            copy.requiredRole_AssemblyConnector = match.requiringRole
+                            newConnectors.add(copy)
+                        }
+                    }
+                }
+                it.connectors__ComposedStructure.addAll(newConnectors)
+
                 it.connectors__ComposedStructure.filter(AssemblyConnector).forEach [ connector |
                     if (!it.assemblyContexts__ComposedStructure.contains(
                         connector.providingAssemblyContext_AssemblyConnector)) {
@@ -889,6 +920,16 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
             map([it.target]).thenSet [ connector, to |
                 connector.requiringAssemblyContext_AssemblyConnector = to
+            ]
+            map([it.requiringRole]).thenSet [ connector, requiringRole |
+                connector.requiredRole_AssemblyConnector = requiringRole
+                val providingRole = connector.providingAssemblyContext_AssemblyConnector.
+                    encapsulatedComponent__AssemblyContext.providedRoles_InterfaceProvidingEntity.filter(
+                        OperationProvidedRole).findFirst [
+                        it.providedInterface__OperationProvidedRole ===
+                            requiringRole.requiredInterface__OperationRequiredRole
+                    ]
+                connector.providedRole_AssemblyConnector = providingRole
             ]
         ]
 
@@ -933,5 +974,41 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 context.resourceContainer_AllocationContext = container;
             ]
         ]
+    }
+
+    private def AssemblyConnector copyConnector(AssemblyConnector connector) {
+        CompositionFactory.eINSTANCE.createAssemblyConnector => [
+            it.entityName = connector.entityName
+            it.parentStructure__Connector = connector.parentStructure__Connector
+            it.providingAssemblyContext_AssemblyConnector = connector.providingAssemblyContext_AssemblyConnector
+            it.requiringAssemblyContext_AssemblyConnector = connector.requiringAssemblyContext_AssemblyConnector
+        ]
+    }
+
+    private def List<RoleMatch> findMatchingRoles(List<OperationProvidedRole> providingRoles,
+        List<OperationRequiredRole> requiringRole) {
+        val matches = new ArrayList<RoleMatch>();
+        for (provided : providingRoles) {
+            val allRequiring = requiringRole.filter [
+                it.requiredInterface__OperationRequiredRole === provided.providedInterface__OperationProvidedRole
+            ].toList
+            if (allRequiring.size > 1) {
+                throw new IllegalStateException("Got a connector that isn't specific enough.");
+            } else if (allRequiring.size == 1) {
+                matches.add(new RoleMatch(provided, allRequiring.get(0)))
+            }
+        }
+
+        return matches;
+    }
+
+    private static class RoleMatch {
+        public final OperationProvidedRole providingRole;
+        public final OperationRequiredRole requiringRole;
+
+        new(OperationProvidedRole providingRole, OperationRequiredRole requiringRole) {
+            this.providingRole = providingRole;
+            this.requiringRole = requiringRole;
+        }
     }
 }
