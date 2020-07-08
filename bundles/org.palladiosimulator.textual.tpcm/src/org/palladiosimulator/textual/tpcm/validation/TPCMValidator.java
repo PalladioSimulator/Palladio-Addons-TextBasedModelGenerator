@@ -6,6 +6,7 @@ package org.palladiosimulator.textual.tpcm.validation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -13,6 +14,11 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.validation.Check;
 import org.palladiosimulator.textual.tpcm.language.AbsoluteReference;
+import org.palladiosimulator.textual.tpcm.language.AssemblyContext;
+import org.palladiosimulator.textual.tpcm.language.Connector;
+import org.palladiosimulator.textual.tpcm.language.DomainInterfaceProvidedRole;
+import org.palladiosimulator.textual.tpcm.language.Interface;
+import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole;
 import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
 import org.palladiosimulator.textual.tpcm.language.Parameter;
 import org.palladiosimulator.textual.tpcm.language.ParameterSpecification;
@@ -166,6 +172,58 @@ public class TPCMValidator extends AbstractTPCMValidator {
 
 	private Optional<Parameter> getNamedParameter(Collection<Parameter> parameters, AbstractNamedReference reference) {
 		return parameters.stream().filter(p -> p.getName().equals(reference.getReferenceName())).findAny();
+	}
+
+	@Check
+	public void checkAssemblyContextAssignmentIsExclusive(Connector connector) {
+		if (connector.getRequiringRole() == null) {
+			List<Interface> providedInterfaces = connector.getFrom().getComponent().getContents().stream()
+					.filter(DomainInterfaceProvidedRole.class::isInstance).map(DomainInterfaceProvidedRole.class::cast)
+					.map(i -> i.getType()).collect(Collectors.toList());
+			List<Interface> requiredInterface = getTargetContext(connector).getComponent().getContents().stream()
+					.filter(InterfaceRequiredRole.class::isInstance).map(InterfaceRequiredRole.class::cast)
+					.map(i -> i.getType()).collect(Collectors.toList());
+
+			List<Long> counts = providedInterfaces.stream().mapToLong(iface -> {
+				return requiredInterface.stream().filter(otherInterface -> otherInterface == iface).count();
+			}).filter(count -> count > 0).boxed().collect(Collectors.toList());
+
+			if (counts.isEmpty()) {
+				if (connector.getTarget() != null) {
+					error("The are no matching interfaces in these assembly contexts.",
+							LanguagePackage.Literals.CONNECTOR__TARGET);
+				} else {
+					error("The are no matching interfaces in these assembly contexts.",
+							LanguagePackage.Literals.CONNECTOR__TO);
+				}
+			} else if (counts.size() > 1 || counts.get(0) > 1) {
+				if (connector.getTarget() != null) {
+					error("Unclear how to connect assembly contexts. Please specify the target.",
+							LanguagePackage.Literals.CONNECTOR__TARGET);
+				} else {
+					error("Unclear how to connect assembly contexts. Please specify the target.",
+							LanguagePackage.Literals.CONNECTOR__TO);
+				}
+			}
+		} else {
+			Interface requiredInterface = connector.getRequiringRole().getType();
+			List<Interface> providedInterfaces = connector.getFrom().getComponent().getContents().stream()
+					.filter(DomainInterfaceProvidedRole.class::isInstance).map(DomainInterfaceProvidedRole.class::cast)
+					.map(i -> i.getType()).collect(Collectors.toList());
+			
+			if(!providedInterfaces.contains(requiredInterface)) {
+				error("The are no matching interfaces in these assembly contexts.",
+						LanguagePackage.Literals.CONNECTOR__TO);
+			}
+		}
+	}
+
+	private static AssemblyContext getTargetContext(Connector connector) {
+		if (connector.getTo() != null) {
+			return connector.getTo();
+		} else {
+			return connector.getTarget();
+		}
 	}
 
 }
