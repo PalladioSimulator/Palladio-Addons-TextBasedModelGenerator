@@ -9,6 +9,7 @@ import org.palladiosimulator.textual.tpcm.language.ResourceTypeRepository
 
 class GenerationFileNameProvider {
     static val FILE_EXTESION_SEPARATOR = "."
+    static val SOURCE_NAME_SEPARATOR = "_"
     static val INSTANCE = new GenerationFileNameProvider();
     
     val typeDefinitions = new ArrayList<TypeNameDefinition>();
@@ -21,13 +22,13 @@ class GenerationFileNameProvider {
         typeDefinitions.add(new TypeNameDefinition(ResourceTypeRepository, "resourcetyperepository"))
     }
     
-    def String generateFileNameFor(Fragment resource) {
+    def String generateFileNameFor(Fragment resource, String originalFileName) {
         var definition = typeDefinitions.findFirst[ it.appliesTo(resource) ]
         if(definition === null) {
             definition = new TypeNameDefinition(resource.class, resource.class.simpleName)
         }
         
-        return definition.formatName(resource)
+        return definition.formatName(resource, originalFileName)
     }
     
     static def getInstance() {
@@ -47,8 +48,8 @@ class GenerationFileNameProvider {
             return this.type.isInstance(obj)
         }
         
-        def String formatName(Fragment obj) {
-            return obj.name + FILE_EXTESION_SEPARATOR + this.fileExtension
+        def String formatName(Fragment obj, String sourceFileName) {
+            return obj.name + SOURCE_NAME_SEPARATOR + sourceFileName + FILE_EXTESION_SEPARATOR + this.fileExtension
         }
     }
 }
