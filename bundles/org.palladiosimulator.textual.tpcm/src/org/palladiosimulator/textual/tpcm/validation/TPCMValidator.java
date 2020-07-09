@@ -3,23 +3,169 @@
  */
 package org.palladiosimulator.textual.tpcm.validation;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.eclipse.xtext.naming.IQualifiedNameConverter;
+import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.eclipse.xtext.validation.Check;
+import org.palladiosimulator.textual.tpcm.language.AbsoluteReference;
+import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
+import org.palladiosimulator.textual.tpcm.language.Parameter;
+import org.palladiosimulator.textual.tpcm.language.ParameterSpecification;
+import org.palladiosimulator.textual.tpcm.language.RelativeReference;
+import org.palladiosimulator.textual.tpcm.language.SEFFCallAction;
+import org.palladiosimulator.textual.tpcm.language.Signature;
+import org.palladiosimulator.textual.tpcm.language.util.LanguageSwitch;
+import org.palladiosimulator.textual.tpcm.util.IExpressionPrimitiveTypeInference;
+import org.palladiosimulator.textual.tpcm.util.INamedReferenceDataTypeResolver;
+import org.palladiosimulator.textual.tpcm.util.IPrimitiveTypeComparison;
+
+import de.uka.ipd.sdq.stoex.AbstractNamedReference;
+import de.uka.ipd.sdq.stoex.StoexFactory;
 
 /**
- * This class contains custom validation rules. 
+ * This class contains custom validation rules.
  *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
+ * See
+ * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class TPCMValidator extends AbstractTPCMValidator {
-	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					TPCMPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
-	
+	protected static final AbstractNamedReference VALUE_REFERENCE = StoexFactory.eINSTANCE.createVariableReference();
+	{
+		VALUE_REFERENCE.setReferenceName("VALUE");
+	}
+
+	@Inject
+	IQualifiedNameProvider nameProvider;
+
+	@Inject
+	IQualifiedNameConverter nameConverter;
+
+	@Inject
+	INamedReferenceDataTypeResolver dtResolver;
+
+	@Inject
+	IExpressionPrimitiveTypeInference expressionTypeInference;
+
+	@Inject
+	IPrimitiveTypeComparison typeComparison;
+
+	@Check
+	public void checkSignaturesWithoutParametersAreNotCalledWithParameters(SEFFCallAction callAction) {
+		if (callAction.getSignature().getParameters().isEmpty() && callAction.getParameters().size() > 0) {
+			var name = nameConverter.toString(nameProvider.getFullyQualifiedName(callAction.getSignature()));
+			error(String.format("%s does not expect any parameters", name), callAction,
+					LanguagePackage.Literals.SEFF_CALL_ACTION__PARAMETERS);
+		}
+	}
+
+	@Check
+	public void checkPositionalArgumentsDoNotFollowNamedArguments(SEFFCallAction callAction) {
+		var positionalAllowed = true;
+		for (var param : callAction.getParameters()) {
+			if (!positionalAllowed && param.getReference() == null) {
+				error("Positional short-hand value characterizations must not occur after named ones.", param,
+						LanguagePackage.Literals.SEFF_CALL_ACTION__PARAMETERS);
+			}
+			positionalAllowed &= (param.getReference() == null);
+		}
+	}
+
+	@Check
+	public void checkCallParameterTypeIsCorrect(ParameterSpecification specification) {
+		var container = specification.eContainer();
+
+		if (!(container instanceof SEFFCallAction))
+			return;
+
+		var params = ((SEFFCallAction) container).getParameters();
+		var signature = ((SEFFCallAction) container).getSignature();
+		var expectedParams = signature.getParameters();
+		Optional<Parameter> parameterDefinition = Optional.empty();
+		AbstractNamedReference remainder = VALUE_REFERENCE;
+		if (specification.getReference() == null) { // Positional value argument
+			var idx = params.indexOf(specification);
+			if (idx >= expectedParams.size()) {
+				error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
+						expectedParams.size()), specification,
+						LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+			} else {
+				parameterDefinition = Optional.of(expectedParams.get(idx));
+			}
+		} else {
+			parameterDefinition = (new LanguageSwitch<Optional<Parameter>>() {
+				@Override
+				public Optional<Parameter> caseAbsoluteReference(AbsoluteReference object) {
+					var p = getNamedParameter(expectedParams, object.getReference());
+					if (p.isEmpty()) {
+						error(String.format("The signature %s does not define a parameter %s", nameOf(signature),
+								object.getReference().getReferenceName()), object,
+								LanguagePackage.Literals.ABSOLUTE_REFERENCE__REFERENCE);
+					}
+					return p;
+				}
+
+				@Override
+				public Optional<Parameter> caseRelativeReference(RelativeReference object) {
+					var idx = params.indexOf(specification);
+					var p = getIndexedParameter(expectedParams, idx);
+					if (p.isEmpty()) {
+						error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
+								expectedParams.size()), specification,
+								LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+					}
+					return p;
+				}
+			}).doSwitch(specification.getReference());
+
+			remainder = (new LanguageSwitch<AbstractNamedReference>() {
+				@Override
+				public AbstractNamedReference caseAbsoluteReference(AbsoluteReference object) {
+					return object.getReference().getInnerReference_NamespaceReference();
+				}
+
+				@Override
+				public AbstractNamedReference caseRelativeReference(RelativeReference object) {
+					return object.getCharacteristic();
+				}
+
+			}).doSwitch(specification.getReference());
+		}
+		if (parameterDefinition.isPresent()) {
+			var primitive = dtResolver.resolveRequiredPrimitive(remainder, parameterDefinition.get().getType());
+			if (primitive.isLeft()) {
+				var error = primitive.getLeft();
+				error(error.description, error.object, error.feature);
+			} else {
+				var currentType = expressionTypeInference.getExpressionType(specification.getSpecification());
+				if (currentType.isEmpty()) {
+					warning("Could not determine type of expression", specification,
+							LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+				} else {
+					if (!typeComparison.isAssignableFrom(primitive.get(), currentType.get())) {
+						error(String.format("An expression of type %s expected. Found %s", primitive.get().toString(),
+								currentType.get().toString()), specification,
+								LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+					}
+				}
+			}
+		}
+	}
+
+	private String nameOf(Signature signature) {
+		return nameConverter.toString(nameProvider.getFullyQualifiedName(signature));
+	}
+
+	private Optional<Parameter> getIndexedParameter(List<Parameter> parameters, int idx) {
+		return idx >= parameters.size() ? Optional.empty() : Optional.of(parameters.get(idx));
+	}
+
+	private Optional<Parameter> getNamedParameter(Collection<Parameter> parameters, AbstractNamedReference reference) {
+		return parameters.stream().filter(p -> p.getName().equals(reference.getReferenceName())).findAny();
+	}
+
 }

@@ -177,7 +177,7 @@ ResultSpecification:
 
 CharacteristicReference:
     ({RelativeReference} '.' characteristic=VariableReference) 
-    | ({AbsoluteReference} reference=Variable)
+    | ({AbsoluteReference} reference=NamespaceReference)
 ;
 
 SEFFLoopAction:
