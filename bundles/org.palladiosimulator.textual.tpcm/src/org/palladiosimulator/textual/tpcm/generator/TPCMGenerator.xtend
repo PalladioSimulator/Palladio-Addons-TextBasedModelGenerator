@@ -26,13 +26,15 @@ class TPCMGenerator extends AbstractGenerator {
     val filenameProvider = GenerationFileNameProvider.getInstance()
 
     override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+        val sourceFileName = resource.sourceFileName
+        
         val resourceSet = new ResourceSetImpl()
         val mapping = resource.allContents.filter(MappingContent).toList
         val fragments = resource.allContents.filter(Fragment).filter[!(it instanceof MappingConfiguration)].toList
         val registry = GeneratorTransformationRegistry.INSTANCE;
         registry.withContext(createProvidedMappings(resourceSet, mapping)) [
             val mappedFragments = new ArrayList(fragments.map [
-                val filename = filenameProvider.generateFileNameFor(it)
+                val filename = filenameProvider.generateFileNameFor(it, sourceFileName)
                 val mapped = registry.map(it) as EObject
                 new MappingInformation(mapped, filename)
             ].toList)
@@ -41,6 +43,12 @@ class TPCMGenerator extends AbstractGenerator {
             ].toList
             resources.forEach[it.save({})]
         ]
+    }
+    
+    private def String getSourceFileName(Resource resource) {
+        val fileNameWithExtension = resource.URI.lastSegment
+        val extensionDotIndex = fileNameWithExtension.lastIndexOf(".")
+        return fileNameWithExtension.substring(0, extensionDotIndex)
     }
 
     private def List<ProvidedMapping> createProvidedMappings(ResourceSet parent, List<MappingContent> content) {
