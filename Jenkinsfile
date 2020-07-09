@@ -1,4 +1,3 @@
-@Library('MDSD.tools@single_artifact_deploy') _
 PalladioPipeline {
     deployUpdatesite 'releng/org.palladiosimulator.textual.updatesite/target/repository'
     deploySonatype {
