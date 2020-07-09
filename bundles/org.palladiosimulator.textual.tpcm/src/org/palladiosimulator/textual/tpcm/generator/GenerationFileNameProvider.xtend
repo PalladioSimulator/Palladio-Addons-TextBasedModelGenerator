@@ -38,10 +38,12 @@ class GenerationFileNameProvider {
     static class TypeNameDefinition {
         val Class<? extends Fragment> type
         val String fileExtension
+        val String defaultName
         
         new(Class<? extends Fragment> type, String ext) {
             this.type = type
             this.fileExtension = ext
+            this.defaultName = this.type.simpleName
         }
         
         def appliesTo(Fragment obj) {
@@ -49,7 +51,12 @@ class GenerationFileNameProvider {
         }
         
         def String formatName(Fragment obj, String sourceFileName) {
-            return obj.name + SOURCE_NAME_SEPARATOR + sourceFileName + FILE_EXTESION_SEPARATOR + this.fileExtension
+            val fragmentName = if (obj.name === null || obj.name.isEmpty) {
+                defaultName
+            } else {
+                obj.name
+            }
+            return fragmentName + SOURCE_NAME_SEPARATOR + sourceFileName + FILE_EXTESION_SEPARATOR + this.fileExtension
         }
     }
 }
