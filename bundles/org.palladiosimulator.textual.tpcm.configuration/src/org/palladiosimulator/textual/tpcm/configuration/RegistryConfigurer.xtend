@@ -336,7 +336,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
                 seff.steps_Behaviour.addAll(calls)
                 seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
-                calls.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
+                seff.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
                 seff.steps_Behaviour.updatePreviousAssignments();
                 seff.steps_Behaviour.updateSuccessorAssignments();
             ]
