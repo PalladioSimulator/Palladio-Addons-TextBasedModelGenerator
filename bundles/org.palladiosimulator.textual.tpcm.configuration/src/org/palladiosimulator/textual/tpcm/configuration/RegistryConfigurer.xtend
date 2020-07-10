@@ -111,6 +111,7 @@ import org.palladiosimulator.textual.tpcm.language.ResultSpecification
 import org.palladiosimulator.pcm.seff.EmitEventAction
 import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface
 import org.palladiosimulator.textual.tpcm.language.Initialization
+import java.util.stream.Stream
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -169,20 +170,39 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         }
     }
 
+    static def Stream<ResourceDemandingInternalBehaviour> getAllInternalSEFFBehaviors(List<AbstractAction> actions) {
+        return actions.stream().flatMap [ action |
+            switch (action) {
+                BranchAction: {
+                    val behaviors = action.branches_Branch.map[it.branchBehaviour_BranchTransition].filter(
+                        ResourceDemandingInternalBehaviour).toList
+                    val innerStreams = behaviors.stream.flatMap[getAllInternalSEFFBehaviors(it.steps_Behaviour)]
+                    Stream.concat(innerStreams, behaviors.stream)
+                }
+                default:
+                    Stream.empty
+            }
+        ];
+    }
+
     static def void addStepsToBranch(AbstractBranchTransition branch, List<AbstractAction> steps) {
         val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
         branch.branchBehaviour_BranchTransition = behavior
         behavior.abstractBranchTransition_ResourceDemandingBehaviour = branch
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
         behavior.steps_Behaviour.addAll(steps)
-        steps.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
+        behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
         behavior.steps_Behaviour.updateSuccessorAssignments()
     }
 
     static def ResourceDemandingInternalBehaviour addActions(List<AbstractAction> steps) {
         val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
         behavior.steps_Behaviour.addAll(steps)
-        steps.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
+        behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
         behavior.steps_Behaviour.updateSuccessorAssignments()
         return behavior
@@ -339,6 +359,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 seff.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
                 seff.steps_Behaviour.updatePreviousAssignments();
                 seff.steps_Behaviour.updateSuccessorAssignments();
+            ]
+            after = [
+                getAllInternalSEFFBehaviors(it.steps_Behaviour).forEach [ behavior |
+                    behavior.resourceDemandingSEFF_ResourceDemandingInternalBehaviour = it
+                ]
             ]
         ]
 
