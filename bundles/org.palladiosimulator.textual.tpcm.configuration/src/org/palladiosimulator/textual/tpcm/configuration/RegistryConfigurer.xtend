@@ -291,7 +291,8 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             create = [RepositoryFactory.eINSTANCE.createPassiveResource => [r|r.entityName = it.name]]
             when = [it.type.eContainer instanceof ResourceTypeRepository]
             map([getInitPropertyExpression(it.initialization, "capacity")], PCMRandomVariable).thenSet [ resource, capacity |
-                resource.capacity_PassiveResource = capacity;
+                resource.capacity_PassiveResource = capacity
+                capacity.passiveResource_capacity_PCMRandomVariable = resource
             ]
         ]
 
@@ -433,6 +434,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.condition], PCMRandomVariable).thenSet [ action, condition |
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
                 branch.branchCondition_GuardedBranchTransition = condition
+                condition.guardedBranchTransition_PCMRandomVariable = branch
             ]
             mapAll([it.contents]).thenSet [ action, contents |
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
@@ -448,6 +450,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
             map([it.condition], PCMRandomVariable).thenSet [ transition, variable |
                 transition.branchCondition_GuardedBranchTransition = variable
+                variable.guardedBranchTransition_PCMRandomVariable = transition
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
                 branch.addStepsToBranch(actions)
@@ -596,6 +599,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.parameters.get(0).specification], PCMRandomVariable).thenSet [ action, variable |
                 val call = action.resourceCall__Action.get(0)
                 call.numberOfCalls__ResourceCall = variable
+                variable.resourceCall__PCMRandomVariable = call
             ]
         ]
 
@@ -842,6 +846,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             create = [ResourceenvironmentFactory.eINSTANCE.createProcessingResourceSpecification]
             map([getInitPropertyExpression(it.initialization, "processingRate")], PCMRandomVariable).thenSet [ resource, rate |
                 resource.processingRate_ProcessingResourceSpecification = rate
+                rate.processingResourceSpecification_processingRate_PCMRandomVariable = resource
             ]
             map([getInitPropertyExpression(it.initialization, "schedulingPolicy")],
                 org.palladiosimulator.pcm.resourcetype.SchedulingPolicy).thenSet [ resource, policy |
@@ -857,17 +862,19 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.type]).thenSet [ link, type |
                 var spec = ResourceenvironmentFactory.eINSTANCE.createCommunicationLinkResourceSpecification => [
                     it.communicationLinkResourceType_CommunicationLinkResourceSpecification = type
+                    it.linkingResource_CommunicationLinkResourceSpecification = link
                 ]
                 link.communicationLinkResourceSpecifications_LinkingResource = spec
-                spec.linkingResource_CommunicationLinkResourceSpecification = link
             ]
             map([getInitPropertyExpression(it.initialization, "latency")], PCMRandomVariable).thenSet [ link, latency |
-                link.
-                    communicationLinkResourceSpecifications_LinkingResource.latency_CommunicationLinkResourceSpecification = latency
+                val spec = link.communicationLinkResourceSpecifications_LinkingResource
+                spec.latency_CommunicationLinkResourceSpecification = latency
+                latency.communicationLinkResourceSpecification_latency_PCMRandomVariable = spec
             ]
             map([getInitPropertyExpression(it.initialization, "throughput")]).thenSet [ link, throughput |
-                link.
-                    communicationLinkResourceSpecifications_LinkingResource.throughput_CommunicationLinkResourceSpecification = throughput
+                val spec = link.communicationLinkResourceSpecifications_LinkingResource
+                spec.throughput_CommunicationLinkResourceSpecification = throughput
+                throughput.communicationLinkResourceSpecifcation_throughput_PCMRandomVariable = spec
             ]
             mapAll([it.connected]).thenSet [ link, connected |
                 link.connectedResourceContainers_LinkingResource.addAll(connected)
