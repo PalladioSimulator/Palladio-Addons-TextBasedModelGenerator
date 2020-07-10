@@ -21,6 +21,8 @@ class SingleValueChildPropertyApplier<S, T, OS, OT> implements ChildPropertyMapp
             } else {
                 null
             }
-        applier.accept(mappedParent, mappedObject)
+        if (mappedObject !== null) {
+            applier.accept(mappedParent, mappedObject)
+        }
     }
 }
