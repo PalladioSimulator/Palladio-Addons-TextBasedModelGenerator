@@ -448,12 +448,14 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFCallAction, EmitEventAction) [
-            create = [SeffFactory.eINSTANCE.createEmitEventAction]
+            create = [
+                SeffFactory.eINSTANCE.createEmitEventAction
+            ]
             when = [it.signature instanceof EventSignature]
             map([it.role]).thenSet [ action, role |
                 action.sourceRole__EmitEventAction = role
             ]
-            map([it.signature]).thenSet [ action, signature |
+            map([it.signature], EventType).thenSet [ action, signature |
                 action.eventType__EmitEventAction = signature
             ]
         ]
@@ -727,7 +729,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configure(FailureType, org.palladiosimulator.pcm.reliability.FailureType) [
             create = [ReliabilityFactory.eINSTANCE.createSoftwareInducedFailureType => [f|f.entityName = it.name]]
         ]
-        
+
         registry.configure(ResourceTypeRepository, ResourceRepository) [
             create = [ResourcetypeFactory.eINSTANCE.createResourceRepository]
             mapAll([it.contents.filter(Interface).toList], ResourceInterface).thenSet [ resourceTypes, interfaces |
