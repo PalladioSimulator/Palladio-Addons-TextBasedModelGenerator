@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.tpcm.generator
+package org.palladiosimulator.textual.tpcm.registry
 
 import java.util.ArrayList
 import java.util.function.Function

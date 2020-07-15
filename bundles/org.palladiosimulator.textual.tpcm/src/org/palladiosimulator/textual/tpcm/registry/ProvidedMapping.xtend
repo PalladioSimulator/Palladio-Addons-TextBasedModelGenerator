@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.tpcm.generator
+package org.palladiosimulator.textual.tpcm.registry
 
 import org.eclipse.emf.ecore.EObject
 

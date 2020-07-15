@@ -22,14 +22,15 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.e4.core.di;bundle-version="1.7.400"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: org.apache.log4j
-Export-Package: org.palladiosimulator.textual.tpcm.language.util,
+Export-Package: org.palladiosimulator.textual.tpcm,
  org.palladiosimulator.textual.tpcm.generator,
- org.palladiosimulator.textual.tpcm.serializer,
- org.palladiosimulator.textual.tpcm.parser.antlr,
- org.palladiosimulator.textual.tpcm.language.impl,
  org.palladiosimulator.textual.tpcm.language,
- org.palladiosimulator.textual.tpcm,
- org.palladiosimulator.textual.tpcm.validation,
+ org.palladiosimulator.textual.tpcm.language.impl,
+ org.palladiosimulator.textual.tpcm.language.util,
+ org.palladiosimulator.textual.tpcm.parser.antlr,
+ org.palladiosimulator.textual.tpcm.parser.antlr.internal,
+ org.palladiosimulator.textual.tpcm.registry,
  org.palladiosimulator.textual.tpcm.scoping,
+ org.palladiosimulator.textual.tpcm.serializer,
  org.palladiosimulator.textual.tpcm.services,
- org.palladiosimulator.textual.tpcm.parser.antlr.internal
+ org.palladiosimulator.textual.tpcm.validation

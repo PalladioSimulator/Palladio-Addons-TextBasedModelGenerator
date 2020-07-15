@@ -16,6 +16,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.common.util.URI
 import java.util.List
 import org.palladiosimulator.textual.tpcm.language.MappingConfiguration
+import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
+import org.palladiosimulator.textual.tpcm.registry.ProvidedMapping
 
 /**
  * Generates code from your model files on save.
