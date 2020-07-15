@@ -4,7 +4,6 @@
 package org.palladiosimulator.textual.tpcm.generator
 
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.palladiosimulator.textual.tpcm.language.Fragment
@@ -24,26 +23,29 @@ import org.palladiosimulator.textual.tpcm.registry.ProvidedMapping
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
-class TPCMGenerator extends AbstractGenerator {
+class TPCMGenerator extends AbstractMultiSourceGenerator {
     val filenameProvider = GenerationFileNameProvider.getInstance()
-
-    override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-        val sourceFileName = resource.sourceFileName
-        
-        val resourceSet = new ResourceSetImpl()
-        val mapping = resource.allContents.filter(MappingContent).toList
-        val fragments = resource.allContents.filter(Fragment).filter[!(it instanceof MappingConfiguration)].toList
+    
+    override doGenerate(ResourceSet resources, IFileSystemAccess2 fsa, IGeneratorContext context) {
+        var allMappings = resources.allContents.filter(MappingContent).toList
+        val outputResources = new ResourceSetImpl();
         val registry = GeneratorTransformationRegistry.INSTANCE;
-        registry.withContext(createProvidedMappings(resourceSet, mapping)) [
-            val mappedFragments = new ArrayList(fragments.map [
-                val filename = filenameProvider.generateFileNameFor(it, sourceFileName)
-                val mapped = registry.map(it) as EObject
-                new MappingInformation(mapped, filename)
-            ].toList)
-            val resources = mappedFragments.map [
-                createResource(resourceSet, it.mappedValue, it.fileName, fsa, context)
-            ].toList
-            resources.forEach[it.save({})]
+        registry.withContext(createProvidedMappings(outputResources, allMappings)) [
+            val createdResources = new ArrayList<Resource>();
+            for(resource : resources.resources) {
+                val fragments = resource.allContents.filter(Fragment).filter[!(it instanceof MappingConfiguration)].toList
+                val sourceFileName = resource.sourceFileName
+                val mappedFragments = new ArrayList(fragments.map [
+                    val filename = filenameProvider.generateFileNameFor(it, sourceFileName)
+                    val mapped = registry.map(it) as EObject
+                    new MappingInformation(mapped, filename)
+                ].toList)
+                createdResources.addAll(mappedFragments.map [
+                    createResource(outputResources, it.mappedValue, it.fileName, fsa, context)
+                ].toList)
+            }
+            
+            createdResources.forEach[it.save({})]
         ]
     }
     

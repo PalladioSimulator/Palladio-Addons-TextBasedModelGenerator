@@ -7,6 +7,8 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.palladiosimulator.textual.tpcm.generator.MultiSourceGenerator;
+import org.palladiosimulator.textual.tpcm.generator.TPCMGenerator;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
 import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerHandler;
@@ -37,6 +39,10 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 	
 	public Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
 		return TPCMResourceDescriptionStrategy.class;
+	}
+	
+	public Class<? extends MultiSourceGenerator> bindIGenerator() {
+		return TPCMGenerator.class;
 	}
 
 	@Override
