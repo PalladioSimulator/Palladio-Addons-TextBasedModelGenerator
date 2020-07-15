@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.tpcm.generator
+package org.palladiosimulator.textual.tpcm.registry
 
 import java.util.function.Consumer
 import java.util.List
@@ -36,7 +36,7 @@ interface GeneratorTransformationRegistry {
      * @param target The specific type of the target
      * @return The result of the transformation
      */
-    def <S,T> T map(S source, Class<T> target);
+    def <S, T> T map(S source, Class<T> target);
 
     /**
      * Creates a context in which one can run multiple transformations. Inside this context, transformed objects

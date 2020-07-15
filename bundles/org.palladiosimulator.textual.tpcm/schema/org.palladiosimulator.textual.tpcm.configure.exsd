@@ -55,7 +55,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurer"/>
+                  <meta.attribute kind="java" basedOn=":org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurer"/>
                </appInfo>
             </annotation>
          </attribute>

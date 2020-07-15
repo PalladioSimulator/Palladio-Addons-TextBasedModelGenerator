@@ -9,9 +9,9 @@ import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
+import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerHandler;
 import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
 import org.palladiosimulator.textual.tpcm.scoping.TPCMImportUriGlobalScopeProvider;
-import org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurerHandler;
 
 import com.google.inject.Binder;
 

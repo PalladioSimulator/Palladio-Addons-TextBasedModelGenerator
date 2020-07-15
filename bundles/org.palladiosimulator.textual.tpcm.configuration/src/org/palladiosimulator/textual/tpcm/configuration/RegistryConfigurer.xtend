@@ -58,8 +58,6 @@ import org.palladiosimulator.pcm.seff.SeffFactory
 import org.palladiosimulator.pcm.seff.SetVariableAction
 import org.palladiosimulator.pcm.seff.seff_performance.SeffPerformanceFactory
 import org.palladiosimulator.pcm.system.SystemFactory
-import org.palladiosimulator.textual.tpcm.generator.GeneratorTransformationRegistry
-import org.palladiosimulator.textual.tpcm.generator.TransformationRegistryConfigurer
 import org.palladiosimulator.textual.tpcm.language.AbsoluteReference
 import org.palladiosimulator.textual.tpcm.language.Allocation
 import org.palladiosimulator.textual.tpcm.language.AllocationContext
@@ -112,6 +110,8 @@ import org.palladiosimulator.pcm.seff.EmitEventAction
 import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface
 import org.palladiosimulator.textual.tpcm.language.Initialization
 import java.util.stream.Stream
+import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurer
+import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 

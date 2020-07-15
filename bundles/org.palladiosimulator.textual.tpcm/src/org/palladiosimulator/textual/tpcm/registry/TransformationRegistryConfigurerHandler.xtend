@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.tpcm.generator
+package org.palladiosimulator.textual.tpcm.registry
 
 import org.eclipse.core.runtime.SafeRunner
 import org.eclipse.core.runtime.Platform

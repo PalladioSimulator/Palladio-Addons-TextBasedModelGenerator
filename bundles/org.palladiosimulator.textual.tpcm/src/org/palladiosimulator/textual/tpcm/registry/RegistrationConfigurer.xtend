@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.tpcm.generator
+package org.palladiosimulator.textual.tpcm.registry
 
 import java.util.function.Function
 import java.util.List
@@ -6,7 +6,7 @@ import java.util.function.Predicate
 import java.util.function.Consumer
 
 interface RegistrationConfigurer<S, T> {
-        /**
+    /**
      * Defines a transformation for a child element.
      * 
      * @param contentProvider Provider for how get this element from the source element
