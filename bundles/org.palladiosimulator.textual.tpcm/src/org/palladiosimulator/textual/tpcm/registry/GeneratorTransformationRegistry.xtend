@@ -5,7 +5,7 @@ import java.util.List
 
 interface GeneratorTransformationRegistry {
     
-    GeneratorTransformationRegistry INSTANCE = new GeneratorTransformationRegistryImpl;
+    val INSTANCE = new GeneratorTransformationRegistryImpl;
     
     /**
      * Defines a new transformation from source to target.

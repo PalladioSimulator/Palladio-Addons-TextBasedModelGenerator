@@ -17,6 +17,7 @@ import java.util.List
 import org.palladiosimulator.textual.tpcm.language.MappingConfiguration
 import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.tpcm.registry.ProvidedMapping
+import com.google.inject.Inject
 
 /**
  * Generates code from your model files on save.
@@ -24,7 +25,8 @@ import org.palladiosimulator.textual.tpcm.registry.ProvidedMapping
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class TPCMGenerator extends AbstractMultiSourceGenerator {
-    val filenameProvider = GenerationFileNameProvider.getInstance()
+    @Inject
+    GenerationFileNameProvider filenameProvider
     
     override doGenerate(ResourceSet resources, IFileSystemAccess2 fsa, IGeneratorContext context) {
         var allMappings = resources.allContents.filter(MappingContent).toList
