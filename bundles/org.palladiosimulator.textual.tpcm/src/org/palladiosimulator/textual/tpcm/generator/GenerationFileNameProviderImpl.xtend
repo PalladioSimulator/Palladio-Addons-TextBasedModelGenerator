@@ -6,6 +6,7 @@ import org.palladiosimulator.textual.tpcm.language.Allocation
 import org.palladiosimulator.textual.tpcm.language.ResourceEnvironment
 import org.palladiosimulator.textual.tpcm.language.Fragment
 import org.palladiosimulator.textual.tpcm.language.ResourceTypeRepository
+import org.palladiosimulator.textual.tpcm.language.Usage
 
 class GenerationFileNameProviderImpl implements GenerationFileNameProvider {
     static val FILE_EXTESION_SEPARATOR = "."
@@ -19,6 +20,7 @@ class GenerationFileNameProviderImpl implements GenerationFileNameProvider {
         typeDefinitions.add(new TypeNameDefinition(Allocation, "allocation"))
         typeDefinitions.add(new TypeNameDefinition(ResourceEnvironment, "resourceenvironment"))
         typeDefinitions.add(new TypeNameDefinition(ResourceTypeRepository, "resourcetyperepository"))
+        typeDefinitions.add(new TypeNameDefinition(Usage, "usagemodel"))
     }
     
     override String generateFileNameFor(Fragment resource, String originalFileName) {
