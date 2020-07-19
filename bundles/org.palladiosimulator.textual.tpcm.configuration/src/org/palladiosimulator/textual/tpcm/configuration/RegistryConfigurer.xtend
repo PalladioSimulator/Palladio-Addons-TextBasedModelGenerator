@@ -110,8 +110,24 @@ import org.palladiosimulator.pcm.seff.EmitEventAction
 import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface
 import org.palladiosimulator.textual.tpcm.language.Initialization
 import java.util.stream.Stream
+import org.palladiosimulator.textual.tpcm.language.Usage
+import org.palladiosimulator.pcm.usagemodel.UsageModel
+import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory
+import org.palladiosimulator.textual.tpcm.language.UsageScenario
+import org.palladiosimulator.textual.tpcm.language.ScenarioLoopAction
+import org.palladiosimulator.pcm.usagemodel.Loop
+import org.palladiosimulator.textual.tpcm.language.ScenarioBranchAction
+import org.palladiosimulator.pcm.usagemodel.Branch
+import org.palladiosimulator.textual.tpcm.language.ScenarioBranch
+import org.palladiosimulator.pcm.usagemodel.BranchTransition
+import org.palladiosimulator.textual.tpcm.language.ScenarioDelayAction
+import org.palladiosimulator.pcm.usagemodel.Delay
+import org.palladiosimulator.textual.tpcm.language.EntryLevelSystemCallAction
+import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall
+import org.palladiosimulator.textual.tpcm.language.SystemProvidedRole
 import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurer
 import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
+import org.palladiosimulator.pcm.usagemodel.AbstractUserAction
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -150,6 +166,18 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
     static def void updateSuccessorAssignments(EList<? extends AbstractAction> actions) {
         for (var i = 0; i < actions.length - 1; i++) {
             actions.get(i).successor_AbstractAction = actions.get(i + 1);
+        }
+    }
+    
+        static def void updatePreviousAssignmentsForUser(EList<? extends AbstractUserAction> actions) {
+        for (var i = 1; i < actions.length; i++) {
+            actions.get(i).predecessor = actions.get(i - 1);
+        }
+    }
+
+    static def void updateSuccessorAssignmentsforUser(EList<? extends AbstractUserAction> actions) {
+        for (var i = 0; i < actions.length - 1; i++) {
+            actions.get(i).successor = actions.get(i + 1);
         }
     }
 
@@ -207,6 +235,15 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         behavior.steps_Behaviour.updateSuccessorAssignments()
         return behavior
     }
+    
+    static def createScenarioBehavior(List<? extends AbstractUserAction> actions) {
+        val behavior = UsagemodelFactory.eINSTANCE.createScenarioBehaviour
+        behavior.actions_ScenarioBehaviour.addAll(actions)
+        actions.forEach[it.scenarioBehaviour_AbstractUserAction = behavior]
+        behavior.actions_ScenarioBehaviour.updatePreviousAssignmentsForUser()
+        behavior.actions_ScenarioBehaviour.updateSuccessorAssignmentsforUser()
+        return behavior
+    }
 
     override void configure(GeneratorTransformationRegistry registry) {
         registry.configureRepository()
@@ -214,6 +251,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         registry.configureResourceEnvironment()
         registry.configureAllocation()
         registry.configureSystem()
+        registry.configureUsageProfile()
     }
 
     protected def void configureRepository(GeneratorTransformationRegistry registry) {
@@ -607,10 +645,15 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             create = [SeffFactory.eINSTANCE.createInternalCallAction]
             when = [it.role instanceof DomainInterfaceProvidedRole]
 //            map([it.role]).thenSet [ action, role |
-////                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
-////                call.
-////                action.infrastructureCall__Action.
-////                action.role_ExternalService = role
+//                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
+//                call.requiredRole__InfrastructureCall = role
+//            ]
+//            mapAll([it.parameters]).thenSet [ action, params |
+//                action.inputVariableUsages__CallAction.addAll(params)
+//                params.forEach[it.callAction__VariableUsage = action]
+//            ]
+//            map([it.signature]).thenSet [ action, signature |
+//                action.
 //            ]
         ]
 
@@ -894,6 +937,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 system.connectors__ComposedStructure.addAll(connector)
                 connector.forEach[it.parentStructure__Connector = system]
             ]
+            
+            mapAll([it.contents.filter(SystemProvidedRole).toList], OperationProvidedRole).thenSet [ system, roles |
+                system.providedRoles_InterfaceProvidingEntity.addAll(roles)
+                roles.forEach[it.providingEntity_ProvidedRole = system]
+            ]
 
             after = [
                 val newConnectors = new ArrayList<AssemblyConnector>();
@@ -973,6 +1021,13 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 context.encapsulatedComponent__AssemblyContext = component
             ]
         ]
+        
+        registry.configure(SystemProvidedRole, OperationProvidedRole) [
+            create = [RepositoryFactory.eINSTANCE.createOperationProvidedRole]
+            map([it.type]).thenSet [ role, iface | 
+                role.providedInterface__OperationProvidedRole = iface
+            ]
+        ]
     }
 
     protected def void configureAllocation(GeneratorTransformationRegistry registry) {
@@ -1006,6 +1061,90 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
             map([it.container]).thenSet [ context, container |
                 context.resourceContainer_AllocationContext = container;
+            ]
+        ]
+    }
+
+    protected def void configureUsageProfile(GeneratorTransformationRegistry registry) {
+        registry.configure(Usage, UsageModel) [
+            create = [UsagemodelFactory.eINSTANCE.createUsageModel]
+            mapAll([it.contents.filter(UsageScenario).toList]).thenSet [ model, scenarios |
+                model.usageScenario_UsageModel.addAll(scenarios)
+                scenarios.forEach[it.usageModel_UsageScenario = model]
+            ]
+        ]
+        
+        registry.configure(UsageScenario, org.palladiosimulator.pcm.usagemodel.UsageScenario) [
+            create = [UsagemodelFactory.eINSTANCE.createUsageScenario => [m|m.entityName = it.name]]
+            map([it.workload]).thenSet [ scenario, workload |
+                scenario.workload_UsageScenario = workload
+                workload.usageScenario_Workload = scenario
+            ]
+            mapAll([it.contents]).thenSet [ scenario, actions |
+                val behavior = createScenarioBehavior(actions)
+                scenario.scenarioBehaviour_UsageScenario = behavior
+                behavior.usageScenario_SenarioBehaviour = scenario
+            ]
+        ]
+        
+        registry.configure(ScenarioLoopAction, Loop) [
+            create = [UsagemodelFactory.eINSTANCE.createLoop]
+            map([it.condition], PCMRandomVariable).thenSet [ loop, condition |
+                loop.loopIteration_Loop = condition
+                condition.loop_LoopIteration = loop
+            ]
+            mapAll([it.contents]).thenSet [ loop, actions |
+                val behavior = createScenarioBehavior(actions)
+                loop.bodyBehaviour_Loop = behavior
+                behavior.loop_ScenarioBehaviour = loop
+            ]
+        ]
+        
+        registry.configure(ScenarioBranchAction, Branch) [
+            create = [UsagemodelFactory.eINSTANCE.createBranch]
+            mapAll([it.branches]).thenSet [ branch, branches |
+                branch.branchTransitions_Branch.addAll(branches)
+                branches.forEach[it.branch_BranchTransition = branch]
+            ]
+        ]
+        
+        registry.configure(ScenarioBranch, BranchTransition) [
+            create = [UsagemodelFactory.eINSTANCE.createBranchTransition => [b|b.branchProbability = it.probability]]
+            mapAll([it.contents]).thenSet [ branch, actions |
+                val behavior = createScenarioBehavior(actions)
+                branch.branchedBehaviour_BranchTransition = behavior
+                behavior.branchTransition_ScenarioBehaviour = branch
+            ]
+        ]
+        
+        registry.configure(ScenarioDelayAction, Delay) [
+            create = [UsagemodelFactory.eINSTANCE.createDelay]
+            map([it.duration], PCMRandomVariable).thenSet [ delay, duration |
+                delay.timeSpecification_Delay = duration
+                duration.delay_TimeSpecification = delay
+            ]
+        ]
+        
+        registry.configure(EntryLevelSystemCallAction, EntryLevelSystemCall) [
+            create = [UsagemodelFactory.eINSTANCE.createEntryLevelSystemCall]
+            map([it.role]).thenSet [ call, role |
+                call.providedRole_EntryLevelSystemCall = role
+            ]
+            mapAll([it.parameters]).thenSet [ call, params |
+                call.inputParameterUsages_EntryLevelSystemCall.addAll(params)
+                params.forEach[it.entryLevelSystemCall_InputParameterUsage = call]
+            ]
+            mapAll([
+                it.result instanceof ComplexResultAssignment
+                    ? (it.result as ComplexResultAssignment).specification
+                    : emptyList
+            ]).thenSet [ action, specs |
+                action.outputParameterUsages_EntryLevelSystemCall.addAll(specs)
+                specs.forEach[it.entryLevelSystemCall_OutputParameterUsage = action]
+            ]
+            map([it.result instanceof ComplexResultAssignment ? null : it.result]).thenSet [ action, result |
+                action.outputParameterUsages_EntryLevelSystemCall.add(result)
+                result.entryLevelSystemCall_OutputParameterUsage = action
             ]
         ]
     }
