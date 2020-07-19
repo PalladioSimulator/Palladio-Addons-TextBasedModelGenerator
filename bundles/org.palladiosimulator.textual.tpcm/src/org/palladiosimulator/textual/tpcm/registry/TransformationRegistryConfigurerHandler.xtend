@@ -12,12 +12,13 @@ class TransformationRegistryConfigurerHandler {
             return;
         }
         
+        val registry = GeneratorTransformationRegistry.INSTANCE;
         val extensions = extensionRegistry.getConfigurationElementsFor(EXTENSION_POINT_FQN);
         for (element : extensions) {
         	val ext = element.createExecutableExtension("class")
         	if(ext instanceof TransformationRegistryConfigurer) {
         	    SafeRunner.run [
-        	        (ext as TransformationRegistryConfigurer).configure(GeneratorTransformationRegistry.INSTANCE);
+        	        (ext as TransformationRegistryConfigurer).configure(registry);
         	    ]
         	}
         }

@@ -7,6 +7,8 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.palladiosimulator.textual.tpcm.generator.GenerationFileNameProvider;
+import org.palladiosimulator.textual.tpcm.generator.GenerationFileNameProviderImpl;
 import org.palladiosimulator.textual.tpcm.generator.MultiSourceGenerator;
 import org.palladiosimulator.textual.tpcm.generator.TPCMGenerator;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
@@ -44,9 +46,14 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 	public Class<? extends MultiSourceGenerator> bindIGenerator() {
 		return TPCMGenerator.class;
 	}
-
+	
+	public Class<? extends GenerationFileNameProvider> bindFileNameProvider() {
+		return GenerationFileNameProviderImpl.class;
+	}
+	
 	@Override
 	public void configure(Binder binder) {
+		// TODO Auto-generated method stub
 		super.configure(binder);
 		TransformationRegistryConfigurerHandler.execute();
 	}
