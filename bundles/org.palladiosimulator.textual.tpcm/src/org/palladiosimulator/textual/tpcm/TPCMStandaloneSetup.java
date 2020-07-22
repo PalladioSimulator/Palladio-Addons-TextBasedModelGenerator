@@ -3,8 +3,6 @@
  */
 package org.palladiosimulator.textual.tpcm;
 
-import com.google.inject.Injector;
-
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
  */
@@ -13,9 +11,5 @@ public class TPCMStandaloneSetup extends TPCMStandaloneSetupGenerated {
 	public static void doSetup() {
 		new TPCMStandaloneSetup().createInjectorAndDoEMFRegistration();
 	}
-	
-	@Override
-	public void register(Injector injector) {
-		super.register(injector);        
-	}
+
 }

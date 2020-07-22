@@ -18,6 +18,7 @@ import org.palladiosimulator.textual.tpcm.language.MappingConfiguration
 import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.tpcm.registry.ProvidedMapping
 import com.google.inject.Inject
+import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerProvider
 
 /**
  * Generates code from your model files on save.
@@ -27,11 +28,18 @@ import com.google.inject.Inject
 class TPCMGenerator extends AbstractMultiSourceGenerator {
     @Inject
     GenerationFileNameProvider filenameProvider
+    final GeneratorTransformationRegistry registry;
+    
+    @Inject
+    new(TransformationRegistryConfigurerProvider configurerProvider, GeneratorTransformationRegistry registry) {
+        val configurers = configurerProvider.configurer
+        configurers.forEach[it.configure(registry)]
+        this.registry = registry
+    }
     
     override doGenerate(ResourceSet resources, IFileSystemAccess2 fsa, IGeneratorContext context) {
         var allMappings = resources.allContents.filter(MappingContent).toList
         val outputResources = new ResourceSetImpl();
-        val registry = GeneratorTransformationRegistry.INSTANCE;
         registry.withContext(createProvidedMappings(outputResources, allMappings)) [
             val createdResources = new ArrayList<Resource>();
             for(resource : resources.resources) {
