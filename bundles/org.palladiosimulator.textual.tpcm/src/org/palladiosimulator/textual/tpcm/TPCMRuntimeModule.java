@@ -13,11 +13,12 @@ import org.palladiosimulator.textual.tpcm.generator.MultiSourceGenerator;
 import org.palladiosimulator.textual.tpcm.generator.TPCMGenerator;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
-import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerHandler;
+import org.palladiosimulator.textual.tpcm.registry.ExtensionPointTransformationRegistryConfigurerProvider;
+import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry;
+import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistryImpl;
+import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerProvider;
 import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
 import org.palladiosimulator.textual.tpcm.scoping.TPCMImportUriGlobalScopeProvider;
-
-import com.google.inject.Binder;
 
 /**
  * Use this class to register components to be used at runtime / without the
@@ -51,10 +52,11 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 		return GenerationFileNameProviderImpl.class;
 	}
 	
-	@Override
-	public void configure(Binder binder) {
-		// TODO Auto-generated method stub
-		super.configure(binder);
-		TransformationRegistryConfigurerHandler.execute();
+	public Class<? extends TransformationRegistryConfigurerProvider> bindConfigurerProvider() {
+		return ExtensionPointTransformationRegistryConfigurerProvider.class;
+	}
+	
+	public Class<? extends GeneratorTransformationRegistry> bindTransformationRegistry() {
+		return GeneratorTransformationRegistryImpl.class;
 	}
 }
