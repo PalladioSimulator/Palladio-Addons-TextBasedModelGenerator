@@ -738,30 +738,27 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(CollectionDatatype, CollectionDataType) [
-            create = [RepositoryFactory.eINSTANCE.createCollectionDataType]
+            create = [RepositoryFactory.eINSTANCE.createCollectionDataType => [d|d.entityName = it.name]]
             map([it.collectionType]).thenSet [ collectionType, dataType |
                 collectionType.innerType_CollectionDataType = dataType
             ]
         ]
 
         registry.configure(ComposedDatatype, CompositeDataType) [
-            create = [RepositoryFactory.eINSTANCE.createCompositeDataType]
+            create = [RepositoryFactory.eINSTANCE.createCompositeDataType => [d|d.entityName = it.name]]
             mapAll([it.elements]).thenSet [ compositeType, elements |
                 compositeType.innerDeclaration_CompositeDataType.addAll(elements)
             ]
         ]
 
         registry.configure(ComposedDatatypeElement, InnerDeclaration) [
-            create = [RepositoryFactory.eINSTANCE.createInnerDeclaration]
-            when = [it.type !== null]
-            map([it.type]).thenSet [ parent, dataType |
-                parent.compositeDataType_InnerDeclaration = dataType
+            create = [RepositoryFactory.eINSTANCE.createInnerDeclaration => [d|d.entityName = it.name]]
+            map([it.type]).thenSet [ parent, DataType dataType |
+                parent.datatype_InnerDeclaration = dataType
+                if (dataType instanceof CompositeDataType) {
+                    parent.compositeDataType_InnerDeclaration = dataType as CompositeDataType
+                }
             ]
-        ]
-
-        registry.configure(ComposedDatatypeElement, InnerDeclaration) [
-            create = [RepositoryFactory.eINSTANCE.createInnerDeclaration]
-            when = [it.reference !== null]
             map([it.reference]).thenSet [ parent, dataType |
                 parent.datatype_InnerDeclaration = dataType
             ]
