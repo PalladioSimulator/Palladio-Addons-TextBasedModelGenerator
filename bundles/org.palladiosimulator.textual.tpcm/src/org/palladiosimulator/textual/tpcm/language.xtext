@@ -178,7 +178,7 @@ ResultSpecification:
 ;
 
 CharacteristicReference:
-    ({RelativeReference} '.' characteristic=VariableReference) 
+    ({RelativeReference} param=[Parameter]? '.' characteristic=VariableReference) 
     | ({AbsoluteReference} reference=NamespaceReference)
 ;
 
