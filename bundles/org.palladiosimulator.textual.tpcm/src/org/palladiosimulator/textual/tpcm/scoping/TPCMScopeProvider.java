@@ -28,6 +28,7 @@ import org.palladiosimulator.textual.tpcm.language.Parameter;
 import org.palladiosimulator.textual.tpcm.language.ProcessingResource;
 import org.palladiosimulator.textual.tpcm.language.PropertyDefinition;
 import org.palladiosimulator.textual.tpcm.language.PropertyInitializer;
+import org.palladiosimulator.textual.tpcm.language.RelativeReference;
 import org.palladiosimulator.textual.tpcm.language.ResourceEntityType;
 import org.palladiosimulator.textual.tpcm.language.Role;
 import org.palladiosimulator.textual.tpcm.language.SEFF;
@@ -65,6 +66,11 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 				&& reference == LanguagePackage.Literals.ROLE__TYPE) {
 			return new FilteringScope(super.getScope(context, reference),
 					ref -> ref.getEClass() == LanguagePackage.Literals.INTERNAL_CONFIGURABLE_INTERFACE);
+		} else if (context instanceof RelativeReference && reference == LanguagePackage.Literals.RELATIVE_REFERENCE__PARAM) {
+			SEFFCallAction parent = EcoreUtil2.getContainerOfType(context, SEFFCallAction.class);
+			if(parent != null) {
+				return Scopes.scopeFor(parent.getSignature().getParameters());
+			}
 		} else if (context instanceof SEFFIterateAction
 				&& reference == LanguagePackage.Literals.SEFF_ITERATE_ACTION__ITERABLE) {
 			return Scopes.scopeFor(getParametersForSEFFAction((SEFFIterateAction) context));
