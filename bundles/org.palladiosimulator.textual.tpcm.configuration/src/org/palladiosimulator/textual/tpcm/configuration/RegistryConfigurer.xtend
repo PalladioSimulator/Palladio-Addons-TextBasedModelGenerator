@@ -128,6 +128,7 @@ import org.palladiosimulator.textual.tpcm.language.SystemProvidedRole
 import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurer
 import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction
+import de.uka.ipd.sdq.stoex.StoexFactory
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -508,7 +509,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFConditionalElse, GuardedBranchTransition) [
-            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
+            create = [
+                SeffFactory.eINSTANCE.createGuardedBranchTransition => [ t |
+                    val spec = CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = "true"]
+                    t.branchCondition_GuardedBranchTransition = spec
+                ]
+            ]
             mapAll([it.contents]).thenSet [ branch, actions |
                 branch.addStepsToBranch(actions)
             ]
@@ -520,8 +526,19 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 action.localVariableUsages_SetVariableAction.add(result)
                 result.setVariableAction_VariableUsage = action
             ]
-            map([it.specification]).thenSet [action, spec |
-//                action.localVariableUsages_SetVariableAction.get(0).variableCharacterisation_VariableUsage.add(spec)
+            map([it.specification], PCMRandomVariable).thenSet [action, spec |
+                val usage = action.localVariableUsages_SetVariableAction.get(0)
+                val characterization = usage.variableCharacterisation_VariableUsage.get(0)
+                characterization.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = characterization
+            ]
+            after = [
+                it.localVariableUsages_SetVariableAction.forEach [ usage |
+                    if(usage.namedReference__VariableUsage === null) {
+                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = "RETURN"]
+                        usage.namedReference__VariableUsage = returnReference
+                    }
+                ]
             ]
         ]
 
@@ -558,6 +575,33 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.result instanceof ComplexResultAssignment ? null : it.result]).thenSet [ action, result |
                 action.returnVariableUsage__CallReturnAction.add(result)
                 result.callReturnAction__VariableUsage = action
+            ]
+            mapAll([it.parameters]).thenSet [ call, params |
+                call.inputVariableUsages__CallAction.addAll(params)
+                params.forEach[it.callAction__VariableUsage = call]    
+                
+                call.inputVariableUsages__CallAction.forEach[usage, index|
+                    if(usage.namedReference__VariableUsage === null) {
+                        val param = call.calledService_ExternalService.parameters__OperationSignature.get(index)
+                        val reference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = param.parameterName]
+                        usage.namedReference__VariableUsage = reference
+                    }
+                ]
+            ]
+            after = [
+                it.returnVariableUsage__CallReturnAction.forEach [ usage |
+                    if(usage.namedReference__VariableUsage === null) {
+                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = "RETURN"]
+                        usage.namedReference__VariableUsage = returnReference
+                    }
+                    
+                    usage.variableCharacterisation_VariableUsage.forEach [ characterisation |
+                        if(characterisation.specification_VariableCharacterisation === null) {
+                            val spec = "RETURN." + characterisation.type.literal
+                            characterisation.specification_VariableCharacterisation = CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = spec]
+                        }
+                    ]
+                ]
             ]
         ]
 
@@ -607,6 +651,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 ]
             ]
             when = [it.characteristic instanceof RelativeReference]
+            map([it.specification], PCMRandomVariable).thenSet [ usage, spec |
+                val character = usage.variableCharacterisation_VariableUsage.get(0)
+                character.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = character
+            ]
         ]
 
         registry.configure(SEFFCallAction, InternalAction) [
@@ -670,11 +719,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
-            create = [ParameterFactory.eINSTANCE.createVariableUsage]
+            create = [ParameterFactory.eINSTANCE.createVariableUsage =>[v|
+                v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
+            ]]
             when = [it.reference instanceof AbsoluteReference]
-            map([it.reference]).thenSet [ usage, reference |
-                usage.namedReference__VariableUsage = reference
-            ]
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
                 characteristic.specification_VariableCharacterisation = spec
@@ -690,20 +738,34 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     val reference = it.reference as RelativeReference
                     if (reference.characteristic !== null && reference.characteristic.referenceName !== null) {
                         val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
-                        val characteristicName = (it.reference as RelativeReference).characteristic.referenceName
+                        val characteristicName = reference.characteristic.referenceName
                         characteristic.type = VariableCharacterisationType.getByName(characteristicName)
                         u.variableCharacterisation_VariableUsage.add(characteristic)
                         characteristic.variableUsage_VariableCharacterisation = u
                     }
+                    
+                    if(reference.param !== null) {
+                        u.namedReference__VariableUsage = StoexFactory.eINSTANCE.createVariableReference => [v|
+                            v.referenceName = reference.param.name
+                        ]
+                    }
                 ]
-            ]
-            map([it.reference]).thenSet [ usage, reference |
-                usage.namedReference__VariableUsage = reference
             ]
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = usage.variableCharacterisation_VariableUsage.get(0)
                 characteristic.specification_VariableCharacterisation = spec
                 spec.variableCharacterisation_Specification = characteristic
+            ]
+        ]
+        
+        registry.configure(ParameterSpecification, VariableUsage) [
+            when = [it.reference === null]
+            create = [ParameterFactory.eINSTANCE.createVariableUsage]
+            map([it.specification]).thenSet [ usage, spec |
+                val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
+                characteristic.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = characteristic
+                usage.variableCharacterisation_VariableUsage.add(characteristic)
             ]
         ]
 
@@ -801,9 +863,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             // in the language parameters can be multiple, but the event type only allows one!?
             map([it.parameters.head]).thenSet [ sig, param |
                 sig.parameter__EventType = param
-                if (param !== null) {
-                    param.eventType__Parameter = sig
-                }
+                param.eventType__Parameter = sig
             ]
         ]
 
