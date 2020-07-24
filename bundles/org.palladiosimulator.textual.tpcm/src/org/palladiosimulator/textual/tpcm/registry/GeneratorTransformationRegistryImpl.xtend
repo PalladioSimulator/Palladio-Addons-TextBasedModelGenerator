@@ -100,10 +100,11 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
             throw new IllegalStateException("Found multiple matching transformations for " + source.class.simpleName);
         }
 
-        val registrationToApply = possibleRegistrations.get(0);
-        val mapped = registrationToApply.applyTo(source, this)
-        mappedObjects.put(key, mapped)
-        return mapped as T
+        val registrationToApply = possibleRegistrations.get(0)
+        val targetMapped = registrationToApply.create(source)
+        mappedObjects.put(key, targetMapped)
+        registrationToApply.applyTo(source, targetMapped, this)
+        return targetMapped
     }
 
 }
