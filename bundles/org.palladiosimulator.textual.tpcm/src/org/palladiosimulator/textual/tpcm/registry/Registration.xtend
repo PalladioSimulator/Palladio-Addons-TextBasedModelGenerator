@@ -107,8 +107,7 @@ class Registration<S, T> {
      * @param registry The registry to use for resolving possible transformations of child elements.
      * @return The transformed target object.
      */
-    def T applyTo(S source, GeneratorTransformationRegistry registry) {
-        val target = create(source)
+    def applyTo(S source, T target, GeneratorTransformationRegistry registry) {
         try {
             contents.forEach [
                 it.run(source, target, registry)
@@ -117,6 +116,5 @@ class Registration<S, T> {
             throw new RuntimeException("Exception occurred when transforming object of type " + source.class.simpleName + " to " + target.class.simpleName, e)
         }
         callback.accept(target)
-        return target
     }
 }
