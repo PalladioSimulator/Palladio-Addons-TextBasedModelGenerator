@@ -145,8 +145,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         type.repository__DataType = repo
         if (type instanceof CompositeDataType) {
             (type as CompositeDataType).innerDeclaration_CompositeDataType.forEach [ inner |
-                if (inner.datatype_InnerDeclaration !== null) {
+                if (inner.datatype_InnerDeclaration !== null &&
+                    inner.datatype_InnerDeclaration.repository__DataType === null) {
                     inner.datatype_InnerDeclaration.assignRepository(repo)
+                } else if (inner.compositeDataType_InnerDeclaration !== null &&
+                    inner.compositeDataType_InnerDeclaration.repository__DataType === null) {
+                    inner.compositeDataType_InnerDeclaration.assignRepository(repo)
                 } else {
                     // TODO this should never happen.
                     return;
