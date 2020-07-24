@@ -429,9 +429,21 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFProbabilisticAction, BranchAction) [
-            create = [SeffFactory.eINSTANCE.createBranchAction]
+            create = [
+                SeffFactory.eINSTANCE.createBranchAction => [ b |
+                    val totalProbability = it.branches.stream.mapToDouble([it.probability]).sum
+                    if (totalProbability < 1.0) {
+                        val remainingProbablity = 1.0 - totalProbability
+                        val noopBranch = SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [ t |
+                            t.branchProbability = remainingProbablity
+                        ]
+                        b.branches_Branch.add(noopBranch)
+                        noopBranch.branchAction_AbstractBranchTransition = b
+                    }
+                ]
+            ]
             mapAll([it.branches]).thenSet [ action, branches |
-                action.branches_Branch.addAll(branches)
+                action.branches_Branch.addAll(0, branches)
                 branches.forEach[it.branchAction_AbstractBranchTransition = action]
             ]
         ]
