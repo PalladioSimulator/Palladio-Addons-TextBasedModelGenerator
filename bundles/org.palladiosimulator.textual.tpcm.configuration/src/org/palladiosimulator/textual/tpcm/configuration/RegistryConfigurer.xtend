@@ -52,7 +52,6 @@ import org.palladiosimulator.pcm.seff.InternalAction
 import org.palladiosimulator.pcm.seff.LoopAction
 import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
 import org.palladiosimulator.pcm.seff.ReleaseAction
-import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import org.palladiosimulator.pcm.seff.SeffFactory
 import org.palladiosimulator.pcm.seff.SetVariableAction
@@ -109,7 +108,6 @@ import org.palladiosimulator.textual.tpcm.language.ResultSpecification
 import org.palladiosimulator.pcm.seff.EmitEventAction
 import org.palladiosimulator.textual.tpcm.language.InternalConfigurableInterface
 import org.palladiosimulator.textual.tpcm.language.Initialization
-import java.util.stream.Stream
 import org.palladiosimulator.textual.tpcm.language.Usage
 import org.palladiosimulator.pcm.usagemodel.UsageModel
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory
@@ -129,6 +127,7 @@ import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigu
 import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction
 import de.uka.ipd.sdq.stoex.StoexFactory
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -169,8 +168,8 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             actions.get(i).successor_AbstractAction = actions.get(i + 1);
         }
     }
-    
-        static def void updatePreviousAssignmentsForUser(EList<? extends AbstractUserAction> actions) {
+
+    static def void updatePreviousAssignmentsForUser(EList<? extends AbstractUserAction> actions) {
         for (var i = 1; i < actions.length; i++) {
             actions.get(i).predecessor = actions.get(i - 1);
         }
@@ -198,26 +197,16 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             }
         }
     }
-
-    static def Stream<ResourceDemandingInternalBehaviour> getAllInternalSEFFBehaviors(List<AbstractAction> actions) {
-        return actions.stream().flatMap [ action |
-            switch (action) {
-                BranchAction: {
-                    val behaviors = action.branches_Branch.map[it.branchBehaviour_BranchTransition].filter(
-                        ResourceDemandingInternalBehaviour).toList
-                    val innerStreams = behaviors.stream.flatMap[getAllInternalSEFFBehaviors(it.steps_Behaviour)]
-                    Stream.concat(innerStreams, behaviors.stream)
-                }
-                default:
-                    Stream.empty
-            }
-        ];
+    
+    static def ResourceDemandingBehaviour createEmptyBehavior() {
+        val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
+        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
+        return behavior
     }
 
     static def void addStepsToBranch(AbstractBranchTransition branch, List<AbstractAction> steps) {
-        val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
-        branch.branchBehaviour_BranchTransition = behavior
-        behavior.abstractBranchTransition_ResourceDemandingBehaviour = branch
+        val behavior = branch.branchBehaviour_BranchTransition
         behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
         behavior.steps_Behaviour.addAll(steps)
         behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
@@ -226,17 +215,15 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         behavior.steps_Behaviour.updateSuccessorAssignments()
     }
 
-    static def ResourceDemandingInternalBehaviour addActions(List<AbstractAction> steps) {
-        val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
-        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
-        behavior.steps_Behaviour.addAll(steps)
-        behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
+    static def ResourceDemandingBehaviour addActions(List<AbstractAction> steps) {
+        val behavior = createEmptyBehavior
+        behavior.steps_Behaviour.addAll(1, steps)
         behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
         behavior.steps_Behaviour.updateSuccessorAssignments()
         return behavior
     }
-    
+
     static def createScenarioBehavior(List<? extends AbstractUserAction> actions) {
         val behavior = UsagemodelFactory.eINSTANCE.createScenarioBehaviour
         behavior.actions_ScenarioBehaviour.addAll(actions)
@@ -400,11 +387,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 seff.steps_Behaviour.updatePreviousAssignments();
                 seff.steps_Behaviour.updateSuccessorAssignments();
             ]
-            after = [
-                getAllInternalSEFFBehaviors(it.steps_Behaviour).forEach [ behavior |
-                    behavior.resourceDemandingSEFF_ResourceDemandingInternalBehaviour = it
-                ]
-            ]
         ]
 
         registry.configure(SEFFCallAction, AcquireAction) [
@@ -437,6 +419,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                         val remainingProbablity = 1.0 - totalProbability
                         val noopBranch = SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [ t |
                             t.branchProbability = remainingProbablity
+                            val behavior = createEmptyBehavior => [ be |
+                                be.steps_Behaviour.updatePreviousAssignments()
+                                be.steps_Behaviour.updateSuccessorAssignments()
+                                be.abstractBranchTransition_ResourceDemandingBehaviour = t
+                            ]
+                            t.branchBehaviour_BranchTransition = behavior
                         ]
                         b.branches_Branch.add(noopBranch)
                         noopBranch.branchAction_AbstractBranchTransition = b
@@ -451,7 +439,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(SEFFProbabilisticBranch, ProbabilisticBranchTransition) [
             create = [
-                SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [t|t.branchProbability = it.probability]
+                SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [ t |
+                    t.branchProbability = it.probability
+                    val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+                    t.branchBehaviour_BranchTransition = behavior
+                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
+                ]
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
                 branch.addStepsToBranch(actions)
@@ -459,18 +452,23 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFLoopAction, LoopAction) [
-            create = [SeffFactory.eINSTANCE.createLoopAction]
+            create = [
+                SeffFactory.eINSTANCE.createLoopAction => [ l |
+                    val behavior = createEmptyBehavior
+                    l.bodyBehaviour_Loop = behavior
+                    behavior.abstractLoopAction_ResourceDemandingBehaviour = l
+                ]
+            ]
             map([it.condition], PCMRandomVariable).thenSet [ loop, variable |
                 loop.iterationCount_LoopAction = variable
                 variable.loopAction_PCMRandomVariable = loop
             ]
             mapAll([it.contents]).thenSet [ loop, actions |
-                val behavior = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
+                val behavior = loop.bodyBehaviour_Loop
                 behavior.steps_Behaviour.addAll(actions)
                 behavior.steps_Behaviour.updatePreviousAssignments();
                 behavior.steps_Behaviour.updateSuccessorAssignments();
                 behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
-                loop.bodyBehaviour_Loop = behavior
             ]
         ]
 
@@ -480,6 +478,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     val branch = SeffFactory.eINSTANCE.createGuardedBranchTransition
                     it.branches_Branch.add(branch)
                     branch.branchAction_AbstractBranchTransition = it
+                    
+                    val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+                    branch.branchBehaviour_BranchTransition = behavior
+                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = branch
                 ]
             ]
             map([it.condition], PCMRandomVariable).thenSet [ action, condition |
@@ -491,14 +493,20 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
                 branch.addStepsToBranch(contents)
             ]
-            map([collectAllBranches]).thenSet [ action, alternatives |
+            mapAll([collectAllBranches]).thenSet [ action, alternatives |
                 action.branches_Branch.addAll(alternatives)
                 alternatives.forEach[it.branchAction_AbstractBranchTransition = action]
             ]
         ]
 
         registry.configure(SEFFConditionalElseIf, GuardedBranchTransition) [
-            create = [SeffFactory.eINSTANCE.createGuardedBranchTransition]
+            create = [
+                SeffFactory.eINSTANCE.createGuardedBranchTransition => [ g |
+                    val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+                    g.branchBehaviour_BranchTransition = behavior
+                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = g
+                ]
+            ]
             map([it.condition], PCMRandomVariable).thenSet [ transition, variable |
                 transition.branchCondition_GuardedBranchTransition = variable
                 variable.guardedBranchTransition_PCMRandomVariable = transition
@@ -513,6 +521,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 SeffFactory.eINSTANCE.createGuardedBranchTransition => [ t |
                     val spec = CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = "true"]
                     t.branchCondition_GuardedBranchTransition = spec
+                    val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+                    t.branchBehaviour_BranchTransition = behavior
+                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
                 ]
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
