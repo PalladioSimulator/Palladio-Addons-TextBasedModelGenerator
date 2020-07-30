@@ -391,7 +391,7 @@ OpenWorkload:
 ;
 
 ClosedWorkload:
-    'population''(''«'numberOfUsers=expression'»'')' 'thinkTime' '(''«'thinkTime=expression'»'')'
+    'population''(''«'numberOfUsers=DECINT'»'')' 'thinkTime' '(''«'thinkTime=expression'»'')'
 ;
 
 ScenarioContent:
