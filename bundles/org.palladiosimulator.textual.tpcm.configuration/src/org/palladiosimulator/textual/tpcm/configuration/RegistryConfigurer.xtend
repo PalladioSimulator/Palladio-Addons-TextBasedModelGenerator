@@ -128,6 +128,8 @@ import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegist
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction
 import de.uka.ipd.sdq.stoex.StoexFactory
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour
+import org.palladiosimulator.textual.tpcm.language.OpenWorkload
+import org.palladiosimulator.textual.tpcm.language.ClosedWorkload
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -1171,6 +1173,24 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
         ]
         
+        registry.configure(OpenWorkload, org.palladiosimulator.pcm.usagemodel.OpenWorkload) [
+            create = [UsagemodelFactory.eINSTANCE.createOpenWorkload]
+            map([it.interArrivalTime], PCMRandomVariable).thenSet [ workload, arrivalTime |
+                workload.interArrivalTime_OpenWorkload = arrivalTime
+                arrivalTime.openWorkload_PCMRandomVariable = workload
+            ]
+        ]
+        
+        registry.configure(ClosedWorkload, org.palladiosimulator.pcm.usagemodel.ClosedWorkload) [
+            create = [UsagemodelFactory.eINSTANCE.createClosedWorkload => [w|
+                w.population = it.numberOfUsers
+            ]]
+            map([it.thinkTime], PCMRandomVariable).thenSet [ workload, time | 
+                workload.thinkTime_ClosedWorkload = time
+                time.closedWorkload_PCMRandomVariable = workload
+            ]
+        ]
+
         registry.configure(ScenarioLoopAction, Loop) [
             create = [UsagemodelFactory.eINSTANCE.createLoop]
             map([it.condition], PCMRandomVariable).thenSet [ loop, condition |
