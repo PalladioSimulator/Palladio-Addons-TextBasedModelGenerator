@@ -1239,6 +1239,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.role]).thenSet [ call, role |
                 call.providedRole_EntryLevelSystemCall = role
             ]
+            map([it.signature]).thenSet [ call, signature |
+                call.operationSignature__EntryLevelSystemCall = signature
+            ]
             mapAll([it.parameters]).thenSet [ call, params |
                 call.inputParameterUsages_EntryLevelSystemCall.addAll(params)
                 params.forEach[it.entryLevelSystemCall_InputParameterUsage = call]
