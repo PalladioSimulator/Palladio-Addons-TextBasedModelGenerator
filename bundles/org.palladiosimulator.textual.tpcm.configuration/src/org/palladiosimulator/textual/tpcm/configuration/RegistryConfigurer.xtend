@@ -552,8 +552,10 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
             after = [
                 it.localVariableUsages_SetVariableAction.forEach [ usage |
-                    if(usage.namedReference__VariableUsage === null) {
-                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = "RETURN"]
+                    if (usage.namedReference__VariableUsage === null) {
+                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [ r |
+                            r.referenceName = "RETURN"
+                        ]
                         usage.namedReference__VariableUsage = returnReference
                     }
                 ]
@@ -596,27 +598,32 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
             mapAll([it.parameters]).thenSet [ call, params |
                 call.inputVariableUsages__CallAction.addAll(params)
-                params.forEach[it.callAction__VariableUsage = call]    
-                
-                call.inputVariableUsages__CallAction.forEach[usage, index|
-                    if(usage.namedReference__VariableUsage === null) {
+                params.forEach[it.callAction__VariableUsage = call]
+
+                call.inputVariableUsages__CallAction.forEach [ usage, index |
+                    if (usage.namedReference__VariableUsage === null) {
                         val param = call.calledService_ExternalService.parameters__OperationSignature.get(index)
-                        val reference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = param.parameterName]
+                        val reference = StoexFactory.eINSTANCE.createVariableReference => [ r |
+                            r.referenceName = param.parameterName
+                        ]
                         usage.namedReference__VariableUsage = reference
                     }
                 ]
             ]
             after = [
                 it.returnVariableUsage__CallReturnAction.forEach [ usage |
-                    if(usage.namedReference__VariableUsage === null) {
-                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [r|r.referenceName = "RETURN"]
+                    if (usage.namedReference__VariableUsage === null) {
+                        val returnReference = StoexFactory.eINSTANCE.createVariableReference => [ r |
+                            r.referenceName = "RETURN"
+                        ]
                         usage.namedReference__VariableUsage = returnReference
                     }
-                    
+
                     usage.variableCharacterisation_VariableUsage.forEach [ characterisation |
-                        if(characterisation.specification_VariableCharacterisation === null) {
+                        if (characterisation.specification_VariableCharacterisation === null) {
                             val spec = "RETURN." + characterisation.type.literal
-                            characterisation.specification_VariableCharacterisation = CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = spec]
+                            characterisation.specification_VariableCharacterisation = CoreFactory.eINSTANCE.
+                                createPCMRandomVariable => [it.specification = spec]
                         }
                     ]
                 ]
@@ -737,9 +744,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
-            create = [ParameterFactory.eINSTANCE.createVariableUsage =>[v|
-                v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
-            ]]
+            create = [
+                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+                    v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
+                ]
+            ]
             when = [it.reference instanceof AbsoluteReference]
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
@@ -760,12 +769,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                         characteristic.type = VariableCharacterisationType.getByName(characteristicName)
                         u.variableCharacterisation_VariableUsage.add(characteristic)
                         characteristic.variableUsage_VariableCharacterisation = u
-                    }
-                    
-                    if(reference.param !== null) {
-                        u.namedReference__VariableUsage = StoexFactory.eINSTANCE.createVariableReference => [v|
-                            v.referenceName = reference.param.name
-                        ]
                     }
                 ]
             ]
