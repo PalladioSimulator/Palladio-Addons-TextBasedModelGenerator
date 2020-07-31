@@ -130,6 +130,7 @@ import de.uka.ipd.sdq.stoex.StoexFactory
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour
 import org.palladiosimulator.textual.tpcm.language.OpenWorkload
 import org.palladiosimulator.textual.tpcm.language.ClosedWorkload
+import org.eclipse.emf.ecore.EObject
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -138,9 +139,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         return CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = spec]
     }
 
-    static def Expression getInitPropertyExpression(Initialization init, String propertyName) {
+    static def EObject getInitPropertyExpression(Initialization init, String propertyName) {
         val prop = init?.contents?.findFirst[it.property.name == propertyName]
-        return prop?.specification
+        return prop?.specification ?: prop?.referencedElement
     }
 
     static def void assignRepository(DataType type, org.palladiosimulator.pcm.repository.Repository repo) {
@@ -977,8 +978,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 resource.processingRate_ProcessingResourceSpecification = rate
                 rate.processingResourceSpecification_processingRate_PCMRandomVariable = resource
             ]
-            map([getInitPropertyExpression(it.initialization, "schedulingPolicy")],
-                org.palladiosimulator.pcm.resourcetype.SchedulingPolicy).thenSet [ resource, policy |
+            map([getInitPropertyExpression(it.initialization, "schedulingPolicy")]).thenSet [ resource, policy |
                 resource.schedulingPolicy = policy
             ]
             map([it.type]).thenSet [ resource, type |
