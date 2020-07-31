@@ -233,7 +233,9 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
     static def createScenarioBehavior(List<? extends AbstractUserAction> actions) {
         val behavior = UsagemodelFactory.eINSTANCE.createScenarioBehaviour
+        behavior.actions_ScenarioBehaviour.add(UsagemodelFactory.eINSTANCE.createStart)
         behavior.actions_ScenarioBehaviour.addAll(actions)
+        behavior.actions_ScenarioBehaviour.add(UsagemodelFactory.eINSTANCE.createStop)
         actions.forEach[it.scenarioBehaviour_AbstractUserAction = behavior]
         behavior.actions_ScenarioBehaviour.updatePreviousAssignmentsForUser()
         behavior.actions_ScenarioBehaviour.updateSuccessorAssignmentsforUser()
