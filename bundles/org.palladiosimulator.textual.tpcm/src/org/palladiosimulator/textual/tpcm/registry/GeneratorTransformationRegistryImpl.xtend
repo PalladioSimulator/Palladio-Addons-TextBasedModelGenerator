@@ -6,6 +6,7 @@ import java.util.Map
 import java.util.HashMap
 import java.util.function.Consumer
 import java.util.Objects
+import java.util.stream.Collectors
 
 class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegistry {
 
@@ -86,6 +87,11 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
         val key = new MappedObjectKey(target, referenceId)
         if (mappedObjects.containsKey(key)) {
             return mappedObjects.get(key) as T
+        } else if (target === null) {
+            val existing = mappedObjects.entrySet.stream.filter [ it.key.objectId == referenceId ].collect(Collectors.toList)
+            if(existing.size == 1) {
+                return existing.get(0).value as T
+            }
         }
 
         val List<Registration<S, T>> possibleRegistrations = registrations.filter[it.doesMap(source, target)].map [
