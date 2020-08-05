@@ -474,7 +474,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ]
             mapAll([it.contents]).thenSet [ loop, actions |
                 val behavior = loop.bodyBehaviour_Loop
-                behavior.steps_Behaviour.addAll(actions)
+                behavior.steps_Behaviour.addAll(1, actions)
                 behavior.steps_Behaviour.updatePreviousAssignments();
                 behavior.steps_Behaviour.updateSuccessorAssignments();
                 behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
