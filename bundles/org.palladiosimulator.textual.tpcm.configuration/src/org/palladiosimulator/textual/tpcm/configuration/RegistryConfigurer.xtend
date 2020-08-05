@@ -132,6 +132,9 @@ import org.palladiosimulator.textual.tpcm.language.OpenWorkload
 import org.palladiosimulator.textual.tpcm.language.ClosedWorkload
 import org.eclipse.emf.ecore.EObject
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector
+import de.uka.ipd.sdq.stoex.NamespaceReference
+import de.uka.ipd.sdq.stoex.VariableReference
+import de.uka.ipd.sdq.stoex.AbstractNamedReference
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -143,6 +146,55 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
     static def EObject getInitPropertyExpression(Initialization init, String propertyName) {
         val prop = init?.contents?.findFirst[it.property.name == propertyName]
         return prop?.specification ?: prop?.referencedElement
+    }
+
+    static def AbstractNamedReference copyReferences(NamespaceReference reference) {
+        if (reference.innerReference_NamespaceReference instanceof NamespaceReference) {
+            return StoexFactory.eINSTANCE.createNamespaceReference => [ r |
+                r.referenceName = reference.referenceName
+                if (reference.innerReference_NamespaceReference instanceof NamespaceReference) {
+                    r.innerReference_NamespaceReference = copyReferences(
+                        reference.innerReference_NamespaceReference as NamespaceReference)
+                }
+            ]
+        } else {
+            return StoexFactory.eINSTANCE.createVariableReference => [ v |
+                v.referenceName = reference.referenceName
+            ]
+        }
+
+    }
+
+    static def VariableReference findVariableReference(AbstractNamedReference reference) {
+        return switch (reference) {
+            NamespaceReference: findVariableReference(reference.innerReference_NamespaceReference)
+            VariableReference: reference
+            default: null
+        }
+    }
+
+    static def VariableUsage createForReference(RelativeReference reference) {
+        return ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+            val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
+                vc.type = VariableCharacterisationType.getByName(reference.characteristic.referenceName)
+            ]
+            v.variableCharacterisation_VariableUsage.add(variable)
+            variable.variableUsage_VariableCharacterisation = v
+        ]
+    }
+
+    static def VariableUsage createForReference(AbsoluteReference reference) {
+        return ParameterFactory.eINSTANCE.createVariableUsage => [ v |
+            v.namedReference__VariableUsage = copyReferences(reference.reference)
+            val characteristic = findVariableReference(reference.reference)
+            if (characteristic !== null) {
+                val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
+                    vc.type = VariableCharacterisationType.getByName(characteristic.referenceName)
+                ]
+                v.variableCharacterisation_VariableUsage.add(variable)
+                variable.variableUsage_VariableCharacterisation = v
+            }
+        ]
     }
 
     static def void assignRepository(DataType type, org.palladiosimulator.pcm.repository.Repository repo) {
@@ -635,49 +687,20 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(PrimitiveResultAssignment, VariableUsage) [
             create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
-                    v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
-                ]
+                switch (it.reference) {
+                    AbsoluteReference: createForReference(it.reference as AbsoluteReference)
+                    RelativeReference: createForReference(it.reference as RelativeReference)
+                }
             ]
-            when = [it.reference instanceof AbsoluteReference]
-        ]
-
-        registry.configure(PrimitiveResultAssignment, VariableUsage) [
-            create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
-                    val characterization = VariableCharacterisationType.getByName(
-                        (it.reference as RelativeReference).characteristic.referenceName)
-                    val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
-                        vc.type = characterization
-                    ]
-                    v.variableCharacterisation_VariableUsage.add(variable)
-                    variable.variableUsage_VariableCharacterisation = v
-                ]
-            ]
-            when = [it.reference instanceof RelativeReference]
         ]
 
         registry.configure(ResultSpecification, VariableUsage) [
-            create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
-                    v.namedReference__VariableUsage = (it.characteristic as AbsoluteReference).reference
-                ]
-            ]
+            create = [createForReference(it.characteristic as AbsoluteReference)]
             when = [it.characteristic instanceof AbsoluteReference]
         ]
 
         registry.configure(ResultSpecification, VariableUsage) [
-            create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
-                    val characterization = VariableCharacterisationType.getByName(
-                        (it.characteristic as RelativeReference).characteristic.referenceName)
-                    val variable = ParameterFactory.eINSTANCE.createVariableCharacterisation => [ vc |
-                        vc.type = characterization
-                    ]
-                    v.variableCharacterisation_VariableUsage.add(variable)
-                    variable.variableUsage_VariableCharacterisation = v
-                ]
-            ]
+            create = [createForReference(it.characteristic as RelativeReference)]
             when = [it.characteristic instanceof RelativeReference]
             map([it.specification], PCMRandomVariable).thenSet [ usage, spec |
                 val character = usage.variableCharacterisation_VariableUsage.get(0)
@@ -747,34 +770,18 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
-            create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ v |
-                    v.namedReference__VariableUsage = (it.reference as AbsoluteReference).reference
-                ]
-            ]
+            create = [createForReference(it.reference as AbsoluteReference)]
             when = [it.reference instanceof AbsoluteReference]
             map([it.specification]).thenSet [ usage, spec |
-                val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
-                characteristic.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = characteristic
-                usage.variableCharacterisation_VariableUsage.add(characteristic)
+                val characterization = usage.variableCharacterisation_VariableUsage.get(0)
+                characterization.specification_VariableCharacterisation = spec
+                spec.variableCharacterisation_Specification = characterization
             ]
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
+            create = [createForReference(it.reference as RelativeReference)]
             when = [it.reference instanceof RelativeReference]
-            create = [
-                ParameterFactory.eINSTANCE.createVariableUsage => [ u |
-                    val reference = it.reference as RelativeReference
-                    if (reference.characteristic !== null && reference.characteristic.referenceName !== null) {
-                        val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
-                        val characteristicName = reference.characteristic.referenceName
-                        characteristic.type = VariableCharacterisationType.getByName(characteristicName)
-                        u.variableCharacterisation_VariableUsage.add(characteristic)
-                        characteristic.variableUsage_VariableCharacterisation = u
-                    }
-                ]
-            ]
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = usage.variableCharacterisation_VariableUsage.get(0)
                 characteristic.specification_VariableCharacterisation = spec
