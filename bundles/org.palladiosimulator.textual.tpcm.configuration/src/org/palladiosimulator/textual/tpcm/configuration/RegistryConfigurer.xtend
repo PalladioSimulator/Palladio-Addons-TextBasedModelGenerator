@@ -254,7 +254,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             }
         }
     }
-    
+
     static def ResourceDemandingBehaviour createEmptyBehavior() {
         val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
         behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
@@ -530,7 +530,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     val branch = SeffFactory.eINSTANCE.createGuardedBranchTransition
                     it.branches_Branch.add(branch)
                     branch.branchAction_AbstractBranchTransition = it
-                    
+
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     branch.branchBehaviour_BranchTransition = behavior
                     behavior.abstractBranchTransition_ResourceDemandingBehaviour = branch
@@ -589,7 +589,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 action.localVariableUsages_SetVariableAction.add(result)
                 result.setVariableAction_VariableUsage = action
             ]
-            map([it.specification], PCMRandomVariable).thenSet [action, spec |
+            map([it.specification], PCMRandomVariable).thenSet [ action, spec |
                 val usage = action.localVariableUsages_SetVariableAction.get(0)
                 val characterization = usage.variableCharacterisation_VariableUsage.get(0)
                 characterization.specification_VariableCharacterisation = spec
@@ -764,7 +764,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 spec.variableCharacterisation_Specification = characteristic
             ]
         ]
-        
+
         registry.configure(ParameterSpecification, VariableUsage) [
             when = [it.reference === null]
             create = [ParameterFactory.eINSTANCE.createVariableUsage]
@@ -923,9 +923,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 type.resourceProvidedRoles__ResourceInterfaceProvidingEntity.addAll(roles)
                 roles.forEach[it.resourceInterfaceProvidingEntity__ResourceProvidedRole = type]
             ]
-        // mapAll([it.contents.filter(ResourceFailureSpecification).map[it.failureType].toList]).thenSet [type, failures |
-        // // TODO this requires a hardware failure ... which doesn't seem to make sense
-        // ]
         ]
 
         registry.configure(ResourceInterfaceProvidedRole, ResourceProvidedRole) [
@@ -1182,7 +1179,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 scenarios.forEach[it.usageModel_UsageScenario = model]
             ]
         ]
-        
+
         registry.configure(UsageScenario, org.palladiosimulator.pcm.usagemodel.UsageScenario) [
             create = [UsagemodelFactory.eINSTANCE.createUsageScenario => [m|m.entityName = it.name]]
             map([it.workload]).thenSet [ scenario, workload |
@@ -1195,7 +1192,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 behavior.usageScenario_SenarioBehaviour = scenario
             ]
         ]
-        
+
         registry.configure(OpenWorkload, org.palladiosimulator.pcm.usagemodel.OpenWorkload) [
             create = [UsagemodelFactory.eINSTANCE.createOpenWorkload]
             map([it.interArrivalTime], PCMRandomVariable).thenSet [ workload, arrivalTime |
@@ -1203,12 +1200,14 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 arrivalTime.openWorkload_PCMRandomVariable = workload
             ]
         ]
-        
+
         registry.configure(ClosedWorkload, org.palladiosimulator.pcm.usagemodel.ClosedWorkload) [
-            create = [UsagemodelFactory.eINSTANCE.createClosedWorkload => [w|
-                w.population = it.numberOfUsers
-            ]]
-            map([it.thinkTime], PCMRandomVariable).thenSet [ workload, time | 
+            create = [
+                UsagemodelFactory.eINSTANCE.createClosedWorkload => [ w |
+                    w.population = it.numberOfUsers
+                ]
+            ]
+            map([it.thinkTime], PCMRandomVariable).thenSet [ workload, time |
                 workload.thinkTime_ClosedWorkload = time
                 time.closedWorkload_PCMRandomVariable = workload
             ]
@@ -1226,7 +1225,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 behavior.loop_ScenarioBehaviour = loop
             ]
         ]
-        
+
         registry.configure(ScenarioBranchAction, Branch) [
             create = [UsagemodelFactory.eINSTANCE.createBranch]
             mapAll([it.branches]).thenSet [ branch, branches |
@@ -1234,7 +1233,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 branches.forEach[it.branch_BranchTransition = branch]
             ]
         ]
-        
+
         registry.configure(ScenarioBranch, BranchTransition) [
             create = [UsagemodelFactory.eINSTANCE.createBranchTransition => [b|b.branchProbability = it.probability]]
             mapAll([it.contents]).thenSet [ branch, actions |
@@ -1243,7 +1242,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 behavior.branchTransition_ScenarioBehaviour = branch
             ]
         ]
-        
+
         registry.configure(ScenarioDelayAction, Delay) [
             create = [UsagemodelFactory.eINSTANCE.createDelay]
             map([it.duration], PCMRandomVariable).thenSet [ delay, duration |
