@@ -131,6 +131,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour
 import org.palladiosimulator.textual.tpcm.language.OpenWorkload
 import org.palladiosimulator.textual.tpcm.language.ClosedWorkload
 import org.eclipse.emf.ecore.EObject
+import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -1028,10 +1029,13 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 system.connectors__ComposedStructure.addAll(connector)
                 connector.forEach[it.parentStructure__Connector = system]
             ]
-            
-            mapAll([it.contents.filter(SystemProvidedRole).toList], OperationProvidedRole).thenSet [ system, roles |
-                system.providedRoles_InterfaceProvidingEntity.addAll(roles)
-                roles.forEach[it.providingEntity_ProvidedRole = system]
+
+            mapAll([it.contents.filter(SystemProvidedRole).toList], ProvidedDelegationConnector).thenSet [ system, roles |
+                system.connectors__ComposedStructure.addAll(roles)
+                roles.forEach [
+                    it.parentStructure__Connector = system
+                    system.providedRoles_InterfaceProvidingEntity.add(it.outerProvidedRole_ProvidedDelegationConnector)
+                ]
             ]
 
             after = [
@@ -1065,6 +1069,15 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     }
                 }
                 it.connectors__ComposedStructure.addAll(newConnectors)
+
+                it.connectors__ComposedStructure.filter(ProvidedDelegationConnector).forEach [ connector |
+                    if (connector.assemblyContext_ProvidedDelegationConnector.parentStructure__AssemblyContext ===
+                        null) {
+                        val context = connector.assemblyContext_ProvidedDelegationConnector
+                        context.parentStructure__AssemblyContext = it
+                        it.assemblyContexts__ComposedStructure.add(context)
+                    }
+                ]
 
                 it.connectors__ComposedStructure.filter(AssemblyConnector).forEach [ connector |
                     if (!it.assemblyContexts__ComposedStructure.contains(
@@ -1112,11 +1125,33 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 context.encapsulatedComponent__AssemblyContext = component
             ]
         ]
-        
-        registry.configure(SystemProvidedRole, OperationProvidedRole) [
-            create = [RepositoryFactory.eINSTANCE.createOperationProvidedRole]
-            map([it.type]).thenSet [ role, iface | 
+
+        registry.configure(SystemProvidedRole, ProvidedDelegationConnector) [
+            create = [CompositionFactory.eINSTANCE.createProvidedDelegationConnector]
+            map([it.type]).thenSet [ connector, iface |
+                val role = RepositoryFactory.eINSTANCE.createOperationProvidedRole
                 role.providedInterface__OperationProvidedRole = iface
+                connector.outerProvidedRole_ProvidedDelegationConnector = role
+            ]
+            map([it.to]).thenSet [ connector, to |
+                connector.assemblyContext_ProvidedDelegationConnector = to
+                val requiredInterface = connector.outerProvidedRole_ProvidedDelegationConnector.
+                    providedInterface__OperationProvidedRole
+                val providedRoles = to.encapsulatedComponent__AssemblyContext.providedRoles_InterfaceProvidingEntity
+                val matchedRole = providedRoles.filter(OperationProvidedRole).findFirst [
+                    it.providedInterface__OperationProvidedRole === requiredInterface
+                ]
+                connector.innerProvidedRole_ProvidedDelegationConnector = matchedRole
+            ]
+            map([it.target]).thenSet [ connector, to |
+                connector.assemblyContext_ProvidedDelegationConnector = to
+                val requiredInterface = connector.outerProvidedRole_ProvidedDelegationConnector.
+                    providedInterface__OperationProvidedRole
+                val providedRoles = to.encapsulatedComponent__AssemblyContext.providedRoles_InterfaceProvidingEntity
+                val matchedRole = providedRoles.filter(OperationProvidedRole).findFirst [
+                    it.providedInterface__OperationProvidedRole === requiredInterface
+                ]
+                connector.innerProvidedRole_ProvidedDelegationConnector = matchedRole
             ]
         ]
     }
@@ -1233,11 +1268,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 duration.delay_TimeSpecification = delay
             ]
         ]
-        
+
         registry.configure(EntryLevelSystemCallAction, EntryLevelSystemCall) [
             create = [UsagemodelFactory.eINSTANCE.createEntryLevelSystemCall]
-            map([it.role]).thenSet [ call, role |
-                call.providedRole_EntryLevelSystemCall = role
+            map([it.role], ProvidedDelegationConnector).thenSet [ call, role |
+                call.providedRole_EntryLevelSystemCall = role.outerProvidedRole_ProvidedDelegationConnector
             ]
             map([it.signature]).thenSet [ call, signature |
                 call.operationSignature__EntryLevelSystemCall = signature
