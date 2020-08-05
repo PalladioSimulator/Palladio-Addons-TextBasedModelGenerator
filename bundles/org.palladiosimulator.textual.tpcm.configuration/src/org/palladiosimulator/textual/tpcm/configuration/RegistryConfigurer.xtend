@@ -23,14 +23,12 @@ import org.palladiosimulator.pcm.repository.DataType
 import org.palladiosimulator.pcm.repository.EventGroup
 import org.palladiosimulator.pcm.repository.EventType
 import org.palladiosimulator.pcm.repository.InfrastructureProvidedRole
-import org.palladiosimulator.pcm.repository.InfrastructureRequiredRole
 import org.palladiosimulator.pcm.repository.InnerDeclaration
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.OperationProvidedRole
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.PrimitiveDataType
 import org.palladiosimulator.pcm.repository.PrimitiveTypeEnum
-import org.palladiosimulator.pcm.repository.ProvidedRole
 import org.palladiosimulator.pcm.repository.RepositoryFactory
 import org.palladiosimulator.pcm.repository.RequiredRole
 import org.palladiosimulator.pcm.repository.SinkRole
@@ -102,7 +100,6 @@ import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticAction
 import org.palladiosimulator.textual.tpcm.language.SEFFProbabilisticBranch
 import org.palladiosimulator.pcm.repository.PassiveResource
 import org.palladiosimulator.pcm.seff.ExternalCallAction
-import org.palladiosimulator.pcm.seff.InternalCallAction
 import org.palladiosimulator.textual.tpcm.language.ComplexResultAssignment
 import org.palladiosimulator.textual.tpcm.language.ResultSpecification
 import org.palladiosimulator.pcm.seff.EmitEventAction
@@ -351,13 +348,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             ], PassiveResource).thenSet [ component, resources |
                 component.passiveResource_BasicComponent.addAll(resources)
                 resources.forEach[it.basicComponent_PassiveResource = component]
-            ]
-            mapAll([
-                it.contents.filter(InternalInterfaceProvidedRole).filter [
-                    !(it.type.eContainer instanceof ResourceTypeRepository)
-                ].toList
-            ]).thenSet [ component, resources |
-                component.providedRoles_InterfaceProvidingEntity.addAll(resources.filter(ProvidedRole))
             ]
             mapAll([it.contents.filter(SEFF).toList]).thenSet [ component, seffs |
                 component.serviceEffectSpecifications__BasicComponent.addAll(seffs)
@@ -632,7 +622,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
 
         registry.configure(SEFFCallAction, ExternalCallAction) [
             create = [SeffFactory.eINSTANCE.createExternalCallAction]
-            when = [it.result !== null]
+            when = [it.role instanceof InterfaceRequiredRole && it.signature instanceof OperationSignature]
             map([it.role]).thenSet [ action, role |
                 action.role_ExternalService = role
             ]
@@ -710,23 +700,25 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFCallAction, InternalAction) [
-            create = [SeffFactory.eINSTANCE.createInternalAction]
             when = [
-                it.role instanceof InternalInterfaceProvidedRole &&
-                    !(it.role.type.eContainer instanceof ResourceTypeRepository)
+                it.role instanceof InterfaceRequiredRole &&
+                    it.role.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface
             ]
+            create = [SeffFactory.eINSTANCE.createInternalAction]
             map([it.role]).thenSet [ action, role |
-                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
-                call.requiredRole__InfrastructureCall = role as InfrastructureRequiredRole
-                action.infrastructureCall__Action.add(call);
+                val call = SeffPerformanceFactory.eINSTANCE.createResourceCall
+                call.resourceRequiredRole__ResourceCall = role
+                action.resourceCall__Action.add(call)
+                call.action__ResourceCall = action
             ]
-            map([it.signature]).thenSet [action, sig |
-                
-            ]
-            mapAll([it.parameters]).thenSet [ action, params |
+            map([it.signature], ResourceSignature).thenSet [ action, signature |
                 val call = action.resourceCall__Action.get(0)
-                call.inputVariableUsages__CallAction.addAll(params)
-                params.forEach[it.callAction__VariableUsage = call]
+                call.signature__ResourceCall = signature
+            ]
+            map([it.parameters.head?.specification], PCMRandomVariable).thenSet [ action, callSpec |
+                val call = action.resourceCall__Action.get(0)
+                call.numberOfCalls__ResourceCall = callSpec
+                callSpec.resourceCall__PCMRandomVariable = call
             ]
         ]
 
@@ -751,22 +743,6 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 call.numberOfCalls__ResourceCall = variable
                 variable.resourceCall__PCMRandomVariable = call
             ]
-        ]
-
-        registry.configure(SEFFCallAction, InternalCallAction) [ // TODO how can I make a call to provided interfaces?
-            create = [SeffFactory.eINSTANCE.createInternalCallAction]
-            when = [it.role instanceof DomainInterfaceProvidedRole]
-//            map([it.role]).thenSet [ action, role |
-//                val call = SeffPerformanceFactory.eINSTANCE.createInfrastructureCall
-//                call.requiredRole__InfrastructureCall = role
-//            ]
-//            mapAll([it.parameters]).thenSet [ action, params |
-//                action.inputVariableUsages__CallAction.addAll(params)
-//                params.forEach[it.callAction__VariableUsage = action]
-//            ]
-//            map([it.signature]).thenSet [ action, signature |
-//                action.
-//            ]
         ]
 
         registry.configure(ParameterSpecification, VariableUsage) [
