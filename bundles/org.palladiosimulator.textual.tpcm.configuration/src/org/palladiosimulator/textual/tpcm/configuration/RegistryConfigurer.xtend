@@ -133,8 +133,13 @@ import de.uka.ipd.sdq.stoex.NamespaceReference
 import de.uka.ipd.sdq.stoex.VariableReference
 import de.uka.ipd.sdq.stoex.AbstractNamedReference
 import java.util.Collections
+import org.palladiosimulator.pcm.core.entity.NamedElement
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
+
+    static def boolean hasEmptyName(NamedElement entity) {
+        return entity.entityName === null || entity.entityName.isEmpty || entity.entityName == "aName"
+    }
 
     static def PCMRandomVariable createVariableWithSpecification(Expression exp) {
         val spec = ExpressionConverter.getOriginalExpressionString(exp)
@@ -472,6 +477,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                         val remainingProbablity = 1.0 - totalProbability
                         val noopBranch = SeffFactory.eINSTANCE.createProbabilisticBranchTransition => [ t |
                             t.branchProbability = remainingProbablity
+                            t.entityName = "" + remainingProbablity
                             val behavior = createEmptyBehavior => [ be |
                                 be.steps_Behaviour.updatePreviousAssignments()
                                 be.steps_Behaviour.updateSuccessorAssignments()
@@ -497,6 +503,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     t.branchBehaviour_BranchTransition = behavior
                     behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
+                    t.entityName = "" + it.probability
                 ]
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
@@ -541,6 +548,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
                 branch.branchCondition_GuardedBranchTransition = condition
                 condition.guardedBranchTransition_PCMRandomVariable = branch
+                branch.entityName = condition.specification
             ]
             mapAll([it.contents]).thenSet [ action, contents |
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
@@ -561,6 +569,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                         val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                         t.branchBehaviour_BranchTransition = behavior
                         behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
+                        t.entityName = "else"
                     ]
                     elseBranch.addStepsToBranch(Collections.emptyList)
                     it.branches_Branch.add(elseBranch)
@@ -580,6 +589,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             map([it.condition], PCMRandomVariable).thenSet [ transition, variable |
                 transition.branchCondition_GuardedBranchTransition = variable
                 variable.guardedBranchTransition_PCMRandomVariable = transition
+                transition.entityName = variable.specification
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
                 branch.addStepsToBranch(actions)
@@ -594,6 +604,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     t.branchBehaviour_BranchTransition = behavior
                     behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
+                    t.entityName = "else"
                 ]
             ]
             mapAll([it.contents]).thenSet [ branch, actions |
@@ -622,6 +633,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                         usage.namedReference__VariableUsage = returnReference
                     }
                 ]
+
+                if (it.hasEmptyName) {
+                    it.entityName = it.localVariableUsages_SetVariableAction.join(", ") [
+                        it.namedReference__VariableUsage.referenceName
+                    ]
+                }
             ]
         ]
 
@@ -639,7 +656,7 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SEFFCallAction, ExternalCallAction) [
-            create = [SeffFactory.eINSTANCE.createExternalCallAction]
+            create = [SeffFactory.eINSTANCE.createExternalCallAction => [c|c.entityName = it.signature.name]]
             when = [it.role instanceof InterfaceRequiredRole && it.signature instanceof OperationSignature]
             map([it.role]).thenSet [ action, role |
                 action.role_ExternalService = role
@@ -1115,6 +1132,12 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
                     ]
                 connector.providedRole_AssemblyConnector = providingRole
             ]
+            after = [
+                if (it.hasEmptyName) {
+                    it.entityName = it.providingAssemblyContext_AssemblyConnector.entityName + "->" +
+                        it.requiringAssemblyContext_AssemblyConnector.entityName
+                }
+            ]
         ]
 
         registry.configure(AssemblyContext, org.palladiosimulator.pcm.core.composition.AssemblyContext) [
@@ -1125,9 +1148,11 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
         ]
 
         registry.configure(SystemProvidedRole, ProvidedDelegationConnector) [
-            create = [CompositionFactory.eINSTANCE.createProvidedDelegationConnector]
-            map([it.type]).thenSet [ connector, iface |
-                val role = RepositoryFactory.eINSTANCE.createOperationProvidedRole
+            create = [CompositionFactory.eINSTANCE.createProvidedDelegationConnector => [c|c.entityName = it.name]]
+            map([it.type]).thenSet [ connector, OperationInterface iface |
+                val role = RepositoryFactory.eINSTANCE.createOperationProvidedRole => [ r |
+                    r.entityName = iface.entityName
+                ]
                 role.providedInterface__OperationProvidedRole = iface
                 connector.outerProvidedRole_ProvidedDelegationConnector = role
             ]
