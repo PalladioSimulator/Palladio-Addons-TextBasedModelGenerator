@@ -521,29 +521,6 @@ class RepositoryConfigurer {
         ]
 
         registry.configure(SEFFCallAction, InternalAction) [
-            when = [
-                it.role instanceof InterfaceRequiredRole &&
-                    it.role.type instanceof org.palladiosimulator.textual.tpcm.language.ResourceInterface
-            ]
-            create = [SeffFactory.eINSTANCE.createInternalAction]
-            map([it.role]).thenSet [ action, role |
-                val call = SeffPerformanceFactory.eINSTANCE.createResourceCall
-                call.resourceRequiredRole__ResourceCall = role
-                action.resourceCall__Action.add(call)
-                call.action__ResourceCall = action
-            ]
-            map([it.signature], ResourceSignature).thenSet [ action, signature |
-                val call = action.resourceCall__Action.get(0)
-                call.signature__ResourceCall = signature
-            ]
-            map([it.parameters.head?.specification], PCMRandomVariable).thenSet [ action, callSpec |
-                val call = action.resourceCall__Action.get(0)
-                call.numberOfCalls__ResourceCall = callSpec
-                callSpec.resourceCall__PCMRandomVariable = call
-            ]
-        ]
-
-        registry.configure(SEFFCallAction, InternalAction) [
             create = [SeffFactory.eINSTANCE.createInternalAction]
             when = [
                 it.role.type.eContainer instanceof ResourceTypeRepository &&
