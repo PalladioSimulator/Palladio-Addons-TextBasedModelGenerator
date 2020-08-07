@@ -84,6 +84,7 @@ import de.uka.ipd.sdq.stoex.VariableReference
 import de.uka.ipd.sdq.stoex.AbstractNamedReference
 import de.uka.ipd.sdq.stoex.NamespaceReference
 import java.util.Collections
+import org.palladiosimulator.textual.tpcm.language.DomainInterface
 
 import static extension org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.hasEmptyName;
 import static org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.getInitPropertyExpression;
@@ -443,7 +444,10 @@ class RepositoryConfigurer {
 
         registry.configure(SEFFCallAction, ExternalCallAction) [
             create = [SeffFactory.eINSTANCE.createExternalCallAction => [c|c.entityName = it.signature.name]]
-            when = [it.role instanceof InterfaceRequiredRole && it.signature instanceof OperationSignature]
+            when = [
+                it.role instanceof InterfaceRequiredRole && it.signature instanceof OperationSignature &&
+                    it.role.type instanceof DomainInterface
+            ]
             map([it.role]).thenSet [ action, role |
                 action.role_ExternalService = role
             ]
