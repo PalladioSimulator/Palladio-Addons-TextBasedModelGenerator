@@ -132,6 +132,7 @@ import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector
 import de.uka.ipd.sdq.stoex.NamespaceReference
 import de.uka.ipd.sdq.stoex.VariableReference
 import de.uka.ipd.sdq.stoex.AbstractNamedReference
+import java.util.Collections
 
 class RegistryConfigurer implements TransformationRegistryConfigurer {
 
@@ -548,6 +549,23 @@ class RegistryConfigurer implements TransformationRegistryConfigurer {
             mapAll([collectAllBranches]).thenSet [ action, alternatives |
                 action.branches_Branch.addAll(alternatives)
                 alternatives.forEach[it.branchAction_AbstractBranchTransition = action]
+            ]
+            after = [
+                val hasElseBranch = it.branches_Branch.filter(GuardedBranchTransition).exists [ branch |
+                    branch.branchCondition_GuardedBranchTransition.specification == "true"
+                ]
+                if (!hasElseBranch) {
+                    val elseBranch = SeffFactory.eINSTANCE.createGuardedBranchTransition => [ t |
+                        val spec = CoreFactory.eINSTANCE.createPCMRandomVariable => [it.specification = "true"]
+                        t.branchCondition_GuardedBranchTransition = spec
+                        val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
+                        t.branchBehaviour_BranchTransition = behavior
+                        behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
+                    ]
+                    elseBranch.addStepsToBranch(Collections.emptyList)
+                    it.branches_Branch.add(elseBranch)
+                    elseBranch.branchAction_AbstractBranchTransition = it
+                }
             ]
         ]
 
