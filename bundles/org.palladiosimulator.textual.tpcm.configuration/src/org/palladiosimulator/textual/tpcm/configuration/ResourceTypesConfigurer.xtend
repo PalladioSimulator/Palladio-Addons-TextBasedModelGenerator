@@ -73,8 +73,9 @@ class ResourceTypesConfigurer {
         registry.configure(ResourceTypeRepository, ResourceRepository) [
             create = [ResourcetypeFactory.eINSTANCE.createResourceRepository]
             mapAll([it.contents.filter(Interface).toList], ResourceInterface).thenSet [ resourceTypes, interfaces |
-                resourceTypes.resourceInterfaces__ResourceRepository.addAll(interfaces)
-                interfaces.forEach[it.resourceRepository__ResourceInterface = resourceTypes]
+                val newInterfaces = interfaces.filter[it.resourceRepository__ResourceInterface === null].toList
+                resourceTypes.resourceInterfaces__ResourceRepository.addAll(newInterfaces)
+                newInterfaces.forEach[it.resourceRepository__ResourceInterface = resourceTypes]
             ]
         ]
 
