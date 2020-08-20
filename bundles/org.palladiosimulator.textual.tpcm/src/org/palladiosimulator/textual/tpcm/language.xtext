@@ -430,5 +430,5 @@ ScenarioDelayAction:
 
 
 MappingContent:
-    {MappingContent} imported=[Content|FQN] '->' absoluteUri=STRING
+    {MappingContent} imported=[ecore::EObject|FQN] '->' absoluteUri=STRING
 ;
