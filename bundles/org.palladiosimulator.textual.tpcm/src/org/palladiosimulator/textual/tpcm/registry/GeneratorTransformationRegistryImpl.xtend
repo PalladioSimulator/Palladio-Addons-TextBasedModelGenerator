@@ -53,7 +53,7 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
         mappedObjects.clear()
         provided.forEach [
             val referenceId = System.identityHashCode(it.sourceObject)
-            val key = new MappedObjectKey(null, referenceId)
+            val key = new MappedObjectKey(it.targetObject.class.interfaces.get(0), referenceId)
             mappedObjects.put(key, it.targetObject)
         ]
         runnable.run()
