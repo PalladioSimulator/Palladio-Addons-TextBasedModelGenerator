@@ -24,12 +24,14 @@ import java.util.List
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction
 import org.eclipse.emf.common.util.EList
 
+import static extension org.palladiosimulator.textual.tpcm.configuration.EObjectExtensions.addAllUnOwned
+
 class UsageProfileConfigurer {
     static def configureUsageProfileTransformations(GeneratorTransformationRegistry registry) {
         registry.configure(Usage, UsageModel) [
             create = [UsagemodelFactory.eINSTANCE.createUsageModel]
             mapAll([it.contents.filter(UsageScenario).toList]).thenSet [ model, scenarios |
-                model.usageScenario_UsageModel.addAll(scenarios)
+                model.usageScenario_UsageModel.addAllUnOwned(scenarios)
                 scenarios.forEach[it.usageModel_UsageScenario = model]
             ]
         ]
@@ -83,7 +85,7 @@ class UsageProfileConfigurer {
         registry.configure(ScenarioBranchAction, Branch) [
             create = [UsagemodelFactory.eINSTANCE.createBranch]
             mapAll([it.branches]).thenSet [ branch, branches |
-                branch.branchTransitions_Branch.addAll(branches)
+                branch.branchTransitions_Branch.addAllUnOwned(branches)
                 branches.forEach[it.branch_BranchTransition = branch]
             ]
         ]
@@ -114,7 +116,7 @@ class UsageProfileConfigurer {
                 call.operationSignature__EntryLevelSystemCall = signature
             ]
             mapAll([it.parameters]).thenSet [ call, params |
-                call.inputParameterUsages_EntryLevelSystemCall.addAll(params)
+                call.inputParameterUsages_EntryLevelSystemCall.addAllUnOwned(params)
                 params.forEach[it.entryLevelSystemCall_InputParameterUsage = call]
             ]
             mapAll([
@@ -122,7 +124,7 @@ class UsageProfileConfigurer {
                     ? (it.result as ComplexResultAssignment).specification
                     : emptyList
             ]).thenSet [ action, specs |
-                action.outputParameterUsages_EntryLevelSystemCall.addAll(specs)
+                action.outputParameterUsages_EntryLevelSystemCall.addAllUnOwned(specs)
                 specs.forEach[it.entryLevelSystemCall_OutputParameterUsage = action]
             ]
             map([it.result instanceof ComplexResultAssignment ? null : it.result]).thenSet [ action, result |

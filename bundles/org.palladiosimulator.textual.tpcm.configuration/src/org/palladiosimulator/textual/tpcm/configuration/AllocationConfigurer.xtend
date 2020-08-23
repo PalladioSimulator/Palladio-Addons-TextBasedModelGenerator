@@ -6,14 +6,15 @@ import org.palladiosimulator.pcm.allocation.AllocationFactory
 import org.palladiosimulator.textual.tpcm.language.AllocationContext
 import org.palladiosimulator.textual.tpcm.language.ResourceEnvironment
 
+import static extension org.palladiosimulator.textual.tpcm.configuration.EObjectExtensions.addAllUnOwned
+
 class AllocationConfigurer {
     static def configureAllocationTransformations(GeneratorTransformationRegistry registry) {
         registry.configure(Allocation, org.palladiosimulator.pcm.allocation.Allocation) [
             create = [AllocationFactory.eINSTANCE.createAllocation => [a|a.entityName = it.name]]
             mapAll([it.contents.filter(AllocationContext).flatMap[SingleAssemblyAllocation.getAllFrom(it)].toList]).
                 thenSet [ allocation, contexts |
-                    allocation.allocationContexts_Allocation.addAll(contexts)
-                    contexts.forEach[it.allocation_AllocationContext = allocation]
+                    allocation.allocationContexts_Allocation.addAllUnOwned(contexts)
                 ]
             map([
                 it.contents.filter(AllocationContext).map[it.spec.container.eContainer].findFirst [

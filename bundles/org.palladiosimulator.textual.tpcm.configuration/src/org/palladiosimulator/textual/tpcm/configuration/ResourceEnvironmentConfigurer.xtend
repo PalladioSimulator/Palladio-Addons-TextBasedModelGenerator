@@ -10,6 +10,7 @@ import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecifica
 import org.palladiosimulator.pcm.core.PCMRandomVariable
 
 import static org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.getInitPropertyExpression;
+import static extension org.palladiosimulator.textual.tpcm.configuration.EObjectExtensions.addAllUnOwned
 
 class ResourceEnvironmentConfigurer {
     static val PROCESSING_RATE_PROPERTY_NAME = "processingRate"
@@ -21,20 +22,17 @@ class ResourceEnvironmentConfigurer {
         registry.configure(ResourceEnvironment, org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment) [
             create = [ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment => [e|e.entityName = it.name]]
             mapAll([it.contents.filter(ResourceContainer).toList]).thenSet [ environment, container |
-                environment.resourceContainer_ResourceEnvironment.addAll(container)
-                container.forEach[it.resourceEnvironment_ResourceContainer = environment]
+                environment.resourceContainer_ResourceEnvironment.addAllUnOwned(container)
             ]
             mapAll([it.contents.filter(LinkingResource).toList]).thenSet [ environment, links |
-                environment.linkingResources__ResourceEnvironment.addAll(links)
-                links.forEach[it.resourceEnvironment_LinkingResource = environment]
+                environment.linkingResources__ResourceEnvironment.addAllUnOwned(links)
             ]
         ]
 
         registry.configure(ResourceContainer, org.palladiosimulator.pcm.resourceenvironment.ResourceContainer) [
             create = [ResourceenvironmentFactory.eINSTANCE.createResourceContainer => [e|e.entityName = it.name]]
             mapAll([it.contents.filter(ProcessingResource).toList]).thenSet [ container, resources |
-                container.activeResourceSpecifications_ResourceContainer.addAll(resources)
-                resources.forEach[it.resourceContainer_ProcessingResourceSpecification = container]
+                container.activeResourceSpecifications_ResourceContainer.addAllUnOwned(resources)
             ]
         ]
 
@@ -43,7 +41,6 @@ class ResourceEnvironmentConfigurer {
             map([getInitPropertyExpression(it.initialization, PROCESSING_RATE_PROPERTY_NAME)], PCMRandomVariable).
                 thenSet [ resource, rate |
                     resource.processingRate_ProcessingResourceSpecification = rate
-                    rate.processingResourceSpecification_processingRate_PCMRandomVariable = resource
                 ]
             map([getInitPropertyExpression(it.initialization, SCHEDULING_POLICY_PROPERTY_NAME)]).thenSet [ resource, policy |
                 resource.schedulingPolicy = policy
@@ -58,19 +55,16 @@ class ResourceEnvironmentConfigurer {
             map([it.type]).thenSet [ link, type |
                 var spec = ResourceenvironmentFactory.eINSTANCE.createCommunicationLinkResourceSpecification => [
                     it.communicationLinkResourceType_CommunicationLinkResourceSpecification = type
-                    it.linkingResource_CommunicationLinkResourceSpecification = link
                 ]
                 link.communicationLinkResourceSpecifications_LinkingResource = spec
             ]
             map([getInitPropertyExpression(it.initialization, LATENCY_PROPERTY_NAME)], PCMRandomVariable).thenSet [ link, latency |
                 val spec = link.communicationLinkResourceSpecifications_LinkingResource
                 spec.latency_CommunicationLinkResourceSpecification = latency
-                latency.communicationLinkResourceSpecification_latency_PCMRandomVariable = spec
             ]
             map([getInitPropertyExpression(it.initialization, THROUGHPUT_PROPERTY_NAME)]).thenSet [ link, throughput |
                 val spec = link.communicationLinkResourceSpecifications_LinkingResource
                 spec.throughput_CommunicationLinkResourceSpecification = throughput
-                throughput.communicationLinkResourceSpecifcation_throughput_PCMRandomVariable = spec
             ]
             mapAll([it.connected]).thenSet [ link, connected |
                 link.connectedResourceContainers_LinkingResource.addAll(connected)
