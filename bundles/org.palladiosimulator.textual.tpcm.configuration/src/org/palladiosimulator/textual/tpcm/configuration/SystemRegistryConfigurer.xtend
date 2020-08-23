@@ -16,19 +16,18 @@ import org.palladiosimulator.pcm.repository.RepositoryFactory
 import org.palladiosimulator.pcm.repository.OperationInterface
 
 import static extension org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.hasEmptyName;
+import static extension org.palladiosimulator.textual.tpcm.configuration.EObjectExtensions.addAllUnOwned
 
 class SystemRegistryConfigurer {
     static def configureSystemTransformations(GeneratorTransformationRegistry registry) {
         registry.configure(org.palladiosimulator.textual.tpcm.language.System, org.palladiosimulator.pcm.system.System) [
             create = [SystemFactory.eINSTANCE.createSystem => [s|s.entityName = it.name]]
             mapAll([it.contents.filter(AssemblyContext).toList]).thenSet [ system, assemblies |
-                system.assemblyContexts__ComposedStructure.addAll(assemblies)
-                assemblies.forEach[it.parentStructure__AssemblyContext = system]
+                system.assemblyContexts__ComposedStructure.addAllUnOwned(assemblies)
             ]
 
-            mapAll([it.contents.filter(Connector).toList]).thenSet [ system, List<AssemblyConnector> connector |
-                system.connectors__ComposedStructure.addAll(connector)
-                connector.forEach[it.parentStructure__Connector = system]
+            mapAll([it.contents.filter(Connector).toList]).thenSet [ system, connector |
+                system.connectors__ComposedStructure.addAllUnOwned(connector)
             ]
 
             mapAll([it.contents.filter(SystemProvidedRole).toList], ProvidedDelegationConnector).thenSet [ system, roles |
@@ -75,7 +74,6 @@ class SystemRegistryConfigurer {
                     if (connector.assemblyContext_ProvidedDelegationConnector.parentStructure__AssemblyContext ===
                         null) {
                         val context = connector.assemblyContext_ProvidedDelegationConnector
-                        context.parentStructure__AssemblyContext = it
                         it.assemblyContexts__ComposedStructure.add(context)
                     }
                 ]
@@ -84,13 +82,11 @@ class SystemRegistryConfigurer {
                     if (!it.assemblyContexts__ComposedStructure.contains(
                         connector.providingAssemblyContext_AssemblyConnector)) {
                         val provided = connector.providingAssemblyContext_AssemblyConnector;
-                        it.assemblyContexts__ComposedStructure.add(provided);
-                        provided.parentStructure__AssemblyContext = it;
+                        it.assemblyContexts__ComposedStructure.add(provided)
                     } else if (!it.assemblyContexts__ComposedStructure.contains(
                         connector.requiringAssemblyContext_AssemblyConnector)) {
                         val required = connector.requiringAssemblyContext_AssemblyConnector;
-                        it.assemblyContexts__ComposedStructure.add(required);
-                        required.parentStructure__AssemblyContext = it;
+                        it.assemblyContexts__ComposedStructure.add(required)
                     }
                 ]
             ]

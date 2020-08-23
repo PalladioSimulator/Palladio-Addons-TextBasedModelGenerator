@@ -88,6 +88,7 @@ import org.palladiosimulator.textual.tpcm.language.DomainInterface
 
 import static extension org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.hasEmptyName;
 import static org.palladiosimulator.textual.tpcm.configuration.ConfigurerHelper.getInitPropertyExpression;
+import static extension org.palladiosimulator.textual.tpcm.configuration.EObjectExtensions.addAllUnOwned;
 
 class RepositoryConfigurer {
     static val CAPACITY_PROPERTY_NAME = "capacity"
@@ -98,21 +99,19 @@ class RepositoryConfigurer {
         registry.configure(Repository, org.palladiosimulator.pcm.repository.Repository) [
             create = [repo|RepositoryFactory.eINSTANCE.createRepository => [it.entityName = repo.name]]
 
-            mapAll([it.contents.filter(Datatype).toList]).thenSet [ repo, types |
-                repo.dataTypes__Repository.addAll(types)
-                types.forEach[it.assignRepository(repo)]
+            mapAll([it.contents.filter(Datatype).toList]).thenSet [ repo, List<DataType> types |
+                val unownedDataTypes = types.filter[it.repository__DataType === null]
+                repo.dataTypes__Repository.addAll(unownedDataTypes)
+                unownedDataTypes.forEach[it.assignRepository(repo)]
             ]
             mapAll([it.contents.filter(FailureType).toList]).thenSet [ repo, failures |
-                repo.failureTypes__Repository.addAll(failures)
-                failures.forEach[it.repository__FailureType = repo]
+                repo.failureTypes__Repository.addAllUnOwned(failures)
             ]
             mapAll([it.contents.filter(Component).toList]).thenSet [ repo, components |
-                repo.components__Repository.addAll(components)
-                components.forEach[it.repository__RepositoryComponent = repo]
+                repo.components__Repository.addAllUnOwned(components)
             ]
             mapAll([it.contents.filter(Interface).toList]).thenSet [ repo, interfaces |
-                repo.interfaces__Repository.addAll(interfaces)
-                interfaces.forEach[it.repository__Interface = repo]
+                repo.interfaces__Repository.addAllUnOwned(interfaces)
             ]
         ]
 
@@ -126,12 +125,11 @@ class RepositoryConfigurer {
                 RepositoryFactory.eINSTANCE.createBasicComponent => [c|c.entityName = it.name]
             ]
             mapAll([it.contents.filter(DomainInterfaceProvidedRole).toList]).thenSet [ component, provided |
-                component.providedRoles_InterfaceProvidingEntity.addAll(provided)
-                provided.forEach[it.providingEntity_ProvidedRole = component]
+                component.providedRoles_InterfaceProvidingEntity.addAllUnOwned(provided)
             ]
             mapAll([it.contents.filter(InterfaceRequiredRole).toList]).thenSet [ component, required |
-                component.requiredRoles_InterfaceRequiringEntity.addAll(required.filter(RequiredRole))
-                component.resourceRequiredRoles__ResourceInterfaceRequiringEntity.addAll(
+                component.requiredRoles_InterfaceRequiringEntity.addAllUnOwned(required.filter(RequiredRole))
+                component.resourceRequiredRoles__ResourceInterfaceRequiringEntity.addAllUnOwned(
                     required.filter(ResourceRequiredRole))
             ]
             mapAll([
@@ -139,12 +137,10 @@ class RepositoryConfigurer {
                     it.type.eContainer instanceof ResourceTypeRepository
                 ].toList
             ], PassiveResource).thenSet [ component, resources |
-                component.passiveResource_BasicComponent.addAll(resources)
-                resources.forEach[it.basicComponent_PassiveResource = component]
+                component.passiveResource_BasicComponent.addAllUnOwned(resources)
             ]
             mapAll([it.contents.filter(SEFF).toList]).thenSet [ component, seffs |
-                component.serviceEffectSpecifications__BasicComponent.addAll(seffs)
-                seffs.forEach[it.basicComponent_ServiceEffectSpecification = component]
+                component.serviceEffectSpecifications__BasicComponent.addAllUnOwned(seffs)
             ]
         ]
 
@@ -163,7 +159,6 @@ class RepositoryConfigurer {
             when = [it.type.eContainer instanceof ResourceTypeRepository]
             map([getInitPropertyExpression(it.initialization, CAPACITY_PROPERTY_NAME)], PCMRandomVariable).thenSet [ resource, capacity |
                 resource.capacity_PassiveResource = capacity
-                capacity.passiveResource_capacity_PCMRandomVariable = resource
             ]
         ]
 
@@ -228,7 +223,6 @@ class RepositoryConfigurer {
                 seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
                 seff.steps_Behaviour.addAll(calls)
                 seff.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
-                seff.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = seff]
                 seff.steps_Behaviour.updatePreviousAssignments();
                 seff.steps_Behaviour.updateSuccessorAssignments();
             ]
@@ -268,18 +262,15 @@ class RepositoryConfigurer {
                             val behavior = createEmptyBehavior => [ be |
                                 be.steps_Behaviour.updatePreviousAssignments()
                                 be.steps_Behaviour.updateSuccessorAssignments()
-                                be.abstractBranchTransition_ResourceDemandingBehaviour = t
                             ]
                             t.branchBehaviour_BranchTransition = behavior
                         ]
                         b.branches_Branch.add(noopBranch)
-                        noopBranch.branchAction_AbstractBranchTransition = b
                     }
                 ]
             ]
             mapAll([it.branches]).thenSet [ action, branches |
                 action.branches_Branch.addAll(0, branches)
-                branches.forEach[it.branchAction_AbstractBranchTransition = action]
             ]
         ]
 
@@ -289,7 +280,6 @@ class RepositoryConfigurer {
                     t.branchProbability = it.probability
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     t.branchBehaviour_BranchTransition = behavior
-                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
                     t.entityName = "" + it.probability
                 ]
             ]
@@ -301,21 +291,17 @@ class RepositoryConfigurer {
         registry.configure(SEFFLoopAction, LoopAction) [
             create = [
                 SeffFactory.eINSTANCE.createLoopAction => [ l |
-                    val behavior = createEmptyBehavior
-                    l.bodyBehaviour_Loop = behavior
-                    behavior.abstractLoopAction_ResourceDemandingBehaviour = l
+                    l.bodyBehaviour_Loop = createEmptyBehavior
                 ]
             ]
             map([it.condition], PCMRandomVariable).thenSet [ loop, variable |
                 loop.iterationCount_LoopAction = variable
-                variable.loopAction_PCMRandomVariable = loop
             ]
             mapAll([it.contents]).thenSet [ loop, actions |
                 val behavior = loop.bodyBehaviour_Loop
                 behavior.steps_Behaviour.addAll(1, actions)
                 behavior.steps_Behaviour.updatePreviousAssignments();
                 behavior.steps_Behaviour.updateSuccessorAssignments();
-                behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
             ]
         ]
 
@@ -324,17 +310,14 @@ class RepositoryConfigurer {
                 SeffFactory.eINSTANCE.createBranchAction => [
                     val branch = SeffFactory.eINSTANCE.createGuardedBranchTransition
                     it.branches_Branch.add(branch)
-                    branch.branchAction_AbstractBranchTransition = it
 
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     branch.branchBehaviour_BranchTransition = behavior
-                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = branch
                 ]
             ]
             map([it.condition], PCMRandomVariable).thenSet [ action, condition |
                 val branch = action.branches_Branch.get(0) as GuardedBranchTransition
                 branch.branchCondition_GuardedBranchTransition = condition
-                condition.guardedBranchTransition_PCMRandomVariable = branch
                 branch.entityName = condition.specification
             ]
             mapAll([it.contents]).thenSet [ action, contents |
@@ -343,7 +326,6 @@ class RepositoryConfigurer {
             ]
             mapAll([collectAllBranches]).thenSet [ action, alternatives |
                 action.branches_Branch.addAll(alternatives)
-                alternatives.forEach[it.branchAction_AbstractBranchTransition = action]
             ]
             after = [
                 val hasElseBranch = it.branches_Branch.filter(GuardedBranchTransition).exists [ branch |
@@ -355,12 +337,10 @@ class RepositoryConfigurer {
                         t.branchCondition_GuardedBranchTransition = spec
                         val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                         t.branchBehaviour_BranchTransition = behavior
-                        behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
                         t.entityName = "else"
                     ]
                     elseBranch.addStepsToBranch(Collections.emptyList)
                     it.branches_Branch.add(elseBranch)
-                    elseBranch.branchAction_AbstractBranchTransition = it
                 }
             ]
         ]
@@ -390,7 +370,6 @@ class RepositoryConfigurer {
                     t.branchCondition_GuardedBranchTransition = spec
                     val behavior = SeffFactory.eINSTANCE.createResourceDemandingBehaviour
                     t.branchBehaviour_BranchTransition = behavior
-                    behavior.abstractBranchTransition_ResourceDemandingBehaviour = t
                     t.entityName = "else"
                 ]
             ]
@@ -403,13 +382,11 @@ class RepositoryConfigurer {
             create = [SeffFactory.eINSTANCE.createSetVariableAction]
             map([it.result]).thenSet [ action, result |
                 action.localVariableUsages_SetVariableAction.add(result)
-                result.setVariableAction_VariableUsage = action
             ]
             map([it.specification], PCMRandomVariable).thenSet [ action, spec |
                 val usage = action.localVariableUsages_SetVariableAction.get(0)
                 val characterization = usage.variableCharacterisation_VariableUsage.get(0)
                 characterization.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = characterization
             ]
             after = [
                 it.localVariableUsages_SetVariableAction.forEach [ usage |
@@ -460,15 +437,12 @@ class RepositoryConfigurer {
                     : emptyList
             ]).thenSet [ action, specs |
                 action.returnVariableUsage__CallReturnAction.addAll(specs)
-                specs.forEach[it.callReturnAction__VariableUsage = action]
             ]
             map([it.result instanceof ComplexResultAssignment ? null : it.result]).thenSet [ action, result |
                 action.returnVariableUsage__CallReturnAction.add(result)
-                result.callReturnAction__VariableUsage = action
             ]
             mapAll([it.parameters]).thenSet [ call, params |
                 call.inputVariableUsages__CallAction.addAll(params)
-                params.forEach[it.callAction__VariableUsage = call]
 
                 call.inputVariableUsages__CallAction.forEach [ usage, index |
                     if (usage.namedReference__VariableUsage === null) {
@@ -520,7 +494,6 @@ class RepositoryConfigurer {
             map([it.specification], PCMRandomVariable).thenSet [ usage, spec |
                 val character = usage.variableCharacterisation_VariableUsage.get(0)
                 character.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = character
             ]
         ]
 
@@ -543,7 +516,6 @@ class RepositoryConfigurer {
             map([it.parameters.get(0).specification], PCMRandomVariable).thenSet [ action, variable |
                 val call = action.resourceCall__Action.get(0)
                 call.numberOfCalls__ResourceCall = variable
-                variable.resourceCall__PCMRandomVariable = call
             ]
         ]
 
@@ -553,7 +525,6 @@ class RepositoryConfigurer {
             map([it.specification]).thenSet [ usage, spec |
                 val characterization = usage.variableCharacterisation_VariableUsage.get(0)
                 characterization.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = characterization
             ]
         ]
 
@@ -563,7 +534,6 @@ class RepositoryConfigurer {
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = usage.variableCharacterisation_VariableUsage.get(0)
                 characteristic.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = characteristic
             ]
         ]
 
@@ -573,7 +543,6 @@ class RepositoryConfigurer {
             map([it.specification]).thenSet [ usage, spec |
                 val characteristic = ParameterFactory.eINSTANCE.createVariableCharacterisation
                 characteristic.specification_VariableCharacterisation = spec
-                spec.variableCharacterisation_Specification = characteristic
                 usage.variableCharacterisation_VariableUsage.add(characteristic)
             ]
         ]
@@ -592,9 +561,7 @@ class RepositoryConfigurer {
                 action.parameter_CollectionIteratorAction = iterable
             ]
             mapAll([it.contents]).thenSet [ action, contents |
-                val behavior = addActions(contents)
-                action.bodyBehaviour_Loop = behavior
-                behavior.abstractLoopAction_ResourceDemandingBehaviour = action
+                action.bodyBehaviour_Loop = addActions(contents)
             ]
         ]
     }
@@ -751,7 +718,6 @@ class RepositoryConfigurer {
         behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStartAction)
         behavior.steps_Behaviour.addAll(steps)
         behavior.steps_Behaviour.add(SeffFactory.eINSTANCE.createStopAction)
-        behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
         behavior.steps_Behaviour.updateSuccessorAssignments()
     }
@@ -759,7 +725,6 @@ class RepositoryConfigurer {
     static def ResourceDemandingBehaviour addActions(List<AbstractAction> steps) {
         val behavior = createEmptyBehavior
         behavior.steps_Behaviour.addAll(1, steps)
-        behavior.steps_Behaviour.forEach[it.resourceDemandingBehaviour_AbstractAction = behavior]
         behavior.steps_Behaviour.updatePreviousAssignments()
         behavior.steps_Behaviour.updateSuccessorAssignments()
         return behavior
