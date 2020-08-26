@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Automatic-Module-Name: org.palladiosimulator.textual.tpcm.ide
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.ide
-Bundle-Vendor: My Company
+Bundle-Vendor: Palladiosimulator.org
 Bundle-Version: 4.3.0.qualifier
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.ide; singleton:=true
 Bundle-ActivationPolicy: lazy

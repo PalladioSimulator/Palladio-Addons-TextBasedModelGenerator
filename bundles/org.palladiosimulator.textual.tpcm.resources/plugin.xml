@@ -5,7 +5,7 @@
          point="org.eclipse.emf.ecore.uri_mapping">
       <mapping
             source="pathmap://TPCM_RESOURCES_STD/"
-            target="platform:/resource/org.palladiosimulator.textual.tpcm.resources/models/">
+            target="models/">
       </mapping>
    </extension>
 

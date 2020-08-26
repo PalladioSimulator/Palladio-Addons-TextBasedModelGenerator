@@ -14,10 +14,10 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.emf.common,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
- tools.mdsd.ecoreworkflow.mwe2lib.xtext,
  org.palladiosimulator.commons.stoex;bundle-version="1.0.0";visibility:=reexport,
  de.uka.ipd.sdq.stoex.analyser,
- io.vavr;bundle-version="0.10.3"
+ io.vavr;bundle-version="0.10.3",
+ tools.mdsd.ecoreworkflow.mwe2lib.xtext;bundle-version="0.1.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: org.apache.log4j
 Export-Package: org.palladiosimulator.textual.tpcm.language.util,
