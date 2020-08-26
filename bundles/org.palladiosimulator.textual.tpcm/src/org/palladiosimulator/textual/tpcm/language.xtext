@@ -1,0 +1,427 @@
+grammar org.palladiosimulator.textual.tpcm.TPCM with org.palladiosimulator.commons.stoex.Stoex
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate language "http://www.palladiosimulator.org/textual/tpcm/1.0"
+
+Model:
+    imports+=Import*
+    fragments+=EncapsulatedFragment*    
+    fragments+=FileLevelDefinition?
+;
+
+FQN: ID ('::' ID)*;
+
+Import:
+    'import' ((namespace=ID'::'importURI=ID) | importURI=STRING) 
+;
+
+EncapsulatedFragment returns Fragment:
+    ('repository' {Repository} name=ID? '{'(contents+=RepositoryContent)*'}')
+    | ('system' {System} name=ID? '{'(contents+=SystemContent)*'}') 
+    | ('allocation' {Allocation} name=ID? '{'(contents+=AllocationContent)*'}')
+    | ('resourceenvironment' {ResourceEnvironment} name=ID? '{'(contents+=ResourceEnvironmentContent)*'}')
+    | ('resourcetypes' {ResourceTypeRepository} name=ID? '{'(contents+=ResourceTypeRepositoryContent)*'}')
+    | ('usage' {Usage} name=ID? '{' (contents+=UsageContent)*'}')  
+;
+
+FileLevelDefinition returns Fragment:
+    ('repository' {Repository} name=ID? (contents+=RepositoryContent)*) 
+    | ('system' {System} name=ID? (contents+=SystemContent)*) 
+    | ('allocation' {Allocation} name=ID? (contents+=AllocationContent)*)
+    | ('resourceenvironment' {ResourceEnvironment} name=ID? (contents+=ResourceEnvironmentContent)*)
+    | ('resourcetypes' {ResourceTypeRepository} name=ID? (contents+=ResourceTypeRepositoryContent)*)   
+    | ('usage' {Usage} name=ID? (contents+=UsageContent)*)
+;
+
+/**
+ * 
+ * Repository Model View
+ * 
+ */
+ 
+RepositoryContent returns Content:
+    Datatype | DomainInterface | Component | FailureType
+;
+
+Datatype:
+    'datatype' (PrimitiveDatatype | ComposedDatatype | CollectionDatatype)
+;
+
+PrimitiveDatatype:
+    name=ID type=PrimitiveTypeEnum
+;
+
+enum PrimitiveTypeEnum:
+    INT | STRING | BOOL | DOUBLE | CHAR | BYTE | LONG
+;
+
+ComposedDatatype:
+    name=ID '{'
+        (elements += ComposedDatatypeElement)*
+    '}'
+;
+
+ComposedDatatypeElement:
+    name=ID (reference=[Datatype|FQN]|type=Datatype)
+;
+
+CollectionDatatype:
+    name=ID '[]''<'collectionType=[Datatype|FQN]'>'
+;
+
+DomainInterface returns Interface:
+    {DomainInterface} 'interface' name=ID ('{'
+        ((contents += OperationInterfaceContent)+ |
+            (contents += EventInterfaceContent)+
+        )
+    '}')
+;
+
+OperationInterfaceContent returns InterfaceContent:
+    OperationSignature
+;
+
+OperationSignature returns Signature:
+    'op' {OperationSignature} name=ID ('(' parameters+=Parameter (',' parameters+=Parameter)* ')')? return=[Datatype|FQN]?
+;
+
+EventInterfaceContent returns InterfaceContent:
+    EventSignature
+;
+
+EventSignature returns Signature:
+    'ev' {EventSignature} name=ID ('(' parameters+=Parameter (',' parameters+=Parameter)* ')')?
+;
+
+
+Parameter:
+    name=ID type=[Datatype|FQN]?
+;
+
+Component:
+    'component' name=ID ('{'
+        (contents += ComponentContent)*
+    '}')?
+;
+
+ComponentContent returns Content:
+    Role | SEFF
+;
+
+Role:
+     InitializableRole | (('provides'{DomainInterfaceProvidedRole}
+        |'requires'{InterfaceRequiredRole}
+        |'internal'{InternalInterfaceProvidedRole}
+     ) name=ID type=[Interface|FQN])
+;
+
+InitializableRole returns Role:
+    'internal'{InternalInterfaceProvidedRole} name=ID type=[Interface|FQN] initialization=Initialization?
+;
+
+Initialization:
+    {Initialization} ('('
+        (contents += PropertyInitializer)*
+    ')')
+;
+
+PropertyInitializer:
+    property=[PropertyDefinition] ':' (referencedElement=[ecore::EObject|FQN] | '«'specification=expression'»')
+;
+
+SEFF:
+    'seff' role=[DomainInterfaceProvidedRole] '.' signatur=[Signature] '{'
+        (contents += SEFFContent)*
+    '}'
+;
+
+SEFFContent:
+    SEFFAssignmentOrCall | SEFFActionContainer
+;
+
+SEFFActionContainer:
+    SEFFLoopAction | SEFFIterateAction | SEFFSetAction | SEFFConditionalAction | SEFFProbabilisticAction
+;
+
+SEFFAssignmentOrCall:
+    (SEFFAssignment | SEFFCallAction)
+    ('->' result=ResultAssignment)? 
+;
+
+SEFFAssignment:
+    '«'specification=expression'»'
+;
+
+SEFFCallAction:
+    role=[Role] '.' signature=[Signature]('('
+        parameters+=ParameterSpecification (',' parameters+=ParameterSpecification)*
+    ')')?
+    
+;
+
+ParameterSpecification:
+    (reference=CharacteristicReference ':')? '«'specification=expression'»'
+;
+
+ResultAssignment:
+    ('(' {ComplexResultAssignment}
+        specification+=ResultSpecification (',' specification+=ResultSpecification)*
+    ')') 
+    | {PrimitiveResultAssignment} reference=CharacteristicReference
+;
+
+ResultSpecification:
+    characteristic=CharacteristicReference (':' '«'specification=expression'»')?
+;
+
+CharacteristicReference:
+    ({RelativeReference} '.' characteristic=VariableReference) 
+    | ({AbsoluteReference} reference=NamespaceReference)
+;
+
+SEFFLoopAction:
+    'loop' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')'))'{'
+        (contents += SEFFContent)*
+    '}' 
+;
+
+SEFFIterateAction:
+    'iterate' '(' iterable=[Parameter]')''{'
+        (contents += SEFFContent)*
+    '}'
+;
+
+SEFFConditionalAction:
+    'if' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')')) '{'
+       (contents += SEFFContent)*
+    '}' alternative=SEFFConditionalAlternative?
+;
+
+SEFFConditionalAlternative:
+    SEFFConditionalElseIf | SEFFConditionalElse 
+;
+
+SEFFConditionalElseIf:
+    'else' 'if' (('«' condition=expression '»') | ('(' '«' condition=expression '»' ')')) '{'
+       (contents += SEFFContent)*
+    '}' alternative=SEFFConditionalAlternative? 
+;
+
+SEFFConditionalElse:
+   {SEFFConditionalElse} 'else' '{'
+       (contents += SEFFContent)*
+    '}'
+;
+
+SEFFProbabilisticAction:
+    'random' '{'
+    (branches+=SEFFProbabilisticBranch)+
+    '}'
+;
+
+SEFFProbabilisticBranch:
+    '(' probability=DOUBLE ')''{'
+       (contents += SEFFContent)*
+    '}'
+;
+
+SEFFSetAction:
+    target=ID? '<-' value=STRING
+;
+
+
+FailureType:
+    'failure' name=ID
+;
+
+
+/**
+ * 
+ * System Model View
+ * 
+ */
+ 
+SystemContent returns Content:
+    AssemblyContext | Connector | SystemProvidedRole
+;
+
+SystemProvidedRole returns Role:
+     'provides' {SystemProvidedRole} name=ID? type=[Interface|FQN] ('->' to=[AssemblyContext|FQN] | '->' target=AssemblyContext)
+;
+
+AssemblyContext:
+    'assembly' name=ID? component=[Component|FQN]
+;
+
+Connector:
+    ('connector' name=ID '(' from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN] ')')
+    | from=[AssemblyContext|FQN] '->' to=[AssemblyContext|FQN]
+    | from=[AssemblyContext|FQN] '->' target=AssemblyContext
+;
+
+/**
+ * 
+ * Allocation Model View
+ * 
+ */
+
+AllocationContent returns Content:
+    AllocationContext
+;
+
+AllocationContext:
+    ('alloc' name=ID '(' spec = AllocationSpecification ')' |
+        spec=AllocationSpecification
+    )
+;
+
+AllocationSpecification:
+    assemblies += [AssemblyContext|FQN] (',' assemblies += [AssemblyContext|FQN])* '->' container = [ResourceContainer|FQN]
+;
+
+/**
+ * 
+ * Resource Environment Model View
+ * 
+ */
+
+ResourceEnvironmentContent returns Content:
+    ResourceContainer | LinkingResource
+;
+
+ResourceContainer:
+    'container' name=ID ('{'
+        (contents += ResourceContainerContent)*        
+    '}')?
+;
+
+ResourceContainerContent:
+    ProcessingResource | ResourceContainer
+;
+
+ProcessingResource:
+    'processing' name=ID type=[ProcessingResourceType|FQN] initialization=Initialization?
+;
+
+LinkingResource:
+    'link' name=ID type=[CommunicationLinkType|FQN] initialization=Initialization?  connected+=[ResourceContainer|FQN](',' connected+=[ResourceContainer|FQN])*
+;
+
+/**
+ * 
+ * Resource Type Repository View
+ * 
+ */
+
+ResourceTypeRepositoryContent returns Content:
+    ResourceTypeRepositoryInterface | ResourceType | ResourceEntityType | ResourceEntity
+;
+
+ResourceTypeRepositoryInterface returns Interface:
+    ResourceInterface | InternalConfigurableInterface
+;
+
+ResourceInterface:
+    'interface' name=ID ('{'
+        (contents += OperationInterfaceContent)*
+    '}')
+;
+
+InternalConfigurableInterface:
+    'internal' name=ID ('{'
+        (contents += OperationInterfaceContent | definitions += PropertyDefinition)*
+    '}')
+;
+
+ResourceType:
+    ('processing' {ProcessingResourceType} | 'link' {CommunicationLinkType}) name=ID ('{'
+        (contents += ResourceTypeContent| definitions += PropertyDefinition)*
+    '}')
+;
+
+PropertyDefinition:
+    'property' (optional ?= '?')? name=ID type=[ecore::EObject|FQN]
+;
+
+ResourceTypeContent:
+    ResourceInterfaceProvidedRole | ResourceFailureSpecification
+;
+
+ResourceFailureSpecification:
+    'raises' failureType=[FailureType|FQN]
+;
+
+ResourceInterfaceProvidedRole:
+    {ResourceInterfaceProvidedRole} 'provides' (type=[ResourceInterface|FQN] | interface=ResourceInterface)
+;
+
+ResourceEntityType: 
+    'type' name=ID
+;
+
+ResourceEntity:
+    'entity' name=ID type=[ResourceEntityType|FQN]
+;
+
+/**
+ * 
+ * Usage View
+ * 
+ */
+ 
+ UsageContent:
+     UsageScenario
+ ;
+
+UsageScenario:
+	name=STRING? workload=Workload '{'
+	   (contents += ScenarioContent)*
+	'}'
+;
+
+Workload:
+    OpenWorkload | ClosedWorkload
+;
+
+OpenWorkload:
+    'interArrivalTime' '(''«'interArrivalTime=expression'»'')'
+;
+
+ClosedWorkload:
+    'population''(''«'numberOfUsers=expression'»'')' 'thinkTime' '(''«'thinkTime=expression'»'')'
+;
+
+ScenarioContent:
+    ScenarioLoopAction | ScenarioBranchAction | EntryLevelSystemCallAction | ScenarioDelayAction
+;
+
+ScenarioLoopAction:
+    'loop' '(' '«' condition=expression '»' ')''{'
+        (contents += ScenarioContent)*
+    '}' 
+;
+
+ScenarioBranchAction:
+    'random' '{'
+    (branches+=ScenarioBranch)+
+    '}'
+;
+
+ScenarioBranch:
+    '(' probability=DOUBLE ')''{'
+       (contents += ScenarioContent)*
+    '}'
+;
+
+EntryLevelSystemCallAction:
+    role=[SystemProvidedRole|FQN] '.' signature=[Signature]('('
+        parameters+=ParameterSpecification (',' parameters+=ParameterSpecification)*
+    ')')? 
+    ('->' result=ResultAssignment)? 
+;
+
+ScenarioDelayAction:
+    'delay' (('«'duration=expression'»') | ('(' '«'duration=expression'»' ')'))
+;
+

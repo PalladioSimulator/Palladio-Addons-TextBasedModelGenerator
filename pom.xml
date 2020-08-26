@@ -14,9 +14,89 @@
 	<packaging>pom</packaging>
 	
 	<properties>
+		<xtextVersion>2.22.0</xtextVersion>
+		<mwe2Version>2.11.3</mwe2Version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/org.palladiosimulator.textual.targetplatform.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.xtext</groupId>
+				<artifactId>xtext-dev-bom</artifactId>
+				<version>${xtextVersion}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.xtend</groupId>
+					<artifactId>xtend-maven-plugin</artifactId>
+					<version>2.22.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>sonatype-single-artifact-deploy</id>
+			<properties>
+				<artifactId>tpcm-language-server</artifactId>
+				<groupId>${project.groupId}</groupId>
+				<version>${project.version}</version>
+				<repositoryId>ossrh</repositoryId>
+				<file>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-ls.jar</file>
+				<files>${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-ls-sources.jar,${project.basedir}/bundles/org.palladiosimulator.textual.tpcm.ide/target/org.palladiosimulator.textual.tpcm.ide-${project.version}-javadoc.jar</files>
+				<classifiers>sources,javadoc</classifiers>
+				<types>jar,jar</types>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>nightly</id>
+			<activation>
+				<property>
+					<name>!release</name>
+				</property>
+			</activation>
+			<properties>
+				<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			</properties>
+		</profile>
+		<profile>
+			<id>release</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<properties>
+				<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			</properties>
+		</profile>
+	</profiles>
+
 	<modules>
 		<module>bundles</module>
 		<module>features</module>

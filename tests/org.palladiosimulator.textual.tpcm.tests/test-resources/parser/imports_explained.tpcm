@@ -1,0 +1,23 @@
+import "std_definitions.tpcm" //import definitions from separate files by providing a URI or its the relative path
+// imports are not transitively imported
+// imported objects can be referred to by their fully qualified name (Namespace::ObjectName), e. g. PrimitiveTypes::Integer
+
+repository SomeRepository
+
+// The interface is defined to be able to specify a SEFF as part of the component definition
+interface IFoo {
+	op doFoo
+}
+
+component FooImpl {
+	provides foo1 IFoo
+	requires cpu ICPU // The resource interface ICPU is imported from std_definitions
+	internal threadpool PassiveResource ( // as is the type PassiveResource
+		capacity: «100» // and the configuration parameters
+	)
+	
+	seff foo1.doFoo {
+		cpu.process(«100») // The available operations on the roles are determined by the imported interfaces of ICPU
+		threadpool.acquire // and PassiveResource.
+	}
+}

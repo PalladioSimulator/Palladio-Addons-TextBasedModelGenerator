@@ -1,0 +1,45 @@
+import "std_definitions.tpcm"
+
+resourcetypes { // Definition of resource types, which is equivalent to a ResourceTypeRepository	
+	// Resource interfaces are defined similar to operation interfaces
+	interface ICPU { 
+		op process(amount PrimitiveTypes::Integer) 
+	}
+	
+	processing CPUResource { // ProcessingResourceTypes capture  
+		provides ICPU // the provided resource interface
+		raises PrimitiveTypes::CPUFailure // the hardware induced failure types
+		// and the relevant properties of the resource
+		// the properties can be specified either
+		property processingRate PrimitiveTypes::Double // referencing a primitive datatype. In this case the initialization requires a compatible StoEx 
+		property schedulingPolicy SchedulingPolicy // or referencing a separate ResourceEntityType which allows for an extensible behavior selection
+	}
+	
+	type SchedulingPolicy // New ResourceEntityTypes can be created using the keyword type
+	entity SimFairShare SchedulingPolicy // Instances / Literals of a specified entity type are created separately
+	entity FirstComeFirstServe SchedulingPolicy // Entity creation does not need to occur in the same TPCM fragment as the definition
+	// Note: EntityTypes and EntityLiterals cannot directly be mapped to their PCM equivalent.
+	// In contrast they rely on an instance-level mapping as part of generator registration
+	// Consequently, they allow to achieve a certain extensibility of the language
+	
+	link Ethernet { // Specifies a CommunicationLinkResourceType
+		property throughput PrimitiveTypes::Double // and the properties necessary to instanciate it, as throughput
+		property latency PrimitiveTypes::Double // and latency
+	}
+		
+	// Passive resources are mapped based on a dedicated internal interface
+	// By providing an extenden interface and enhancing the respective generator logic
+	// additional behavior can be realized.
+	internal PassiveResource { 
+		property capacity PrimitiveTypes::Integer
+		op acquire
+		op release
+	}
+	
+	// In general: Internal interfaces represent logical entities which are provided by the component or the assembly. 
+	// In contrast: Processing resources represent entities which are provided by the execution environment.
+	// Consequently, internal resources are instantiated as part of a component definition, while processing
+	// resources as part of a resource container. 
+	// While processing resources can be mapped on a meta-model-level to their PCM equivalents. Internal resources rely
+	// on an instance-based mapping by the respective generator registration	
+}

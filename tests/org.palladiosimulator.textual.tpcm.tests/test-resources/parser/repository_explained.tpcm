@@ -1,0 +1,78 @@
+repository RepositoryName { //The repository name is relevant whenever cross references are involved
+	// The repository containes declarations of datatypes, interfaces and components
+	
+	//The datatype declaration follows the same structure "datatype NAME TYPE"
+	datatype PrimitiveInt INT //Declaration of a primitive datatype of type Integer
+	
+	datatype IntCollection []<PrimitiveInt> //Declaration of collection datatype of primitive integers
+	
+	datatype ComposedData1 { //Declaration of composed datatype by struct-like specification of members 
+		member1 PrimitiveInt
+		member2 PrimitiveInt
+		member3 IntCollection
+		member4 ComposedData1
+		member5 datatype NestedCollection []<ComposedData1> //Short hand notation for defining nested data structures 
+		member6 datatype NestedComposedDataType {
+		}
+	}
+	
+	datatype ComposedData2 {
+		member1 ComposedData1::NestedCollection //Short-hand types are available through namespaced access.
+	}
+	
+	//Interface declaration. The type is decided based on the kind of interface signatures provided.
+	interface IService1 {
+		op Signature1 // A primitive operation signature without parameters and return value. 
+		op Signature2 ComposedData1 // An operation which takes no parameters and return a ComposedData1
+		op Signature3(param1 IntCollection, param2 PrimitiveInt) // a signature with two parameters and no return
+		op Signature4(param1 PrimitiveInt) PrimitiveInt // a signature with one integer parameter and a integer return		
+	}
+	
+	// Similar to the declaration of Operation Interfaces, event groups are constructed by specifying event signatures
+	interface EEventGroup1 {
+		ev Event1 // an event without a parameter
+		ev Event2 (param1 IntCollection) //an event which takes an integer parameter
+		
+		// Due to their nature events do not have return values		 
+	}
+	
+	//Component declaration
+	component Service1Impl {
+		provides ps1 IService1 // Provided role of Operation Interface IService1 named ps1
+		requires rs1 IService1 // Required role of Operation Interface IService1 named rs1
+		
+		seff ps1.Signature2 { // Declaration of component behavior when Signature2 is invoked through role ps1
+			rs1.Signature1 // External call through required role rs1
+			rs1.Signature2 -> (.VALUE: «RETURN.VALUE», .BYTESIZE: «RETURN.BYTESIZE») // Assignment of RETURN.VALUE and RETURN.BYTESIZE from respective characteristic of called operation
+			rs1.Signature2 -> .VALUE // Short-hand notation for (.VALUE: «RETURN.VALUE»)
+			
+			rs1.Signature3 //External call without providing parameter characterizations
+			rs1.Signature3(param1.BYTESIZE: «100», param1.NUMBER_OF_ELEMENTS: «3», param2.VALUE: «4») //External call action with fully-fledged specification of parameter characteristics
+			rs1.Signature4(.BYTESIZE: «100») // External call action with positional assignment of .BYTESIZE characteristic
+			rs1.Signature4(«30») // (Short-hand) External call action with positional assignment of .VALUE characteristic 
+			
+			«IntPMF[(500;0.5)(1000;0.5)]» -> .BYTESIZE // SetVariableAction. Assignment of StoEx to RESULT.BYTESIZE in result frame.
+		}
+		
+		seff ps1.Signature3 {
+			iterate (param1) { // CollectionIteratorAction
+				rs1.Signature4 («param1.INNER.VALUE») //Access to inner characteristic of iterated collection
+			}
+			
+			if «param1.NUMBER_OF_ELEMENTS >= 5» { // Branch action with guarded branch transition
+			} else if «param1.NUMBER_OF_ELEMENTS >= 10» { // Multiple guarded branches 
+			} else { // Default case
+			}
+			
+			random { //Branch action with probabilistic branches
+				(0.25) { // Branch probability of p=0.25
+					
+				}
+				(0.5) { // Branch probability of p=0.5
+					
+				}
+				// If summed probability is less than 1, a default NOP-case is assumed 
+			}
+		}
+	}
+}

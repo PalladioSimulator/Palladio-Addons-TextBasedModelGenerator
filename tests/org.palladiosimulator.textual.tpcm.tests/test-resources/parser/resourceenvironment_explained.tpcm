@@ -1,0 +1,25 @@
+import "std_definitions.tpcm"
+
+resourceenvironment ResourceEnvironment1 //Declaration of resource environment
+
+container C1 { // Resource Container named "C1"
+
+	// Specification of processing resource named "CPU" of type CPUResource
+	// the type is imported from "std_definitions.tpcm"
+	processing CPU CPUResource (
+		processingRate: «1000» // Specification of processing rate
+		schedulingPolicy: SimFairShare // and selection of scheduling policy
+	)
+	
+	container C1_1 // We can also specify nested resource containers
+}
+
+container C2 // We simply specify C2 and C3 as stubs
+container C3
+
+// Specification of linking resource called "LAN" of type Ethernet 
+// the type is imported from "std_definitions.tpcm"
+link LAN Ethernet (
+	throughput: «1000» // Initialization of the throughput
+	latency: «0.2» // and latency
+) C1, C2, C3 //the declaration is followed by a list of all connected resource containers
