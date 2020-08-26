@@ -1,0 +1,33 @@
+repository PrimitiveTypes {
+	datatype Integer INT
+	datatype Double DOUBLE
+	failure CPUFailure
+}
+
+resourcetypes {	
+	interface ICPU {
+		op process(amount PrimitiveTypes::Integer)
+	}
+	
+	processing CPUResource {
+		provides ICPU
+		raises PrimitiveTypes::CPUFailure		
+		property processingRate PrimitiveTypes::Double
+		property schedulingPolicy SchedulingPolicy
+	}
+	
+	link Ethernet {
+		property throughput PrimitiveTypes::Double
+		property latency PrimitiveTypes::Double
+	}
+		
+	internal PassiveResource {
+		property capacity PrimitiveTypes::Integer
+		op acquire
+		op release
+	}
+	
+	type SchedulingPolicy	
+	entity SimFairShare SchedulingPolicy
+	entity FirstComeFirstServe SchedulingPolicy	
+}

@@ -13,7 +13,7 @@ Model:
 FQN: ID ('::' ID)*;
 
 Import:
-    'import' importURI=STRING
+    'import' ((namespace=ID'::'importURI=ID) | importURI=STRING) 
 ;
 
 EncapsulatedFragment returns Fragment:

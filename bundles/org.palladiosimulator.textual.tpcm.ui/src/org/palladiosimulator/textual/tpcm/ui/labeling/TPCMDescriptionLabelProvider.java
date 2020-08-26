@@ -12,14 +12,4 @@ import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider;
  */
 public class TPCMDescriptionLabelProvider extends DefaultDescriptionLabelProvider {
 
-	// Labels and icons can be computed like this:
-//	@Override
-//	public String text(IEObjectDescription ele) {
-//		return ele.getName().toString();
-//	}
-//	
-//	@Override
-//	public String image(IEObjectDescription ele) {
-//		return ele.getEClass().getName() + ".gif";
-//	}
 }

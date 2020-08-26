@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.validation.Check;
@@ -38,6 +39,19 @@ public class TPCMValidator extends AbstractTPCMValidator {
 	{
 		VALUE_REFERENCE.setReferenceName("VALUE");
 	}
+
+	protected static final LanguageSwitch<AbstractNamedReference> NAMED_REFERENCE_EXTRACTOR = new LanguageSwitch<AbstractNamedReference>() {
+		@Override
+		public AbstractNamedReference caseAbsoluteReference(AbsoluteReference object) {
+			return object.getReference().getInnerReference_NamespaceReference();
+		}
+
+		@Override
+		public AbstractNamedReference caseRelativeReference(RelativeReference object) {
+			return object.getCharacteristic();
+		}
+
+	};
 
 	@Inject
 	IQualifiedNameProvider nameProvider;
@@ -88,52 +102,11 @@ public class TPCMValidator extends AbstractTPCMValidator {
 		Optional<Parameter> parameterDefinition = Optional.empty();
 		AbstractNamedReference remainder = VALUE_REFERENCE;
 		if (specification.getReference() == null) { // Positional value argument
-			var idx = params.indexOf(specification);
-			if (idx >= expectedParams.size()) {
-				error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
-						expectedParams.size()), specification,
-						LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
-			} else {
-				parameterDefinition = Optional.of(expectedParams.get(idx));
-			}
+			parameterDefinition = getParameterByIndex(specification, params, signature, expectedParams);
 		} else {
-			parameterDefinition = (new LanguageSwitch<Optional<Parameter>>() {
-				@Override
-				public Optional<Parameter> caseAbsoluteReference(AbsoluteReference object) {
-					var p = getNamedParameter(expectedParams, object.getReference());
-					if (p.isEmpty()) {
-						error(String.format("The signature %s does not define a parameter %s", nameOf(signature),
-								object.getReference().getReferenceName()), object,
-								LanguagePackage.Literals.ABSOLUTE_REFERENCE__REFERENCE);
-					}
-					return p;
-				}
+			parameterDefinition = getParameterByNameOrPosition(specification, params, signature, expectedParams);
 
-				@Override
-				public Optional<Parameter> caseRelativeReference(RelativeReference object) {
-					var idx = params.indexOf(specification);
-					var p = getIndexedParameter(expectedParams, idx);
-					if (p.isEmpty()) {
-						error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
-								expectedParams.size()), specification,
-								LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
-					}
-					return p;
-				}
-			}).doSwitch(specification.getReference());
-
-			remainder = (new LanguageSwitch<AbstractNamedReference>() {
-				@Override
-				public AbstractNamedReference caseAbsoluteReference(AbsoluteReference object) {
-					return object.getReference().getInnerReference_NamespaceReference();
-				}
-
-				@Override
-				public AbstractNamedReference caseRelativeReference(RelativeReference object) {
-					return object.getCharacteristic();
-				}
-
-			}).doSwitch(specification.getReference());
+			remainder = NAMED_REFERENCE_EXTRACTOR.doSwitch(specification.getReference());
 		}
 		if (parameterDefinition.isPresent()) {
 			var primitive = dtResolver.resolveRequiredPrimitive(remainder, parameterDefinition.get().getType());
@@ -154,6 +127,48 @@ public class TPCMValidator extends AbstractTPCMValidator {
 				}
 			}
 		}
+	}
+
+	private Optional<Parameter> getParameterByIndex(ParameterSpecification specification,
+			EList<ParameterSpecification> params, Signature signature, EList<Parameter> expectedParams) {
+		var idx = params.indexOf(specification);
+		Optional<Parameter> result = Optional.empty();
+		if (idx >= expectedParams.size()) {
+			error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
+					expectedParams.size()), specification,
+					LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+		} else {
+			result = Optional.of(expectedParams.get(idx));
+		}
+		return result;
+	}
+
+	private Optional<Parameter> getParameterByNameOrPosition(ParameterSpecification specification,
+			EList<ParameterSpecification> params, Signature signature, EList<Parameter> expectedParams) {
+		return (new LanguageSwitch<Optional<Parameter>>() {
+			@Override
+			public Optional<Parameter> caseAbsoluteReference(AbsoluteReference object) {
+				var p = getNamedParameter(expectedParams, object.getReference());
+				if (p.isEmpty()) {
+					error(String.format("The signature %s does not define a parameter %s", nameOf(signature),
+							object.getReference().getReferenceName()), object,
+							LanguagePackage.Literals.ABSOLUTE_REFERENCE__REFERENCE);
+				}
+				return p;
+			}
+
+			@Override
+			public Optional<Parameter> caseRelativeReference(RelativeReference object) {
+				var idx = params.indexOf(specification);
+				var p = getIndexedParameter(expectedParams, idx);
+				if (p.isEmpty()) {
+					error(String.format("Signature %s does not define more than %d parameters", nameOf(signature),
+							expectedParams.size()), specification,
+							LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
+				}
+				return p;
+			}
+		}).doSwitch(specification.getReference());
 	}
 
 	private String nameOf(Signature signature) {

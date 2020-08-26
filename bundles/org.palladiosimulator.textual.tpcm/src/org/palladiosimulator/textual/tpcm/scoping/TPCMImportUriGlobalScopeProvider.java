@@ -2,6 +2,7 @@ package org.palladiosimulator.textual.tpcm.scoping;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 
@@ -18,8 +19,16 @@ import com.google.common.collect.Iterators;
 import com.google.inject.Provider;
 
 public class TPCMImportUriGlobalScopeProvider extends ImportUriGlobalScopeProvider {
+	public static final String IMPORT_RESOURCES_URI_TEMPLATE = "pathmap://TPCM_RESOURCES_%s/%s.tpcm";
 	@Inject
 	IResourceScopeCache cache;
+	
+	Function<Import, String> uriGetter = imp -> {
+		if (imp.getNamespace() != null) {
+			return String.format(IMPORT_RESOURCES_URI_TEMPLATE, 
+					imp.getNamespace().toUpperCase(), imp.getImportURI());
+		} else return imp.getImportURI();
+	};
 
 	@Override
 	protected LinkedHashSet<URI> getImportedUris(Resource resource) {
@@ -33,7 +42,7 @@ public class TPCMImportUriGlobalScopeProvider extends ImportUriGlobalScopeProvid
 						while (iterator.hasNext()) {
 							Model object = iterator.next();
 							object.getImports().stream()
-								.map(Import::getImportURI)
+								.map(uriGetter)
 								.forEach(collector::accept);
 						}
 						Iterator<URI> uriIter = uniqueImportURIs.iterator();

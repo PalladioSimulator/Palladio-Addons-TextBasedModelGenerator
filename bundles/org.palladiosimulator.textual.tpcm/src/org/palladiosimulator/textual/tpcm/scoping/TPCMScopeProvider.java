@@ -74,18 +74,7 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 			}
 		} else if (context instanceof PropertyInitializer
 				&& reference == LanguagePackage.Literals.PROPERTY_INITIALIZER__REFERENCED_ELEMENT) {
-			var typeOpt = Optional.of((PropertyInitializer) context).map(PropertyInitializer::getProperty)
-					.map(PropertyDefinition::getType).filter(LanguagePackage.Literals.RESOURCE_ENTITY_TYPE::isInstance)
-					.map(ResourceEntityType.class::cast);
-
-			if (typeOpt.isPresent()) {
-				var type = typeOpt.get();
-				return new FilteringScope(super.getScope(context, reference),
-						ref -> ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY && ref.getEObjectOrProxy()
-								.eGet(LanguagePackage.Literals.RESOURCE_ENTITY__TYPE) == type);
-			} else {
-				return IScope.NULLSCOPE;
-			}
+			return getPropertyInitializerReferencedElementScope(context, reference);
 
 		} else if (context instanceof PropertyDefinition
 				&& reference == LanguagePackage.Literals.PROPERTY_DEFINITION__TYPE) {
@@ -94,6 +83,21 @@ public class TPCMScopeProvider extends AbstractTPCMScopeProvider {
 							|| ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY_TYPE);
 		}
 		return super.getScope(context, reference);
+	}
+
+	protected IScope getPropertyInitializerReferencedElementScope(EObject context, EReference reference) {
+		var typeOpt = Optional.of((PropertyInitializer) context).map(PropertyInitializer::getProperty)
+				.map(PropertyDefinition::getType).filter(LanguagePackage.Literals.RESOURCE_ENTITY_TYPE::isInstance)
+				.map(ResourceEntityType.class::cast);
+
+		if (typeOpt.isPresent()) {
+			var type = typeOpt.get();
+			return new FilteringScope(super.getScope(context, reference),
+					ref -> ref.getEClass() == LanguagePackage.Literals.RESOURCE_ENTITY && ref.getEObjectOrProxy()
+							.eGet(LanguagePackage.Literals.RESOURCE_ENTITY__TYPE) == type);
+		} else {
+			return IScope.NULLSCOPE;
+		}
 	}
 
 	protected Iterable<Signature> getSignaturesOfInterfaceForRole(Role role) {
