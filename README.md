@@ -22,7 +22,7 @@ All view points can be specified in a single .tpcm file otr split into multiple 
 
 ### Example
 ``` Smalltalk
-import "std_definitions.tpcm"
+import std::definitions
 
 repository demoRepo {
 	datatype PrimitiveInt INT 
@@ -41,20 +41,20 @@ repository demoRepo {
 		requires cpu ICPU
 
 		seff ps1.foo {
-			rs2.bar(param1)
-			cpu.process(param1)
+			rs2.bar(«param1.VALUE»)
+			cpu.process(«param1.VALUE»)
 		}
 	}
 	component Service2 {
 		provides ps2 IService2
-		...
+		
 	}
 }
 
 system demoSystem {
 	provides serv1 demoRepo::IService1 -> assembly A1 demoRepo::Service1
 	
-	A1 -> assembly A2 demoRepo::Service
+	A1 -> assembly A2 demoRepo::Service2
 }
 
 resourceenvironment demoEnv {
@@ -64,14 +64,14 @@ resourceenvironment demoEnv {
 }
 
 allocation demoAllocation {
-	demoSystem::A1, demoSystem::A2 --> demoEnv::C1
+	demoSystem::A1, demoSystem::A2 -> demoEnv::C1
 }
 
 usage demoUsage {
 	"Simple Demo Scenario" population(«20») thinkTime(«0.1») {
 		demoSystem::serv1.foo («100»)
 		delay «10»
-		demoSystem::serv1.foo («IntPMF[(0.5;5)(0.5;10)]»)
+		demoSystem::serv1.foo («IntPMF[(5;0.5)(10;0.5)]»)
 	}
 }
 ```
