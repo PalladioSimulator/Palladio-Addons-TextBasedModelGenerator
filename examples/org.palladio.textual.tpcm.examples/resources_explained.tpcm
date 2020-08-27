@@ -1,4 +1,4 @@
-import "std_definitions.tpcm"
+import std::definitions
 
 resourcetypes { // Definition of resource types, which is equivalent to a ResourceTypeRepository	
 	// Resource interfaces are defined similar to operation interfaces

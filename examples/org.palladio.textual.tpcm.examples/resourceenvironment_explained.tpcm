@@ -1,4 +1,4 @@
-import "std_definitions.tpcm"
+import std::definitions
 
 resourceenvironment ResourceEnvironment1 //Declaration of resource environment
 

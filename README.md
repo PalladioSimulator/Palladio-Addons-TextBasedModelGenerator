@@ -18,7 +18,7 @@ The TPCM language currently supports the PCM view points _Repository_, _System_,
 * Reliability modeling is not yet part of the language
 * Component parameters are not yet part of the language
 
-All view points can be specified in a single .tpcm file otr split into multiple ones. A comprehensive specification-by-example can be found in the folder _tests/org.palladiosimulator.textual.tpcm.tests/test-resources/parser_. 
+All view points can be specified in a single .tpcm file otr split into multiple ones. A comprehensive specification-by-example can be found in the folder _examples/org.palladiosimulator.textual.tpcm.examples/_. 
 
 ### Example
 ``` Smalltalk

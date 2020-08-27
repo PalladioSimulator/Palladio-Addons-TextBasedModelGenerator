@@ -9,6 +9,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Stream
+import org.eclipse.core.runtime.FileLocator
+import org.eclipse.core.runtime.Platform
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
@@ -24,12 +26,27 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest
 @ExtendWith(InjectionExtension)
 @InjectWith(TPCMInjectorProvider)
 class TPCMParsingTest {
+    public static val EXAMPLE_MODELS_LOCATION_PARAMETER = "examples.location"
+    public static val EXAMPLE_MODELS_LOCATION_DEFAULT = "../../examples/org.palladio.textual.tpcm.examples/"
+    
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
 
     @TestFactory
-    def Stream<DynamicTest> checkAllTPCMParserTestFiles() {
-        return Files.walk(Paths.get("test-resources/parser"), 1).filter([it.toString().endsWith(".tpcm")]).map([ path |
+    def Stream<DynamicTest> tryParsingAllTPCMExamples() {
+        val testLocation = System.properties.getOrDefault(EXAMPLE_MODELS_LOCATION_PARAMETER, EXAMPLE_MODELS_LOCATION_DEFAULT).toString()
+        val testPath = Paths.get(testLocation) 
+        
+        var java.net.URI fileURI;
+        if (Platform.isRunning) {
+        	fileURI = FileLocator.toFileURL(testPath.toUri.toURL).toURI
+        }   
+        
+        if (fileURI === null) {
+            fileURI = testPath.toUri
+        }
+    	
+        return Files.walk(Paths.get(fileURI), 1).filter([it.toString().endsWith(".tpcm")]).map([ path |
             dynamicTest("> " + path.getFileName(), path.toUri(), // test source uri
             [|testParser(path)] as Executable)
         ]);

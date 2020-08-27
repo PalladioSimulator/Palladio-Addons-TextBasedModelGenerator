@@ -11,6 +11,10 @@ generated/
 *.polyglot.category.xml
 *.polyglot.feature.xml
 
+*.iml
+.idea/
+.vscode/
+
 pom.tycho
 
 *.xml_gen
