@@ -7,16 +7,8 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
-import org.palladiosimulator.textual.tpcm.generator.GenerationFileNameProvider;
-import org.palladiosimulator.textual.tpcm.generator.GenerationFileNameProviderImpl;
-import org.palladiosimulator.textual.tpcm.generator.MultiSourceGenerator;
-import org.palladiosimulator.textual.tpcm.generator.TPCMGenerator;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
-import org.palladiosimulator.textual.tpcm.registry.ExtensionPointTransformationRegistryConfigurerProvider;
-import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistry;
-import org.palladiosimulator.textual.tpcm.registry.GeneratorTransformationRegistryImpl;
-import org.palladiosimulator.textual.tpcm.registry.TransformationRegistryConfigurerProvider;
 import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
 import org.palladiosimulator.textual.tpcm.scoping.TPCMImportUriGlobalScopeProvider;
 
@@ -43,20 +35,5 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 	public Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
 		return TPCMResourceDescriptionStrategy.class;
 	}
-	
-	public Class<? extends MultiSourceGenerator> bindIGenerator() {
-		return TPCMGenerator.class;
-	}
-	
-	public Class<? extends GenerationFileNameProvider> bindFileNameProvider() {
-		return GenerationFileNameProviderImpl.class;
-	}
-	
-	public Class<? extends TransformationRegistryConfigurerProvider> bindConfigurerProvider() {
-		return ExtensionPointTransformationRegistryConfigurerProvider.class;
-	}
-	
-	public Class<? extends GeneratorTransformationRegistry> bindTransformationRegistry() {
-		return GeneratorTransformationRegistryImpl.class;
-	}
+
 }
