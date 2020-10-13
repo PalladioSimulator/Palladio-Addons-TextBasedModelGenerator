@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.palladiosimulator.textual.tpcm.configure">
+      <client
+            class="org.palladiosimulator.textual.tpcm.configuration.RegistryConfigurer">
+      </client>
+   </extension>
+	
+</plugin>

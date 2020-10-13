@@ -1,0 +1,64 @@
+repository PrimitiveTypes {
+	datatype Integer INT
+	datatype Double DOUBLE
+	failure CPUFailure
+}
+
+resourcetypes {
+	interface ICPU {
+		op process(amount PrimitiveTypes::Double)
+	}
+	
+	interface IHDD {
+		op read(amount PrimitiveTypes::Double)
+		op write(amount PrimitiveTypes::Double)
+	}
+	
+	processing CPUResource {
+		provides ICPU
+		raises PrimitiveTypes::CPUFailure		
+		property processingRate PrimitiveTypes::Double
+		property schedulingPolicy SchedulingPolicy
+	}
+	
+	processing HDDResource {
+		provides IHDD
+		property processingRate PrimitiveTypes::Double
+		property schedulingPolicy SchedulingPolicy
+	}
+	
+	processing Delay {
+		property processingRate PrimitiveTypes::Double
+		property schedulingPolicy SchedulingPolicy
+	}
+	
+	link Ethernet {
+		property throughput PrimitiveTypes::Double
+		property latency PrimitiveTypes::Double
+	}
+		
+	internal PassiveResource {
+		property capacity PrimitiveTypes::Integer
+		op acquire
+		op release
+	}
+	
+	type SchedulingPolicy	
+	entity FirstComeFirstServe SchedulingPolicy	
+	entity ProcessorSharing SchedulingPolicy
+	entity Delay SchedulingPolicy
+}
+
+mapping {
+	FirstComeFirstServe -> "pathmap://PCM_MODELS/Palladio.resourcetype#FCFS"
+	ProcessorSharing -> "pathmap://PCM_MODELS/Palladio.resourcetype#ProcessorSharing"
+	Delay -> "pathmap://PCM_MODELS/Palladio.resourcetype#Delay"
+	ICPU -> "pathmap://PCM_MODELS/Palladio.resourcetype#_tw_Q8E5CEeCUKeckjJ_n-w"
+	ICPU::process -> "pathmap://PCM_MODELS/Palladio.resourcetype#_wF22kE5CEeCUKeckjJ_n-w"
+	IHDD::read -> "pathmap://PCM_MODELS/Palladio.resourcetype#_ygMyEE5CEeCUKeckjJ_n-w"
+	IHDD::write -> "pathmap://PCM_MODELS/Palladio.resourcetype#_zUFtIE5CEeCUKeckjJ_n-w"
+	IHDD ->"pathmap://PCM_MODELS/Palladio.resourcetype#_xXv8QE5CEeCUKeckjJ_n-w"
+	Ethernet -> "pathmap://PCM_MODELS/Palladio.resourcetype#_o3sScH2AEdyH8uerKnHYug"
+	CPUResource -> "pathmap://PCM_MODELS/Palladio.resourcetype#_oro4gG3fEdy4YaaT-RYrLQ"
+	HDDResource -> "pathmap://PCM_MODELS/Palladio.resourcetype#_BIjHoQ3KEdyouMqirZIhzQ"
+}
