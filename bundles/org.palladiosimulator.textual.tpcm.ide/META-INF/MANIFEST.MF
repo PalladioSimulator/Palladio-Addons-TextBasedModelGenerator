@@ -10,7 +10,7 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
- org.palladiosimulator.textual.commons.generator;bundle-version="1.0.0"
+ org.palladiosimulator.textual.commons.generator.standalone;bundle-version="1.0.0";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.textual.tpcm.ide.contentassist.antlr.internal,
  org.palladiosimulator.textual.tpcm.ide.contentassist.antlr

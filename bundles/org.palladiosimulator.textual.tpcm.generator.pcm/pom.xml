@@ -7,7 +7,7 @@
         <version>4.3.0-SNAPSHOT</version>
         <relativePath>..\.polyglot.pom.tycho</relativePath>
       </parent>
-	<artifactId>org.palladiosimulator.textual.tpcm.configuration</artifactId>
+	<artifactId>org.palladiosimulator.textual.tpcm.generator.pcm</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
 	<dependencies>
@@ -133,14 +133,14 @@
 					</transformers>
 					<artifactSet>
 						<excludes><!-- avoid duplicate inclusion due to addjars plugin -->
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-org.eclipse.lsp4j*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-org.eclipse.xtext.xbase.lib*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-org.eclipse.xtend.lib*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-com.google.guava*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-asm*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-log4j*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-org.objectweb.asm*</exclude>
-							<exclude>*:org.palladiosimulator.textual.tpcm.configuration-org.apache.log4j*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-org.eclipse.lsp4j*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-org.eclipse.xtext.xbase.lib*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-org.eclipse.xtend.lib*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-com.google.guava*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-asm*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-log4j*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-org.objectweb.asm*</exclude>
+							<exclude>*:org.palladiosimulator.textual.tpcm.generator.pcm-org.apache.log4j*</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>

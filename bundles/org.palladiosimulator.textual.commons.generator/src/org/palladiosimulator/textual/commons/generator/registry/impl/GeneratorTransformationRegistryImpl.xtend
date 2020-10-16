@@ -8,13 +8,16 @@ import java.util.Map
 import java.util.Objects
 import java.util.function.Consumer
 import java.util.stream.Collectors
+import javax.inject.Inject
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorRuleRegistrationFacade
+import org.palladiosimulator.textual.commons.generator.registry.GeneratorRulesRegistrationDelegate
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.commons.generator.registry.ProvidedMapping
+import org.palladiosimulator.textual.commons.generator.rules.ExecutableRule
 import org.palladiosimulator.textual.commons.generator.rules.GeneratorRuleBuilder
 import org.palladiosimulator.textual.commons.generator.rules.impl.GeneratorRuleBuilderImpl
 import org.palladiosimulator.textual.commons.generator.rules.impl.Registration
-import org.palladiosimulator.textual.commons.generator.rules.ExecutableRule
+import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragmentCollector
 
 class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegistry, GeneratorRuleRegistrationFacade {
 
@@ -48,6 +51,11 @@ class GeneratorTransformationRegistryImpl implements GeneratorTransformationRegi
 
     final List<ExecutableRule<?, ?>> rules = new ArrayList
     final Map<MappedObjectKey, Object> mappedObjects = new HashMap
+    
+    @Inject
+    new (MultiModelGeneratorFragmentCollector providerCollector) {
+        providerCollector.generatorFragments.map[rulesRegistrationDelegate].forEach[doRegistration(this)]
+    }
 
     override map(Object source) {
         return map(source, null)

@@ -4,11 +4,13 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">
 <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.stoex.sdk.feature.group" version="tbd"/>
+<unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
 <repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/releases/latest/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="nightly" refresh="true">
 <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.stoex.sdk.feature.group" version="tbd"/>
+<unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
 <repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">

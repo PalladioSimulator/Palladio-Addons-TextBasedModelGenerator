@@ -4,8 +4,6 @@
 package org.palladiosimulator.textual.tpcm.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.xtext.builder.IXtextBuilderParticipant;
-import org.palladiosimulator.textual.tpcm.generator.CustomBuilderParticipant;
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -14,10 +12,5 @@ public class TPCMUiModule extends AbstractTPCMUiModule {
 
 	public TPCMUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
-	}
-	
-	@Override
-	public Class<? extends IXtextBuilderParticipant> bindIXtextBuilderParticipant() {
-		return CustomBuilderParticipant.class;
 	}
 }

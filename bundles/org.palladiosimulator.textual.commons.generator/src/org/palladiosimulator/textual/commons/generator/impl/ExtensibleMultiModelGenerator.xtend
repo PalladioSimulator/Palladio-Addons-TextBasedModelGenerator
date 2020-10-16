@@ -16,6 +16,8 @@ import org.palladiosimulator.textual.commons.generator.GenerationFileNameProvide
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.commons.generator.registry.RegisteredMappingProvider
 import org.palladiosimulator.textual.commons.generator.registry.RootElementFilter
+import javax.inject.Named
+import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment
 
 /**
  * Generates code from your model files on save.
@@ -27,21 +29,15 @@ class ExtensibleMultiModelGenerator extends AbstractMultiSourceGenerator {
     GenerationFileNameProvider filenameProvider
     
     @Inject
+    @Named(MultiModelGeneratorFragment.NAMED_DELEGATE)
     RegisteredMappingProvider mappingProvider;
     
     @Inject
+    @Named(MultiModelGeneratorFragment.NAMED_DELEGATE)
     RootElementFilter elementFilter;
     
     @Inject
     GeneratorTransformationRegistry registry;
-    
-    /*
-    @Inject
-    new(TransformationRegistryConfigurerProvider configurerProvider, GeneratorTransformationRegistry registry) {
-        val configurers = configurerProvider.configurer
-        configurers.forEach[it.configure(registry)]
-        this.registry = registry
-    }*/
     
     override doGenerate(ResourceSet resources, IFileSystemAccess2 fsa, IGeneratorContext context) {
         var allMappings = mappingProvider.retrieveMappings(resources)
@@ -49,7 +45,6 @@ class ExtensibleMultiModelGenerator extends AbstractMultiSourceGenerator {
         registry.withContext(allMappings) [
             val createdResources = new ArrayList<Resource>();
             for(resource : resources.resources) {
-                //val fragments = resource.allContents.filter(Fragment).filter[!(it instanceof MappingConfiguration)].toList
                 val fragments = resource.allContents.filter[elementFilter.translatesToRootElement(it)]
                 val sourceFileName = resource.sourceFileName
                 val mappedFragments = new ArrayList(fragments.map [
@@ -70,21 +65,6 @@ class ExtensibleMultiModelGenerator extends AbstractMultiSourceGenerator {
         val fileNameWithExtension = resource.URI.lastSegment
         val extensionDotIndex = fileNameWithExtension.lastIndexOf(".")
         return fileNameWithExtension.substring(0, extensionDotIndex)
-    }
-
-    /*private def List<ProvidedMapping> createProvidedMappings(ResourceSet parent, List<MappingContent> content) {
-        return content.map [
-            val splitFullUri = it.absoluteUri.split("#")
-            val filePath = splitFullUri.get(0)
-            val id = splitFullUri.get(1)
-            val resolved = resolveObject(filePath, id, parent)
-            return new ProvidedMapping(it.imported, resolved)
-        ]
-    }*/
-
-    private def EObject resolveObject(String absolutePath, String resourceId, ResourceSet parentSet) {
-        val resource = parentSet.getResource(URI.createURI(absolutePath), true);
-        return resource.getEObject(resourceId)
     }
 
     def createResource(ResourceSet containerSet, EObject resource, String fileName, IFileSystemAccess2 fsa,
