@@ -23,12 +23,7 @@ public interface GeneratorTestInjectorProviderMixin {
                 }   
             };
         } else {
-            return new StandaloneMultiModelGeneratorModule() {
-                @Override
-                public Class<? extends IXtextBuilderParticipant> bindIXtextBuilderParticipant() {
-                    return null;
-                }   
-            };
+            return new StandaloneMultiModelGeneratorModule();
         }
     }
     

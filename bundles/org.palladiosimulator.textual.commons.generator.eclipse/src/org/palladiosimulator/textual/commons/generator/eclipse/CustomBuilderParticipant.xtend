@@ -1,4 +1,4 @@
-package org.palladiosimulator.textual.commons.generator.impl
+package org.palladiosimulator.textual.commons.generator.eclipse
 
 import com.google.inject.Inject
 import org.eclipse.core.runtime.CoreException

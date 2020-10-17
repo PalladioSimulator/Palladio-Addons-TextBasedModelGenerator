@@ -3,11 +3,9 @@
  */
 package org.palladiosimulator.textual.commons.generator;
 
-import org.eclipse.xtext.builder.IXtextBuilderParticipant;
 import org.eclipse.xtext.generator.IOutputConfigurationProvider;
 import org.eclipse.xtext.service.AbstractGenericModule;
 import org.eclipse.xtext.service.SingletonBinding;
-import org.palladiosimulator.textual.commons.generator.impl.CustomBuilderParticipant;
 import org.palladiosimulator.textual.commons.generator.impl.ExtensibleMultiModelGenerator;
 import org.palladiosimulator.textual.commons.generator.impl.ModelFileExtensionRegistryImpl;
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorRuleRegistrationFacade;
@@ -60,10 +58,6 @@ public class CommonMultiModelGeneratorModule extends AbstractGenericModule {
 
     public Class<? extends GeneratorTransformationRegistry> bindTransformationRegistry() {
         return GeneratorTransformationRegistryImpl.class;
-    }
-
-    public Class<? extends IXtextBuilderParticipant> bindIXtextBuilderParticipant() {
-        return CustomBuilderParticipant.class;
     }
     
     public Class<? extends IOutputConfigurationProvider> bindIOutputConfigurationProvider() {
