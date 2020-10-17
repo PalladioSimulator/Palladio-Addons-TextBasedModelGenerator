@@ -14,11 +14,6 @@ import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragme
 import com.google.inject.Injector;
 
 public class ServiceLoaderMultiModuleGeneratorFragmentCollector implements MultiModelGeneratorFragmentCollector {
-    static final String EXTENSION_POINT_FQN = "org.palladiosimulator.textual.commons.generator.fragment";
-    static final String EXTENSION_EXTENSION_ATTRIBUTE = "generator";
-    static final String EXTENSION_CLASS_ATTRIBUTE = "class";
-    static final String EXTENSION_LANGUAGE_ATTRIBUTE = "language";
-
     private final String languageName;
     private final Injector injector;
 

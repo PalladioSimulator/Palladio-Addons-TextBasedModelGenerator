@@ -8,8 +8,8 @@ import javax.inject.Named;
 import org.eclipse.xtext.Constants;
 import org.palladiosimulator.commons.eclipseutils.ExtensionHelper;
 import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment;
-import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragmentProvider;
 import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragmentCollector;
+import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragmentProvider;
 
 import com.google.inject.Injector;
 
@@ -33,12 +33,10 @@ public class ExtensionPointMultiModuleGeneratorFragmentCollector implements Mult
     public Iterable<MultiModelGeneratorFragment> getGeneratorFragments() {
         return ExtensionHelper
             .getExecutableExtensions(EXTENSION_POINT_FQN, EXTENSION_EXTENSION_ATTRIBUTE, EXTENSION_CLASS_ATTRIBUTE,
-                    EXTENSION_LANGUAGE_ATTRIBUTE, languageName)
+                    EXTENSION_LANGUAGE_ATTRIBUTE, languageName, MultiModelGeneratorFragmentProvider.class)
             .stream()
-            .filter(MultiModelGeneratorFragmentProvider.class::isInstance)
-            .map(prov -> ((MultiModelGeneratorFragmentProvider) prov).getGeneratorFragment(injector))
+            .map(prov -> prov.getGeneratorFragment(injector))
             .collect(Collectors.toList());
     }
-
 
 }

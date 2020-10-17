@@ -18,6 +18,8 @@ import org.palladiosimulator.textual.commons.generator.registry.RegisteredMappin
 import org.palladiosimulator.textual.commons.generator.registry.RootElementFilter
 import javax.inject.Named
 import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment
+import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
 
 /**
  * Generates code from your model files on save.
@@ -43,7 +45,7 @@ class ExtensibleMultiModelGenerator extends AbstractMultiSourceGenerator {
         var allMappings = mappingProvider.retrieveMappings(resources)
         val outputResources = new ResourceSetImpl();
         registry.withContext(allMappings) [
-            val createdResources = new ArrayList<Resource>();
+            val createdResources = new ArrayList<Pair<String, Resource>>();
             for(resource : resources.resources) {
                 val fragments = resource.allContents.filter[elementFilter.translatesToRootElement(it)]
                 val sourceFileName = resource.sourceFileName
@@ -53,11 +55,15 @@ class ExtensibleMultiModelGenerator extends AbstractMultiSourceGenerator {
                     new MappingInformation(mapped, filename)
                 ].toList)
                 createdResources.addAll(mappedFragments.map [
-                    createResource(outputResources, it.mappedValue, it.fileName, fsa, context)
+                    it.fileName -> createResource(outputResources, it.mappedValue, it.fileName, fsa, context)
                 ].toList)
             }
             
-            createdResources.forEach[it.save({})]
+            createdResources.forEach [ mapping |
+                val output = new ByteArrayOutputStream()
+                mapping.value.save(output, {})
+                fsa.generateFile(mapping.key, new ByteArrayInputStream(output.toByteArray))
+            ]
         ]
     }
     
