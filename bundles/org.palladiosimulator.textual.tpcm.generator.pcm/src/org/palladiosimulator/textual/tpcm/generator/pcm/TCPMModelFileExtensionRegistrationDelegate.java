@@ -3,7 +3,6 @@ package org.palladiosimulator.textual.tpcm.generator.pcm;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EClass;
-import org.palladiosimulator.pcm.usagemodel.UsagemodelPackage;
 import org.palladiosimulator.textual.commons.generator.ModelFileExtensionRegistrationDelegate;
 import org.palladiosimulator.textual.commons.generator.ModelFileExtensionRegistrationFacade;
 import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
@@ -19,7 +18,8 @@ public class TCPMModelFileExtensionRegistrationDelegate implements ModelFileExte
     Map<EClass, String> collectFileExtensions() {
         return Map.of(LanguagePackage.eINSTANCE.getRepository(), "repository",
                 LanguagePackage.eINSTANCE.getResourceTypeRepository(), "resourcerepository",
-                LanguagePackage.eINSTANCE.getSystem(), "system", UsagemodelPackage.eINSTANCE.getUsageModel(), "usage",
+                LanguagePackage.eINSTANCE.getSystem(), "system", 
+                LanguagePackage.eINSTANCE.getUsage(), "usagemodel",
                 LanguagePackage.eINSTANCE.getAllocation(), "allocation",
                 LanguagePackage.eINSTANCE.getResourceEnvironment(), "resourceenvironment");
     }

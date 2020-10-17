@@ -4,6 +4,7 @@
 package org.palladiosimulator.textual.commons.generator;
 
 import org.eclipse.xtext.builder.IXtextBuilderParticipant;
+import org.eclipse.xtext.generator.IOutputConfigurationProvider;
 import org.eclipse.xtext.service.AbstractGenericModule;
 import org.eclipse.xtext.service.SingletonBinding;
 import org.palladiosimulator.textual.commons.generator.impl.CustomBuilderParticipant;
@@ -63,6 +64,10 @@ public class CommonMultiModelGeneratorModule extends AbstractGenericModule {
 
     public Class<? extends IXtextBuilderParticipant> bindIXtextBuilderParticipant() {
         return CustomBuilderParticipant.class;
+    }
+    
+    public Class<? extends IOutputConfigurationProvider> bindIOutputConfigurationProvider() {
+        return ModelGeneratorOutputConfigurationProvider.class;
     }
 
     public void configureRootElementFilter(Binder binder) {

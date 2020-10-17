@@ -4,8 +4,10 @@
 package org.palladiosimulator.textual.commons.generator.impl
 
 import com.google.inject.Inject
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.ArrayList
-import org.eclipse.emf.common.util.URI
+import javax.inject.Named
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -13,13 +15,10 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.palladiosimulator.textual.commons.generator.GenerationFileNameProvider
+import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorTransformationRegistry
 import org.palladiosimulator.textual.commons.generator.registry.RegisteredMappingProvider
 import org.palladiosimulator.textual.commons.generator.registry.RootElementFilter
-import javax.inject.Named
-import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment
-import java.io.ByteArrayOutputStream
-import java.io.ByteArrayInputStream
 
 /**
  * Generates code from your model files on save.
