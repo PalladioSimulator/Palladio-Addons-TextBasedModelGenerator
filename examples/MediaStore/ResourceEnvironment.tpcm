@@ -1,0 +1,32 @@
+import "std_definitions.tpcm"
+
+resourceenvironment Environment {
+	container ApplicationServer {
+		processing CPU CPUResource (
+			schedulingPolicy: ProcessorSharing
+			processingRate: «1000*1000*1000»
+		)
+		
+		processing HDD HDDResource (
+			schedulingPolicy: FirstComeFirstServe
+			processingRate: «50*1000*1000»
+		)
+	}
+	
+	container DatabaseServer {
+		processing CPU CPUResource (
+			schedulingPolicy: ProcessorSharing
+			processingRate: «1000* 1000*1000»
+		)
+		
+		processing HDD HDDResource (
+			schedulingPolicy: FirstComeFirstServe
+			processingRate: «600*1000*1000»
+		)
+	}
+	
+	link LAN Ethernet (
+		latency: «Norm(0.07, 0.03)»
+		throughput: «6.25 * 1000 * 1000»
+	) ApplicationServer, DatabaseServer
+}

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Extensible Generator Framework
+Bundle-SymbolicName: org.palladiosimulator.textual.commons.generator
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.textual.commons.generator
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.xtext;bundle-version="2.22.0",
+ org.eclipse.xtext.builder;bundle-version="2.22.0"
+Export-Package: org.palladiosimulator.textual.commons.generator,
+ org.palladiosimulator.textual.commons.generator.registry,
+ org.palladiosimulator.textual.commons.generator.rules
+Import-Package: org.eclipse.core.runtime

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.palladiosimulator.textual.commons.generator.fragment">
+      <generator
+            class="org.palladiosimulator.textual.tpcm.generator.pcm.PCMGeneratorFragmentProvider"
+            language="org.palladiosimulator.textual.tpcm.TPCM">
+      </generator>
+   </extension>
+	
+</plugin>

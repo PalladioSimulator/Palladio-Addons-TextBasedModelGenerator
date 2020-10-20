@@ -35,5 +35,5 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 	public Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
 		return TPCMResourceDescriptionStrategy.class;
 	}
-	
+
 }

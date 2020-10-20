@@ -4,11 +4,13 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">
 <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.stoex.sdk.feature.group" version="tbd"/>
+<unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
 <repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/releases/latest/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="nightly" refresh="true">
 <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.stoex.sdk.feature.group" version="tbd"/>
+<unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
 <repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">
@@ -30,6 +32,14 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="nightly" refresh="true">
 <unit id="io.vavr.vavr.feature.feature.group" version="0.10.3"/>
 <repository location="https://updatesite.mdsd.tools/thirdparty-library/nightly/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="release" refresh="true">
+<unit id="tools.mdsd.library.standalone.initialization.core.feature.feature.group" version="tbd"/>
+<repository location="https://updatesite.mdsd.tools/library-standaloneinitialization/releases/latest/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="nightly" refresh="true">
+<unit id="tools.mdsd.library.standalone.initialization.core.feature.feature.group" version="tbd"/>
+<repository location="https://updatesite.mdsd.tools/library-standaloneinitialization/nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="release" refresh="true">
 <unit id="tools.mdsd.ecoreworkflow.mwe2lib.xtext" version="0.1.0"/>

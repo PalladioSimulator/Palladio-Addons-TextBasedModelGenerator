@@ -1,4 +1,5 @@
 src-gen/
+model-gen/
 target/
 xtend-gen/
 bin/
@@ -11,6 +12,8 @@ generated/
 *.polyglot.feature.xml
 
 pom.tycho
+
+*.xml_gen
 
 # Compiled class file
 *.class
