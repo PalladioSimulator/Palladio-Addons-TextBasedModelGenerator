@@ -41,6 +41,10 @@
 <unit id="tools.mdsd.library.standalone.initialization.core.feature.feature.group" version="tbd"/>
 <repository location="https://updatesite.mdsd.tools/library-standaloneinitialization/nightly/"/>
 </location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="tools.mdsd.license.epl2.feature.group" version="1.0.0"/>
+<repository location="https://updatesite.mdsd.tools/build-licensefeature/releases/1.0.0/"/>
+</location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="release" refresh="true">
 <unit id="tools.mdsd.ecoreworkflow.mwe2lib.xtext" version="0.1.0"/>
 <repository location="http://updatesite.mdsd.tools/ecore-workflow/releases/latest"/>
