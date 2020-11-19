@@ -1,4 +1,7 @@
-import "std_definitions.tpcm" //import definitions from separate files by providing a URI or its the relative path
+import std::definitions //Import default models from provided plugins. The namespace is mapped to a pathmap uri. The import is equivalent to the next line. 
+import "pathmap://TPCM_RESOURCES_STD/definitions.tpcm"//import definitions from separate files by providing a URI or its the relative path
+// If imported using a absolute or relative uri the file extension needs to be specified.
+
 // imports are not transitively imported
 // imported objects can be referred to by their fully qualified name (Namespace::ObjectName), e. g. PrimitiveTypes::Integer
 

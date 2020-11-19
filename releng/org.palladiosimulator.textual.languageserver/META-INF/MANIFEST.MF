@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Textual Palladio Language Server
+Bundle-SymbolicName: org.palladiosimulator.textual.languageserver
+Bundle-Version: 4.3.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.textual.languageserver
+Require-Bundle: org.palladiosimulator.textual.tpcm.ide;bundle-version="4.3.0"
