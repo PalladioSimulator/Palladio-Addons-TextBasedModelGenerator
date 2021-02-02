@@ -22,8 +22,8 @@
 <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/2020-06/202006171000"/>
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.22.0.v20200602-1533"/>
+<repository location="http://download.eclipse.org/releases/2020-12/202012161000"/>
+<unit id="org.eclipse.xtext.sdk.feature.group" version="2.24.0.v20201130-1016"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="release" refresh="true">
 <unit id="io.vavr.vavr.feature.feature.group" version="0.10.3"/>
@@ -57,18 +57,18 @@
 <unit id="com.google.gson" version="2.8.2.v20180104-1110"/>
 <unit id="org.antlr.runtime" version="3.2.0.v201101311130"/>
 <unit id="org.junit" version="4.12.0.v201504281640"/>
-<unit id="org.junit.jupiter.api" version="5.6.0.v20200203-2009"/>
-<unit id="org.junit.jupiter.engine" version="5.6.0.v20200203-2009"/>
-<unit id="org.junit.platform.commons" version="1.6.0.v20200203-2009"/>
-<unit id="org.junit.platform.engine" version="1.6.0.v20200203-2009"/>
-<unit id="org.junit.platform.launcher" version="1.6.0.v20200203-2009"/>
-<unit id="org.junit.platform.runner" version="1.6.0.v20200203-2009"/>
+<unit id="org.junit.jupiter.api" version="5.7.0.v20201026-1537"/>
+<unit id="org.junit.jupiter.engine" version="5.7.0.v20201026-1537"/>
+<unit id="org.junit.platform.commons" version="1.7.0.v20201026-1537"/>
+<unit id="org.junit.platform.engine" version="1.7.0.v20201026-1537"/>
+<unit id="org.junit.platform.launcher" version="1.7.0.v20201026-1537"/>
+<unit id="org.junit.platform.runner" version="1.7.0.v20201026-1537"/>
 <unit id="org.opentest4j" version="1.2.0.v20190826-0900"/>
-<unit id="org.objectweb.asm" version="7.2.0.v20191010-1910"/>
-<unit id="org.objectweb.asm.tree" version="7.2.0.v20191010-1910"/>
+<unit id="org.objectweb.asm" version="9.0.0.v20201001-1419"/>
+<unit id="org.objectweb.asm.tree" version="9.0.0.v20201001-1419"/>
 <unit id="io.github.classgraph" version="4.8.35.v20190528-1517"/>
 <unit id="org.apache.commons.lang" version="2.6.0.v201404270220"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/2020-06"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/2020-12"/>
 </location>
 </locations>
 </target>
