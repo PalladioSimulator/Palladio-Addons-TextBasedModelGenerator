@@ -3,14 +3,14 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.generator.pcm
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.generator.pcm
 Bundle-Vendor: My Company
-Bundle-Version: 4.3.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.generator.pcm;singleton:=true
 Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  org.palladiosimulator.pcm;bundle-version="4.3.0",
- org.palladiosimulator.textual.commons.generator;bundle-version="1.0.0",
- org.palladiosimulator.textual.commons.generator.eclipse;bundle-version="1.0.0";resolution:=optional,
- org.palladiosimulator.textual.commons.generator.standalone;bundle-version="1.0.0";resolution:=optional
+ org.palladiosimulator.textual.commons.generator;bundle-version="5.0.0",
+ org.palladiosimulator.textual.commons.generator.eclipse;bundle-version="5.0.0";resolution:=optional,
+ org.palladiosimulator.textual.commons.generator.standalone;bundle-version="5.0.0";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.textual.tpcm.generator.pcm
