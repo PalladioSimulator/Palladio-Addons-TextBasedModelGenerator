@@ -17,7 +17,8 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.builder,
  org.palladiosimulator.commons.stoex.ui;bundle-version="4.2.0",
  org.palladiosimulator.textual.commons.generator.eclipse;bundle-version="5.0.0",
- org.palladiosimulator.textual.tpcm.ide
+ org.palladiosimulator.textual.tpcm.ide,
+ org.palladiosimulator.pcm.stoex.ui;bundle-version="5.0.0"
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.textual.tpcm.ui.quickfix,

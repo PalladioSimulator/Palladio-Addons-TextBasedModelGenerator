@@ -10,6 +10,8 @@ generated/
 *.polyglot..META-INF_MANIFEST.MF
 *.polyglot.category.xml
 *.polyglot.feature.xml
+*.polyglot.META-INF
+*.polyglot.*.target
 
 pom.tycho
 
@@ -38,3 +40,4 @@ pom.tycho
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+

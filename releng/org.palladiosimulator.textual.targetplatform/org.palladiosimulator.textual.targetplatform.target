@@ -13,12 +13,14 @@
 <unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
 <repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
 </location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release" refresh="true">
-<unit id="org.palladiosimulator.pcm.feature.feature.group" version="4.1.0.201709282114"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release">
+<unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
+<unit id="org.palladiosimulator.pcm.stoex.ui.feature.feature.group" version="0.0.0"/>
 <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/releases/latest/"/>
 </location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="nightly" refresh="true">
-<unit id="org.palladiosimulator.pcm.feature.feature.group" version="4.1.0.201709282114"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="nightly">
+<unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
+<unit id="org.palladiosimulator.pcm.stoex.ui.feature.feature.group" version="0.0.0"/>
 <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">

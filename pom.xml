@@ -14,8 +14,8 @@
 	<packaging>pom</packaging>
 	
 	<properties>
-		<xtextVersion>2.22.0</xtextVersion>
-		<mwe2Version>2.11.3</mwe2Version>
+		<xtextVersion>2.24.0</xtextVersion>
+		<mwe2Version>2.12.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/org.palladiosimulator.textual.targetplatform.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
 	</properties>
@@ -31,18 +31,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.xtend</groupId>
-					<artifactId>xtend-maven-plugin</artifactId>
-					<version>2.22.0</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 
 	<profiles>
 		<profile>
