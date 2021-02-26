@@ -114,7 +114,6 @@ ComponentContent returns Content:
 Role:
      InitializableRole | (('provides'{DomainInterfaceProvidedRole}
         |'requires'{InterfaceRequiredRole}
-        |'internal'{InternalInterfaceProvidedRole}
      ) name=ID type=[Interface|FQN])
 ;
 
