@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Standalone Bindings for Extensible Generator Framework
 Bundle-SymbolicName: org.palladiosimulator.textual.commons.generator.standalone
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.1.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.textual.commons.generator.standalone
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.xtext;bundle-version="2.22.0";visibility:=reexport,
- org.palladiosimulator.textual.commons.generator;bundle-version="5.0.0";visibility:=reexport
+ org.palladiosimulator.textual.commons.generator;bundle-version="5.1.0";visibility:=reexport
 Export-Package: org.palladiosimulator.textual.commons.generator.standalone

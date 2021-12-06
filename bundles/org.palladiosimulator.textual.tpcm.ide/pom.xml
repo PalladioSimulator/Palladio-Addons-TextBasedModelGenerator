@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.palladiosimulator.textual</groupId>
         <artifactId>bundles</artifactId>
-        <version>5.0.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
         <relativePath>..\.polyglot.pom.tycho</relativePath>
       </parent>
 	<artifactId>org.palladiosimulator.textual.tpcm.ide</artifactId>

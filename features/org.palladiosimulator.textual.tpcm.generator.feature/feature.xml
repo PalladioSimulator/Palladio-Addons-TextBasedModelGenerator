@@ -2,7 +2,7 @@
 <feature
       id="org.palladiosimulator.textual.tpcm.generator.feature"
       label="TPCM PCM Generator Feature"
-      version="5.0.0.qualifier"
+      version="5.1.0.qualifier"
       provider-name="PalladioSimulator.org">
 
    <description url="http://www.example.com/description">
@@ -18,7 +18,7 @@
    </license>
 
    <requires>
-      <import feature="org.palladiosimulator.textual.tpcm.feature" version="5.0.0" match="compatible"/>
+      <import feature="org.palladiosimulator.textual.tpcm.feature" version="5.1.0" match="compatible"/>
    </requires>
 
    <plugin
