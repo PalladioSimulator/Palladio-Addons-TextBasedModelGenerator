@@ -7,6 +7,8 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.palladiosimulator.commons.stoex.services.StoexContextProvider;
+import org.palladiosimulator.commons.stoex.services.StoexContextProviderImpl;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameConverter;
 import org.palladiosimulator.textual.tpcm.naming.TPCMQualifiedNameProvider;
 import org.palladiosimulator.textual.tpcm.resource.TPCMResourceDescriptionStrategy;
@@ -36,4 +38,8 @@ public class TPCMRuntimeModule extends AbstractTPCMRuntimeModule {
 		return TPCMResourceDescriptionStrategy.class;
 	}
 
+	public Class<? extends StoexContextProvider> bindStoexContextProvider() {
+		return StoexContextProviderImpl.class;
+		
+	}
 }
