@@ -1,0 +1,16 @@
+name: Build Pipeline
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Palladio-Addons-TextBasedModelGenerator:
+    uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@v3
+    with:
+      use-display-output: true
+      deploy-updatesite: 'releng/org.palladiosimulator.textual.updatesite/target/repository'
+    secrets:
+      SERVER_SSH_KEY: ${{ secrets.DEPLOYMENT_SERVER_SSH_KEY }}
+      REMOTE_HOST: ${{ secrets.DEPLOYMENT_REMOTE_HOST }}
+      REMOTE_PORT: ${{ secrets.DEPLOYMENT_REMOTE_PORT }}
+      REMOTE_USER: ${{ secrets.DEPLOYMENT_REMOTE_USER }}
+      REMOTE_TARGET: ${{ secrets.DEPLOYMENT_REMOTE_TARGET }}
