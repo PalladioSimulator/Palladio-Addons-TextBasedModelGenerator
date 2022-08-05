@@ -16,6 +16,15 @@
 	 <feature id="org.palladiosimulator.textual.tpcm.feature.source">
 		<category name="org.palladiosimulator.addons.source.category"/>
 	 </feature>
+	
+	<feature id="org.palladiosimulator.textual.tpcm.generator.feature">
+		<category name="org.palladiosimulator.addons.category"/>
+	 </feature>
+ 
+	 <feature id="org.palladiosimulator.textual.tpcm.generator.feature.source">
+		<category name="org.palladiosimulator.addons.source.category"/>
+	 </feature>
+	
 
 
 	<!-- category definitions -->
