@@ -4,7 +4,7 @@ Bundle-Name: Extensible Generator Framework
 Bundle-SymbolicName: org.palladiosimulator.textual.commons.generator
 Bundle-Version: 5.1.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.textual.commons.generator
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.xtext;bundle-version="2.22.0",
  org.eclipse.xtext.builder;bundle-version="2.22.0"
 Export-Package: org.palladiosimulator.textual.commons.generator,

@@ -17,7 +17,7 @@ Require-Bundle: com.palladiosimulator.textual.repository,
  org.eclipse.xtext.builder,org.eclipse.xtend.lib;bundle-version="2.14.0";resolution:=optional,org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
  org.palladiosimulator.pcm;bundle-version="4.2.0"
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.palladiosimulator.textual.repository.ui.quickfix,
  com.palladiosimulator.textual.repository.ui.contentassist,
  com.palladiosimulator.textual.repository.ui.internal
