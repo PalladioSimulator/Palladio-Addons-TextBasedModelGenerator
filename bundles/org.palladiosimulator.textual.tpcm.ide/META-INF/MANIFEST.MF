@@ -3,14 +3,14 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.ide
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.ide
 Bundle-Vendor: Palladiosimulator.org
-Bundle-Version: 5.1.0.qualifier
+Bundle-Version: 5.2.0
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.ide; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
- org.palladiosimulator.textual.commons.generator.standalone;bundle-version="5.1.0",
+ org.palladiosimulator.textual.commons.generator.standalone;bundle-version="5.2.0",
  org.palladiosimulator.pcm.stoex.ide;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.palladiosimulator.textual.tpcm.ide.contentassist.antlr.internal,

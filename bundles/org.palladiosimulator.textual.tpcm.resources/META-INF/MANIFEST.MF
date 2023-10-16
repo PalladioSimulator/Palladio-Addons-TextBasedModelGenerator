@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TPCM Common Resources
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.resources;singleton:=true
-Bundle-Version: 5.1.0.qualifier
+Bundle-Version: 5.2.0
 Automatic-Module-Name: org.palladiosimulator.textual.tpcm.resources
 Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.22.0"
 Bundle-Vendor: Palladiosimulator.org

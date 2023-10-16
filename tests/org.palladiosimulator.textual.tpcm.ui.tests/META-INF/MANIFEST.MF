@@ -3,7 +3,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.ui.tests
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.ui.tests
 Bundle-Vendor: My Company
-Bundle-Version: 5.1.0.qualifier
+Bundle-Version: 5.2.0
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.ui.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.palladiosimulator.textual.tpcm.ui,

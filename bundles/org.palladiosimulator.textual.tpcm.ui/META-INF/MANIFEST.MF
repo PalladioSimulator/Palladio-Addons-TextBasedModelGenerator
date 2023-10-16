@@ -3,7 +3,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm.ui
 Bundle-Vendor: Palladiosimulator.org
-Bundle-Version: 5.1.0.qualifier
+Bundle-Version: 5.2.0
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.palladiosimulator.textual.tpcm,
@@ -16,7 +16,7 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.eclipse.compare,
  org.eclipse.xtext.builder,
  org.palladiosimulator.commons.stoex.ui;bundle-version="4.2.0",
- org.palladiosimulator.textual.commons.generator.eclipse;bundle-version="5.1.0",
+ org.palladiosimulator.textual.commons.generator.eclipse;bundle-version="5.2.0",
  org.palladiosimulator.textual.tpcm.ide,
  org.palladiosimulator.pcm.stoex.ui;bundle-version="5.0.0"
 Import-Package: org.apache.log4j
