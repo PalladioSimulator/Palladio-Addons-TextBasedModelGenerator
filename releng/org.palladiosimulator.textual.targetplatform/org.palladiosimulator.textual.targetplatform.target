@@ -11,7 +11,7 @@
 <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.stoex.sdk.feature.group" version="tbd"/>
 <unit id="org.palladiosimulator.commons.feature.feature.group" version="tbd"/>
-<repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
+<repository location="http://updatesite.palladio-simulator.com/palladio-core-commons/branches/testingDay5.2.0/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="release">
 <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
@@ -21,10 +21,10 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" filter="nightly">
 <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
 <unit id="org.palladiosimulator.pcm.stoex.ui.feature.feature.group" version="0.0.0"/>
-<repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/"/>
+<repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/branches/testingDay5.2.0/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<repository location="https://download.eclipse.org/releases/2022-12/202212071000/"/>
+<repository location="https://download.eclipse.org/releases/2023-03/202303151000/"/>
 <unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit" filter="release" refresh="true">
@@ -70,7 +70,7 @@
 <unit id="org.objectweb.asm.tree" version="0.0.0"/>
 <unit id="io.github.classgraph" version="0.0.0"/>
 <unit id="org.apache.commons.lang" version="0.0.0"/>
-<repository location="https://download.eclipse.org/tools/orbit/downloads/2022-12/"/>
+<repository location="https://download.eclipse.org/tools/orbit/downloads/2023-03/"/>
 </location>
 </locations>
 </target>
