@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: com.palladiosimulator.textual.repository.tests
 Bundle-Vendor: My Company
-Bundle-Version: 5.1.0.qualifier
+Bundle-Version: 5.2.0.qualifier
 Bundle-SymbolicName: com.palladiosimulator.textual.repository.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.palladiosimulator.textual.repository,
