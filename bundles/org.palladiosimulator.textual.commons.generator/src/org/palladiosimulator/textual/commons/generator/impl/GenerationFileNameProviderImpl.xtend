@@ -1,6 +1,6 @@
 package org.palladiosimulator.textual.commons.generator.impl
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.palladiosimulator.textual.commons.generator.GenerationFileNameProvider

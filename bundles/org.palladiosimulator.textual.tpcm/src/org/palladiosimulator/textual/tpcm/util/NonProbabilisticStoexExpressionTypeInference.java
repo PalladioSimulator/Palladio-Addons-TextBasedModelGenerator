@@ -2,7 +2,7 @@ package org.palladiosimulator.textual.tpcm.util;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.palladiosimulator.textual.tpcm.language.PrimitiveTypeEnum;
 

@@ -3,8 +3,8 @@ package org.palladiosimulator.textual.commons.generator.standalone;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import org.eclipse.xtext.Constants;
 import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment;

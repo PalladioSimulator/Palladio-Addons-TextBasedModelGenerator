@@ -2,8 +2,8 @@ package org.palladiosimulator.textual.commons.generator.eclipse;
 
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import org.eclipse.xtext.Constants;
 import org.palladiosimulator.commons.eclipseutils.ExtensionHelper;

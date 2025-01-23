@@ -3,7 +3,7 @@ package org.palladiosimulator.textual.commons.generator.registry.impl;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.palladiosimulator.textual.commons.generator.MultiModelGeneratorFragment;

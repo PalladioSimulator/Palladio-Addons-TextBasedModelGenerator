@@ -3,7 +3,7 @@ package org.palladiosimulator.textual.tpcm.scoping;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;

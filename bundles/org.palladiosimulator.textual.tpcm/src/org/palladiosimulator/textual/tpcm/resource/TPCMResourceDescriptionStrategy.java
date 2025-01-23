@@ -2,7 +2,7 @@ package org.palladiosimulator.textual.tpcm.resource;
 
 import java.util.HashMap;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.naming.QualifiedName;
