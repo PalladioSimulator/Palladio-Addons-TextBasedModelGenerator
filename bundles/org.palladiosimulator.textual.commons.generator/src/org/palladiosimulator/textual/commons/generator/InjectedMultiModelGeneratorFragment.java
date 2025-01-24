@@ -1,6 +1,6 @@
 package org.palladiosimulator.textual.commons.generator;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorRulesRegistrationDelegate;
 import org.palladiosimulator.textual.commons.generator.registry.RegisteredMappingProvider;

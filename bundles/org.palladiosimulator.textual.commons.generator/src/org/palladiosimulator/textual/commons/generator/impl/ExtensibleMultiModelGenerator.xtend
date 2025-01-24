@@ -7,7 +7,7 @@ import com.google.inject.Inject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.ArrayList
-import javax.inject.Named
+import com.google.inject.name.Named
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet

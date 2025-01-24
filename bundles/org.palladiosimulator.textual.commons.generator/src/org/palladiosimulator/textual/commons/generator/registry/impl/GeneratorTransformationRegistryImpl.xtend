@@ -8,7 +8,7 @@ import java.util.Map
 import java.util.Objects
 import java.util.function.Consumer
 import java.util.stream.Collectors
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorRuleRegistrationFacade
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorRulesRegistrationDelegate
 import org.palladiosimulator.textual.commons.generator.registry.GeneratorTransformationRegistry

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.util.Collections;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;

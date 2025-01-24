@@ -10,10 +10,11 @@
 	<artifactId>org.palladiosimulator.textual.tpcm.ide</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+
 	<dependencies>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>ch.qos.reload4j</groupId>
+			<artifactId>reload4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.lsp4j</groupId>
@@ -22,14 +23,6 @@
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-commons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-tree</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -223,16 +216,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-	       <profile>
-            <id>jdk9-or-newer</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <properties>
-                <moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
-            </properties>
-        </profile>
-    </profiles>
-
 </project>
