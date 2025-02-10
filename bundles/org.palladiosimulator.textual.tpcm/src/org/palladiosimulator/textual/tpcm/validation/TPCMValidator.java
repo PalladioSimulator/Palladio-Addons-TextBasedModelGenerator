@@ -169,7 +169,7 @@ public class TPCMValidator extends AbstractTPCMValidator {
                     warning("Could not determine type of expression", specification,
                             LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
                 } else {
-                    if (!typeComparison.isAssignableFrom(primitive.get(), currentType.get())) {
+                    if (!typeComparison.isAssignableFrom((PrimitiveTypeEnum)primitive.get(), currentType.get())) {
                         error(String.format("An expression of type %s expected. Found %s", primitive.get()
                             .toString(),
                                 currentType.get()
