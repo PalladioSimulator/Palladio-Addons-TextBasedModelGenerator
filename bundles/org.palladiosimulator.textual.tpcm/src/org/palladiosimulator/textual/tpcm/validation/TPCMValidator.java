@@ -170,7 +170,7 @@ public class TPCMValidator extends AbstractTPCMValidator {
                             LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
                 } else {
                     if (!typeComparison.isAssignableFrom((PrimitiveTypeEnum)primitive.get(), currentType.get())) {
-                        error(String.format("An expression of type %s expected. Found %s", primitive.get()
+                        error(String.format("An expression of type %s expected. Found %s", (PrimitiveTypeEnum)primitive.get()
                             .toString(),
                                 currentType.get()
                                     .toString()),
