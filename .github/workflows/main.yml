@@ -6,6 +6,7 @@ jobs:
   Palladio-Addons-TextBasedModelGenerator:
     uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@v3.4
     with:
+      runner-label: ubuntu-latest
       use-display-output: true
       no-caching: true
       deploy-updatesite: 'releng/org.palladiosimulator.textual.updatesite/target/repository'
