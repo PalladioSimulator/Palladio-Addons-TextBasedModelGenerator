@@ -28,6 +28,7 @@ import org.palladiosimulator.textual.tpcm.language.InterfaceRequiredRole;
 import org.palladiosimulator.textual.tpcm.language.LanguagePackage;
 import org.palladiosimulator.textual.tpcm.language.Parameter;
 import org.palladiosimulator.textual.tpcm.language.ParameterSpecification;
+import org.palladiosimulator.textual.tpcm.language.PrimitiveTypeEnum;
 import org.palladiosimulator.textual.tpcm.language.RelativeReference;
 import org.palladiosimulator.textual.tpcm.language.SEFFCallAction;
 import org.palladiosimulator.textual.tpcm.language.Signature;
@@ -170,7 +171,7 @@ public class TPCMValidator extends AbstractTPCMValidator {
                             LanguagePackage.Literals.PARAMETER_SPECIFICATION__SPECIFICATION);
                 } else {
                     if (!typeComparison.isAssignableFrom((PrimitiveTypeEnum)primitive.get(), currentType.get())) {
-                        error(String.format("An expression of type %s expected. Found %s", (PrimitiveTypeEnum)primitive.get()
+                        error(String.format("An expression of type %s expected. Found %s", ((PrimitiveTypeEnum)primitive.get())
                             .toString(),
                                 currentType.get()
                                     .toString()),
