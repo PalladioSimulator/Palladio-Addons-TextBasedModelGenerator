@@ -6,7 +6,7 @@ import org.palladiosimulator.textual.tpcm.language.PrimitiveTypeEnum;
 import com.google.inject.ImplementedBy;
 
 import de.uka.ipd.sdq.stoex.AbstractNamedReference;
-import io.vavr.control.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 @ImplementedBy(NamedReferenceDataTypeResolver.class)
 public interface INamedReferenceDataTypeResolver {
