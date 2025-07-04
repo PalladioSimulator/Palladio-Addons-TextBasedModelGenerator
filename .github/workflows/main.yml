@@ -4,7 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   Palladio-Addons-TextBasedModelGenerator:
-    uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@v3.4
+    uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@master
     with:
       runner-label: ubuntu-latest
       use-display-output: true
