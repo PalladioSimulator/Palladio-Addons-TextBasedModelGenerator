@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.palladiosimulator</groupId>
 		<artifactId>eclipse-parent-updatesite</artifactId>
-		<version>0.8.10</version>
+		<version>0.10.0</version>
 	</parent>
 	<groupId>org.palladiosimulator.textual</groupId>
 	<artifactId>parent</artifactId>	
@@ -17,7 +17,7 @@
 		<xtextVersion>2.32.0</xtextVersion>
 		<mwe2Version>2.15.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.palladiosimulator.maven.tychotprefresh.tplocation.2>${project.basedir}/releng/org.palladiosimulator.textual.targetplatform/org.palladiosimulator.textual.targetplatform.target</org.palladiosimulator.maven.tychotprefresh.tplocation.2>
+		<targetPlatform.relativePath>releng/org.palladiosimulator.textual.targetplatform/tp.target</targetPlatform.relativePath>
 	</properties>
 
 	<dependencyManagement>
