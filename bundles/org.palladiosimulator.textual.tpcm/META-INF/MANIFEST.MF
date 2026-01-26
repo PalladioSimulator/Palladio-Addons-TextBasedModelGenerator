@@ -3,7 +3,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm
 Bundle-ManifestVersion: 2
 Bundle-Name: org.palladiosimulator.textual.tpcm
 Bundle-Vendor: Palladiosimulator.org
-Bundle-Version: 5.2.0.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-SymbolicName: org.palladiosimulator.textual.tpcm; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -14,14 +14,14 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.emf.common,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
- org.palladiosimulator.commons.stoex;bundle-version="1.0.0";visibility:=reexport,
+ org.palladiosimulator.commons.stoex;visibility:=reexport,
  de.uka.ipd.sdq.stoex.analyser,
  org.eclipse.lsp4j.jsonrpc,
  tools.mdsd.ecoreworkflow.mwe2lib.xtext,
- org.palladiosimulator.pcm;bundle-version="4.2.0",
+ org.palladiosimulator.pcm,
  org.eclipse.e4.core.di;bundle-version="1.7.400",
  org.eclipse.xtext.builder;bundle-version="2.22.0",
- org.palladiosimulator.textual.commons.generator;bundle-version="5.2.0",
+ org.palladiosimulator.textual.commons.generator,
  org.eclipse.uml2.codegen.ecore;bundle-version="2.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.apache.log4j

@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XText Helper
 Bundle-SymbolicName: org.palladiosimulator.xtext.helper
-Bundle-Version: 5.2.0.qualifier
+Bundle-Version: 6.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
  org.eclipse.xtext;bundle-version="2.10.0",
- org.palladiosimulator.pcm;bundle-version="4.2.0",
+ org.palladiosimulator.pcm,
  org.eclipse.emf.mwe2.runtime
 Export-Package: org.palladiosimulator.xtext.helper
 
