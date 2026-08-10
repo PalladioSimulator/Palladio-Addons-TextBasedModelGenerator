@@ -47,9 +47,9 @@
         <setEntry value="io.vavr@default:default"/>
         <setEntry value="javaewah@default:default"/>
         <setEntry value="javax.activation@default:default"/>
-        <setEntry value="javax.annotation@default:default"/>
+        <setEntry value="jakarta.annotation-api@default:default"/>
         <setEntry value="javax.el@default:default"/>
-        <setEntry value="javax.inject@default:default"/>
+        <setEntry value="jakarta.inject.jakarta.inject-api@default:default"/>
         <setEntry value="javax.servlet.jsp@default:default"/>
         <setEntry value="javax.servlet@default:default"/>
         <setEntry value="javax.websocket@default:default"/>
