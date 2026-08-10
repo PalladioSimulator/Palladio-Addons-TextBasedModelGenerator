@@ -7,7 +7,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.commons.generator.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.xtext.testing;bundle-version="2.22.0",
  tools.mdsd.library.standalone.initialization;bundle-version="0.1.0",
- org.junit.jupiter.api,
+ junit-jupiter-api,
  org.palladiosimulator.textual.commons.generator,
  org.palladiosimulator.textual.commons.generator.standalone,
  org.palladiosimulator.textual.commons.generator.eclipse,
