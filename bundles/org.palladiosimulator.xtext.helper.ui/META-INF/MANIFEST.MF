@@ -6,7 +6,7 @@ Bundle-Version: 6.0.0.qualifier
 Bundle-Activator: org.palladiosimulator.xtext.helper.ui.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.google.inject,
+ com.google.inject;bundle-version="[7.0.0,8.0.0)",
  org.palladiosimulator.xtext.helper,
  com.google.guava,
  org.eclipse.xtext.xbase.lib,

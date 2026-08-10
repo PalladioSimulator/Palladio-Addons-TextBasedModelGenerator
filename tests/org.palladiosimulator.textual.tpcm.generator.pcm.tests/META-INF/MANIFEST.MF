@@ -8,7 +8,7 @@ Automatic-Module-Name: org.palladiosimulator.textual.tpcm.generator.pcm.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.palladiosimulator.textual.tpcm.tests,
  org.eclipse.xtext.testing;bundle-version="2.22.0",
- org.junit.jupiter.api,
+ junit-jupiter-api,
  org.eclipse.xtext.builder;bundle-version="2.22.0",
  org.palladiosimulator.textual.commons.generator.standalone,
  org.palladiosimulator.textual.commons.generator.eclipse,
