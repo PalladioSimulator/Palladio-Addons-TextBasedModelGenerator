@@ -4,7 +4,7 @@ Bundle-Name: Standalone Bindings for Extensible Generator Framework
 Bundle-SymbolicName: org.palladiosimulator.textual.commons.generator.standalone
 Bundle-Version: 6.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.textual.commons.generator.standalone
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.xtext;bundle-version="2.22.0";visibility:=reexport,
  org.palladiosimulator.textual.commons.generator;visibility:=reexport
 Export-Package: org.palladiosimulator.textual.commons.generator.standalone

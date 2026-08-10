@@ -12,5 +12,5 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.palladiosimulator.textual.commons.generator,
  org.palladiosimulator.textual.commons.generator.eclipse;resolution:=optional,
  org.palladiosimulator.textual.commons.generator.standalone;resolution:=optional
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.palladiosimulator.textual.tpcm.generator.pcm

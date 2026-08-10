@@ -15,5 +15,5 @@ Require-Bundle: org.palladiosimulator.textual.tpcm.ui,
  org.eclipse.xtext.ui.testing,
  org.eclipse.ui.workbench;resolution:=optional,
  org.eclipse.xtext.xbase.ui.testing
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.palladiosimulator.textual.tpcm.ui.tests;x-internal=true

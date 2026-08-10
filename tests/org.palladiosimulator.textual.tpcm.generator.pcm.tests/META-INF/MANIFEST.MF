@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.palladiosimulator.textual.tpcm.generator.pcm.tests
 Bundle-Version: 6.0.0.qualifier
 Fragment-Host: org.palladiosimulator.textual.tpcm.generator.pcm
 Automatic-Module-Name: org.palladiosimulator.textual.tpcm.generator.pcm.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.palladiosimulator.textual.tpcm.tests,
  org.eclipse.xtext.testing;bundle-version="2.22.0",
  junit-jupiter-api,
