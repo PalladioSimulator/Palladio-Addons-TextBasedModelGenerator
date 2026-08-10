@@ -12,6 +12,6 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  org.palladiosimulator.textual.commons.generator.standalone,
  org.palladiosimulator.pcm.stoex.ide
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.palladiosimulator.textual.tpcm.ide.contentassist.antlr.internal,
  org.palladiosimulator.textual.tpcm.ide.contentassist.antlr

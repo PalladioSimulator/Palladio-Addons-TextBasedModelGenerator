@@ -4,7 +4,7 @@ Bundle-Name: Tests of Extensible Generator Framework
 Bundle-SymbolicName: org.palladiosimulator.textual.commons.generator.tests
 Bundle-Version: 6.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.textual.commons.generator.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.xtext.testing;bundle-version="2.22.0",
  tools.mdsd.library.standalone.initialization;bundle-version="0.1.0",
  junit-jupiter-api,

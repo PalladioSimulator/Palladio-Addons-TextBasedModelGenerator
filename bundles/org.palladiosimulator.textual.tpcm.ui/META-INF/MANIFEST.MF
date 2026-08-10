@@ -20,7 +20,7 @@ Require-Bundle: org.palladiosimulator.textual.tpcm,
  org.palladiosimulator.textual.tpcm.ide,
  org.palladiosimulator.pcm.stoex.ui
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: org.palladiosimulator.textual.tpcm.ui.quickfix,
  org.palladiosimulator.textual.tpcm.ui.contentassist,
  org.palladiosimulator.textual.tpcm.ui.internal
