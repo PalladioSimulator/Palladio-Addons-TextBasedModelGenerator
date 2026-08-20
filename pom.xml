@@ -15,8 +15,6 @@
 	<packaging>pom</packaging>
 	
 	<properties>
-		<xtextVersion>2.32.0</xtextVersion>
-		<mwe2Version>2.15.0</mwe2Version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<targetPlatform.relativePath>releng/org.palladiosimulator.textual.targetplatform/tp.target</targetPlatform.relativePath>
 	</properties>
@@ -26,7 +24,7 @@
 			<dependency>
 				<groupId>org.eclipse.xtext</groupId>
 				<artifactId>xtext-dev-bom</artifactId>
-				<version>${xtextVersion}</version>
+				<version>${xtext.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

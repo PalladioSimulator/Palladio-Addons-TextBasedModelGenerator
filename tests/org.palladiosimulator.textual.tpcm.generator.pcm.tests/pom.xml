@@ -10,39 +10,4 @@
   <artifactId>org.palladiosimulator.textual.tpcm.generator.pcm.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
   <name>TPCM PCM Generator Tests</name>
-
-  
-  <build>
-    <!-- Configuration inspired by https://mukis.de/pages/simple-junit-tests-with-tycho-and-surefire/ -->
-    <testSourceDirectory>/</testSourceDirectory>
-    <testOutputDirectory>${project.build.outputDirectory}</testOutputDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
-        <executions>
-          <execution>
-            <id>test</id>
-            <phase>test</phase>
-            <configuration>
-              <includes>
-                <include>**/*Test.java</include>
-              </includes>
-            </configuration>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-              <groupId>org.junit.jupiter</groupId>
-              <artifactId>junit-jupiter-engine</artifactId>
-              <version>5.6.0</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-    </plugins>
-  </build>
 </project>
